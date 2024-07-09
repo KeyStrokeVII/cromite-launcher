@@ -20,7 +20,7 @@ This is a portable and lightweight fork of the Cromite Browser, optimized for 64
 
 1. Download the zip file from [here](https://github.com/KeyStrokeVII/cromite-launcher/releases)
 
-<a href="https://www.cromite.org">
+<a href="https://github.com/KeyStrokeVII/cromite-launcher">
   <img title="Cromite - take back your browser!" src="https://github.com/KeyStrokeVII/cromite-launcher/blob/master/tools/images/img-1.png" alt="Bromite" />
 </a>
 <br>
@@ -29,7 +29,7 @@ This is a portable and lightweight fork of the Cromite Browser, optimized for 64
 
 2. Unzip the file
 
-<a href="https://www.cromite.org">
+<a href="https://github.com/KeyStrokeVII/cromite-launcher">
   <img title="Cromite - take back your browser!" src="https://github.com/KeyStrokeVII/cromite-launcher/blob/master/tools/images/img-2.png" alt="Bromite" />
 </a>
 <br>
@@ -38,7 +38,7 @@ This is a portable and lightweight fork of the Cromite Browser, optimized for 64
 
 3. Double click on the "chrlauncher" application to download and launch the latest Cromite Browser
 
-<a href="https://www.cromite.org">
+<a href="https://github.com/KeyStrokeVII/cromite-launcher">
   <img title="Cromite - take back your browser!" src="https://github.com/KeyStrokeVII/cromite-launcher/blob/master/tools/images/img-3.png" alt="Bromite" />
 </a>
 <br>
