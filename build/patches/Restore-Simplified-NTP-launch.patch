@@ -6,24 +6,34 @@ This reverts commit 4d0e4483c5f77c66a8b6193e8a3bec5d0624d6ad.
 
 License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
 ---
- chrome/android/chrome_java_resources.gni      |  1 +
- chrome/android/chrome_java_sources.gni        |  1 +
- .../java/res/layout/new_tab_page_layout.xml   |  7 ++
- .../android/java/res/layout/ntp_shortcuts.xml | 65 +++++++++++++++++++
- .../feedback/ChromeFeedbackCollector.java     |  1 +
- .../feedback/SimplifiedNtpFeedbackSource.java | 38 +++++++++++
- .../identity_disc/IdentityDiscController.java |  5 +-
- .../NativePageNavigationDelegateImpl.java     |  4 +-
- .../chrome/browser/ntp/NewTabPageLayout.java  | 31 ++++++++-
- .../SuggestionsNavigationDelegate.java        | 17 +++++
- .../flags/android/chrome_feature_list.cc      |  1 +
- .../browser/flags/ChromeFeatureList.java      |  3 +-
- .../Restore-Simplified-NTP-launch.inc         | 12 ++++
- .../Restore-Simplified-NTP-launch.inc         |  5 ++
- .../Restore-Simplified-NTP-launch.inc         |  1 +
- 15 files changed, 186 insertions(+), 6 deletions(-)
+ chrome/android/chrome_java_resources.gni      |   1 +
+ chrome/android/chrome_java_sources.gni        |   2 +
+ .../java/res/layout/mv_tiles_layout.xml       |  13 +-
+ .../java/res/layout/new_tab_page_layout.xml   |   7 +
+ .../android/java/res/layout/ntp_shortcuts.xml |  65 ++++++
+ chrome/android/java/res/values/attrs.xml      |   4 +
+ chrome/android/java/res/values/dimens.xml     |   2 +
+ .../feedback/ChromeFeedbackCollector.java     |   1 +
+ .../feedback/SimplifiedNtpFeedbackSource.java |  38 ++++
+ .../identity_disc/IdentityDiscController.java |   5 +-
+ .../NativePageNavigationDelegateImpl.java     |   4 +-
+ .../chrome/browser/ntp/NewTabPageLayout.java  |  25 ++-
+ .../SuggestionsNavigationDelegate.java        |  17 ++
+ .../mostvisited/MostVisitedSitesBridge.java   |   2 +-
+ .../tile/MostVisitedTilesCoordinator.java     |  10 +-
+ .../tile/MostVisitedTilesGridLayout.java      | 194 ++++++++++++++++++
+ .../tile/MostVisitedTilesMediator.java        |   9 +-
+ .../engagement/important_sites_util.cc        |   2 +-
+ .../flags/android/chrome_feature_list.cc      |   1 +
+ .../browser/flags/ChromeFeatureList.java      |   5 +-
+ .../history/core/browser/top_sites_impl.h     |   2 +-
+ .../Restore-Simplified-NTP-launch.inc         |  12 ++
+ .../Restore-Simplified-NTP-launch.inc         |   6 +
+ .../Restore-Simplified-NTP-launch.inc         |   1 +
+ 24 files changed, 397 insertions(+), 31 deletions(-)
  create mode 100644 chrome/android/java/res/layout/ntp_shortcuts.xml
  create mode 100644 chrome/android/java/src/org/chromium/chrome/browser/feedback/SimplifiedNtpFeedbackSource.java
+ create mode 100644 chrome/android/java/src/org/chromium/chrome/browser/suggestions/tile/MostVisitedTilesGridLayout.java
  create mode 100644 cromite_flags/chrome/browser/about_flags_cc/Restore-Simplified-NTP-launch.inc
  create mode 100644 cromite_flags/chrome/browser/flags/android/chrome_feature_list_cc/Restore-Simplified-NTP-launch.inc
  create mode 100644 cromite_flags/chrome/browser/flags/android/chrome_feature_list_h/Restore-Simplified-NTP-launch.inc
@@ -31,7 +41,7 @@ License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
 diff --git a/chrome/android/chrome_java_resources.gni b/chrome/android/chrome_java_resources.gni
 --- a/chrome/android/chrome_java_resources.gni
 +++ b/chrome/android/chrome_java_resources.gni
-@@ -537,6 +537,7 @@ chrome_java_resources = [
+@@ -538,6 +538,7 @@ chrome_java_resources = [
    "java/res/layout/new_tab_page_layout.xml",
    "java/res/layout/new_tab_page_tile_grid_placeholder.xml",
    "java/res/layout/open_full_chrome_history_header.xml",
@@ -42,7 +52,7 @@ diff --git a/chrome/android/chrome_java_resources.gni b/chrome/android/chrome_ja
 diff --git a/chrome/android/chrome_java_sources.gni b/chrome/android/chrome_java_sources.gni
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -623,6 +623,7 @@ chrome_java_sources = [
+@@ -622,6 +622,7 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/feedback/FeedFeedbackCollector.java",
    "java/src/org/chromium/chrome/browser/feedback/HelpAndFeedbackLauncherImpl.java",
    "java/src/org/chromium/chrome/browser/feedback/ScreenshotTask.java",
@@ -50,10 +60,40 @@ diff --git a/chrome/android/chrome_java_sources.gni b/chrome/android/chrome_java
    "java/src/org/chromium/chrome/browser/findinpage/FindToolbar.java",
    "java/src/org/chromium/chrome/browser/findinpage/FindToolbarManager.java",
    "java/src/org/chromium/chrome/browser/findinpage/FindToolbarObserver.java",
+@@ -1058,6 +1059,7 @@ chrome_java_sources = [
+   "java/src/org/chromium/chrome/browser/suggestions/mostvisited/MostVisitedSitesMetadataUtils.java",
+   "java/src/org/chromium/chrome/browser/suggestions/tile/MostVisitedTilesCoordinator.java",
+   "java/src/org/chromium/chrome/browser/suggestions/tile/MostVisitedTilesLayout.java",
++  "java/src/org/chromium/chrome/browser/suggestions/tile/MostVisitedTilesGridLayout.java",
+   "java/src/org/chromium/chrome/browser/suggestions/tile/MostVisitedTilesMediator.java",
+   "java/src/org/chromium/chrome/browser/suggestions/tile/MostVisitedTilesProperties.java",
+   "java/src/org/chromium/chrome/browser/suggestions/tile/MostVisitedTilesViewBinder.java",
+diff --git a/chrome/android/java/res/layout/mv_tiles_layout.xml b/chrome/android/java/res/layout/mv_tiles_layout.xml
+--- a/chrome/android/java/res/layout/mv_tiles_layout.xml
++++ b/chrome/android/java/res/layout/mv_tiles_layout.xml
+@@ -5,14 +5,9 @@ Use of this source code is governed by a BSD-style license that can be
+ found in the LICENSE file.
+ -->
+ 
+-<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
++<org.chromium.chrome.browser.suggestions.tile.MostVisitedTilesGridLayout
++    xmlns:android="http://schemas.android.com/apk/res/android"
++    android:id="@+id/mv_tiles_layout"
+     android:layout_width="match_parent"
+     android:layout_height="wrap_content"
+-    android:scrollbars="none">
+-
+-  <org.chromium.chrome.browser.suggestions.tile.MostVisitedTilesLayout
+-      android:id="@+id/mv_tiles_layout"
+-      android:layout_width="wrap_content"
+-      android:layout_height="match_parent"
+-      android:orientation="horizontal" />
+-</HorizontalScrollView>
++    android:layout_gravity="center_horizontal" />
 diff --git a/chrome/android/java/res/layout/new_tab_page_layout.xml b/chrome/android/java/res/layout/new_tab_page_layout.xml
 --- a/chrome/android/java/res/layout/new_tab_page_layout.xml
 +++ b/chrome/android/java/res/layout/new_tab_page_layout.xml
-@@ -37,6 +37,13 @@ found in the LICENSE file.
+@@ -38,6 +38,13 @@ found in the LICENSE file.
          android:layout_marginTop="16dp"
          android:visibility="gone"/>
  
@@ -137,6 +177,32 @@ new file mode 100644
 +            app:chromeDrawableTint="@color/default_icon_color_light"  />
 +    </FrameLayout>
 +</LinearLayout>
+diff --git a/chrome/android/java/res/values/attrs.xml b/chrome/android/java/res/values/attrs.xml
+--- a/chrome/android/java/res/values/attrs.xml
++++ b/chrome/android/java/res/values/attrs.xml
+@@ -15,6 +15,10 @@ found in the LICENSE file.
+         <attr name="emptyErrorMessage" format="string" />
+     </declare-styleable>
+ 
++    <declare-styleable name="MostVisitedTilesGridLayout">
++        <attr name="minHorizontalSpacing" format="dimension"/>
++    </declare-styleable>
++
+     <declare-styleable name="ExploreSitesTileView">
+         <attr name="iconCornerRadius" format="dimension"/>
+     </declare-styleable>
+diff --git a/chrome/android/java/res/values/dimens.xml b/chrome/android/java/res/values/dimens.xml
+--- a/chrome/android/java/res/values/dimens.xml
++++ b/chrome/android/java/res/values/dimens.xml
+@@ -129,6 +129,8 @@ found in the LICENSE file.
+     <dimen name="find_in_page_popup_margin_end">62dp</dimen>
+ 
+     <!-- NTP dimensions -->
++    <dimen name="tile_grid_layout_vertical_spacing">6dp</dimen>
++    <dimen name="tile_grid_layout_min_horizontal_spacing">4dp</dimen>
+     <dimen name="tile_layout_no_logo_top_margin">20dp</dimen>
+     <dimen name="mvt_container_lateral_margin">@dimen/signin_promo_lateral_paddings</dimen>
+     <dimen name="mvt_container_top_padding">17dp</dimen>
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/feedback/ChromeFeedbackCollector.java b/chrome/android/java/src/org/chromium/chrome/browser/feedback/ChromeFeedbackCollector.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/feedback/ChromeFeedbackCollector.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/feedback/ChromeFeedbackCollector.java
@@ -209,13 +275,14 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/identity_disc/I
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/native_page/NativePageNavigationDelegateImpl.java b/chrome/android/java/src/org/chromium/chrome/browser/native_page/NativePageNavigationDelegateImpl.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/native_page/NativePageNavigationDelegateImpl.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/native_page/NativePageNavigationDelegateImpl.java
-@@ -23,9 +23,9 @@ import org.chromium.ui.mojom.WindowOpenDisposition;
+@@ -29,10 +29,10 @@ import java.util.List;
  
  /** {@link NativePageNavigationDelegate} implementation. */
  public class NativePageNavigationDelegateImpl implements NativePageNavigationDelegate {
 -    private final Profile mProfile;
 +    protected final Profile mProfile;
      private final TabModelSelector mTabModelSelector;
+     private final TabGroupCreationDialogManager mTabGroupCreationDialogManager;
 -    private final Tab mTab;
 +    protected final Tab mTab;
  
@@ -224,23 +291,23 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/native_page/Nat
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ntp/NewTabPageLayout.java b/chrome/android/java/src/org/chromium/chrome/browser/ntp/NewTabPageLayout.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ntp/NewTabPageLayout.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ntp/NewTabPageLayout.java
-@@ -17,6 +17,7 @@ import android.util.AttributeSet;
+@@ -16,6 +16,7 @@ import android.text.Editable;
+ import android.util.AttributeSet;
  import android.view.DragEvent;
- import android.view.Gravity;
  import android.view.LayoutInflater;
 +import android.view.ViewStub;
  import android.view.View;
  import android.view.ViewGroup;
  import android.widget.LinearLayout;
-@@ -34,6 +35,7 @@ import org.chromium.chrome.R;
+@@ -32,6 +33,7 @@ import org.chromium.base.supplier.ObservableSupplier;
+ import org.chromium.chrome.R;
  import org.chromium.chrome.browser.feed.FeedSurfaceScrollDelegate;
- import org.chromium.chrome.browser.flags.ChromeFeatureList;
  import org.chromium.chrome.browser.lens.LensEntryPoint;
 +import org.chromium.chrome.browser.flags.ChromeFeatureList;
  import org.chromium.chrome.browser.lens.LensMetrics;
  import org.chromium.chrome.browser.lifecycle.ActivityLifecycleDispatcher;
  import org.chromium.chrome.browser.logo.LogoBridge.Logo;
-@@ -98,6 +100,8 @@ public class NewTabPageLayout extends LinearLayout {
+@@ -92,6 +94,8 @@ public class NewTabPageLayout extends LinearLayout {
      private @Nullable DisplayStyleObserver mDisplayStyleObserver;
      private CallbackController mCallbackController = new CallbackController();
  
@@ -249,44 +316,33 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ntp/NewTabPageL
      /**
       * Whether the tiles shown in the layout have finished loading.
       * With {@link #mHasShownView}, it's one of the 2 flags used to track initialisation progress.
-@@ -308,6 +312,7 @@ public class NewTabPageLayout extends LinearLayout {
-                 isScrollableMvtEnabled(),
-                 searchProviderIsGoogle);
+@@ -104,7 +108,7 @@ public class NewTabPageLayout extends LinearLayout {
+      */
+     private boolean mHasShownView;
+ 
+-    private boolean mSearchProviderHasLogo = true;
++    private boolean mSearchProviderHasLogo = false;
+     private boolean mSearchProviderIsGoogle;
+     private boolean mShowingNonStandardGoogleLogo;
+ 
+@@ -278,6 +282,7 @@ public class NewTabPageLayout extends LinearLayout {
+         initializeMostVisitedTilesCoordinator(
+                 mProfile, lifecycleDispatcher, tileGroupDelegate, touchEnabledDelegate);
          initializeSearchBoxBackground();
 +        initializeShortcuts();
          initializeSearchBoxTextView();
          initializeVoiceSearchButton();
          initializeLensButton();
-@@ -808,12 +813,15 @@ public class NewTabPageLayout extends LinearLayout {
-                 marginLayoutParams.leftMargin = lateralPaddingsForNtp;
-                 marginLayoutParams.rightMargin = lateralPaddingsForNtp;
-             }
--            marginLayoutParams.topMargin =
-+            // when simplified NTP is enabled the top marging is included in its view's padding
-+            if (mShortcutsView == null) {
-+                marginLayoutParams.topMargin =
-                     getResources()
-                             .getDimensionPixelSize(
-                                     shouldShowLogo()
-                                             ? R.dimen.tile_grid_layout_top_margin
-                                             : R.dimen.tile_grid_layout_no_logo_top_margin);
-+            }
-             marginLayoutParams.bottomMargin =
-                     getResources()
-                             .getDimensionPixelSize(R.dimen.tile_carousel_layout_bottom_margin);
-@@ -821,7 +829,10 @@ public class NewTabPageLayout extends LinearLayout {
-             // Set a bit more top padding on the tile grid if there is no logo.
-             ViewGroup.LayoutParams layoutParams = mMvTilesContainerLayout.getLayoutParams();
-             layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT;
--            marginLayoutParams.topMargin = getGridMvtTopMargin();
-+            // when simplified NTP is enabled the top marging is included in its view's padding
-+            if (mShortcutsView == null) {
-+                marginLayoutParams.topMargin = getGridMvtTopMargin();
-+            }
-             marginLayoutParams.bottomMargin = getGridMvtBottomMargin();
+@@ -645,7 +650,7 @@ public class NewTabPageLayout extends LinearLayout {
+                 && mInitialized) {
+             return;
          }
+-        mSearchProviderHasLogo = hasLogo;
++        mSearchProviderHasLogo = false;
+         mSearchProviderIsGoogle = isGoogle;
  
-@@ -1141,6 +1152,22 @@ public class NewTabPageLayout extends LinearLayout {
+         boolean isSearchProviderMarginUpdated =
+@@ -1017,6 +1022,22 @@ public class NewTabPageLayout extends LinearLayout {
          return mMostVisitedTilesCoordinator;
      }
  
@@ -312,7 +368,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ntp/NewTabPageL
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/suggestions/SuggestionsNavigationDelegate.java b/chrome/android/java/src/org/chromium/chrome/browser/suggestions/SuggestionsNavigationDelegate.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/suggestions/SuggestionsNavigationDelegate.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/suggestions/SuggestionsNavigationDelegate.java
-@@ -14,6 +14,11 @@ import org.chromium.chrome.browser.ui.native_page.NativePageHost;
+@@ -15,6 +15,11 @@ import org.chromium.chrome.browser.ui.native_page.NativePageHost;
  import org.chromium.content_public.browser.LoadUrlParams;
  import org.chromium.ui.base.PageTransition;
  
@@ -324,8 +380,8 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/suggestions/Sug
  /** Extension of {@link NativePageNavigationDelegate} with suggestions-specific methods. */
  public class SuggestionsNavigationDelegate extends NativePageNavigationDelegateImpl {
      public SuggestionsNavigationDelegate(
-@@ -25,6 +30,18 @@ public class SuggestionsNavigationDelegate extends NativePageNavigationDelegateI
-         super(activity, profile, host, tabModelSelector, tab);
+@@ -27,6 +32,18 @@ public class SuggestionsNavigationDelegate extends NativePageNavigationDelegateI
+         super(activity, profile, host, tabModelSelector, tabGroupCreationDialogManager, tab);
      }
  
 +    public void navigateToBookmarks() {
@@ -343,10 +399,304 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/suggestions/Sug
      /**
       * Opens the suggestions page without recording metrics.
       *
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/suggestions/mostvisited/MostVisitedSitesBridge.java b/chrome/android/java/src/org/chromium/chrome/browser/suggestions/mostvisited/MostVisitedSitesBridge.java
+--- a/chrome/android/java/src/org/chromium/chrome/browser/suggestions/mostvisited/MostVisitedSitesBridge.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/suggestions/mostvisited/MostVisitedSitesBridge.java
+@@ -21,7 +21,7 @@ public class MostVisitedSitesBridge implements MostVisitedSites {
+      * Maximum number of tiles that is explicitly supported. UMA relies on this value, so even if
+      * the UI supports it, getting more can raise unexpected issues.
+      */
+-    public static final int MAX_TILE_COUNT = 12;
++    public static final int MAX_TILE_COUNT = 12 * 2;
+ 
+     private long mNativeMostVisitedSitesBridge;
+ 
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/suggestions/tile/MostVisitedTilesCoordinator.java b/chrome/android/java/src/org/chromium/chrome/browser/suggestions/tile/MostVisitedTilesCoordinator.java
+--- a/chrome/android/java/src/org/chromium/chrome/browser/suggestions/tile/MostVisitedTilesCoordinator.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/suggestions/tile/MostVisitedTilesCoordinator.java
+@@ -38,7 +38,7 @@ public class MostVisitedTilesCoordinator implements ConfigurationChangedObserver
+     private final MostVisitedTilesMediator mMediator;
+     private final WindowAndroid mWindowAndroid;
+     private final UiConfig mUiConfig;
+-    private final PropertyModelChangeProcessor mModelChangeProcessor;
++    private PropertyModelChangeProcessor mModelChangeProcessor;
+     private TileRenderer mRenderer;
+     private ContextMenuManager mContextMenuManager;
+     private OfflinePageBridge mOfflinePageBridge;
+@@ -66,17 +66,11 @@ public class MostVisitedTilesCoordinator implements ConfigurationChangedObserver
+         mWindowAndroid = windowAndroid;
+ 
+         ((ViewStub) mvTilesContainerLayout.findViewById(R.id.mv_tiles_layout_stub)).inflate();
+-        MostVisitedTilesLayout tilesLayout =
++        MostVisitedTilesGridLayout tilesLayout =
+                 mvTilesContainerLayout.findViewById(R.id.mv_tiles_layout);
+ 
+         mUiConfig = new UiConfig(tilesLayout);
+         PropertyModel propertyModel = new PropertyModel(MostVisitedTilesProperties.ALL_KEYS);
+-        mModelChangeProcessor =
+-                PropertyModelChangeProcessor.create(
+-                        propertyModel,
+-                        new MostVisitedTilesViewBinder.ViewHolder(
+-                                mvTilesContainerLayout, tilesLayout),
+-                        MostVisitedTilesViewBinder::bind);
+         mRenderer =
+                 new TileRenderer(
+                         mActivity, SuggestionsConfig.getTileStyle(mUiConfig), TITLE_LINES, null);
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/suggestions/tile/MostVisitedTilesGridLayout.java b/chrome/android/java/src/org/chromium/chrome/browser/suggestions/tile/MostVisitedTilesGridLayout.java
+new file mode 100644
+--- /dev/null
++++ b/chrome/android/java/src/org/chromium/chrome/browser/suggestions/tile/MostVisitedTilesGridLayout.java
+@@ -0,0 +1,194 @@
++// Copyright 2015 The Chromium Authors
++// Use of this source code is governed by a BSD-style license that can be
++// found in the LICENSE file.
++
++package org.chromium.chrome.browser.suggestions.tile;
++
++import android.content.Context;
++import android.content.res.Configuration;
++import android.content.res.Resources;
++import android.content.res.TypedArray;
++import android.util.AttributeSet;
++import android.util.Pair;
++import android.view.View;
++import android.widget.FrameLayout;
++
++import androidx.annotation.Nullable;
++import androidx.annotation.VisibleForTesting;
++
++import org.chromium.base.MathUtils;
++import org.chromium.base.library_loader.LibraryLoader;
++import org.chromium.chrome.R;
++import org.chromium.chrome.browser.flags.ChromeFeatureList;
++import org.chromium.chrome.browser.ntp.FeedPositionUtils;
++import org.chromium.chrome.browser.suggestions.SiteSuggestion;
++import org.chromium.ui.base.DeviceFormFactor;
++
++/** A layout that arranges tiles in a grid. */
++public class MostVisitedTilesGridLayout extends FrameLayout {
++    private final int mMinHorizontalSpacing;
++    private final int mMaxHorizontalSpacing;
++    private final int mMaxWidth;
++
++    private int mVerticalSpacing;
++    private int mMaxRows = 4;
++    private int mMaxColumns = 4;
++
++    /**
++     * Constructor for inflating from XML.
++     *
++     * @param context The view context in which this item will be shown.
++     * @param attrs The attributes of the XML tag that is inflating the view.
++     */
++    public MostVisitedTilesGridLayout(Context context, AttributeSet attrs) {
++        super(context, attrs);
++
++        Resources res = getResources();
++        mVerticalSpacing =
++                getResources().getDimensionPixelOffset(getGridMVTVerticalSpacingResourcesId());
++        TypedArray styledAttrs =
++                context.obtainStyledAttributes(attrs, R.styleable.MostVisitedTilesGridLayout);
++        mMinHorizontalSpacing =
++                styledAttrs.getDimensionPixelOffset(
++                        R.styleable.MostVisitedTilesGridLayout_minHorizontalSpacing,
++                        res.getDimensionPixelOffset(
++                                R.dimen.tile_grid_layout_min_horizontal_spacing));
++        styledAttrs.recycle();
++        mMaxHorizontalSpacing = Integer.MAX_VALUE;
++        mMaxWidth = Integer.MAX_VALUE;
++    }
++
++    /** Sets the maximum number of rows to display. Any items that don't fit will be hidden. */
++    public void setMaxRows(int rows) {
++        mMaxRows = rows;
++    }
++
++    /** Sets the maximum number of columns to display. Any items that don't fit will be hidden. */
++    public void setMaxColumns(int columns) {
++        mMaxColumns = columns;
++    }
++
++    @Override
++    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
++        int totalWidth = Math.min(MeasureSpec.getSize(widthMeasureSpec), mMaxWidth);
++        int childCount = getChildCount();
++        if (childCount == 0) {
++            setMeasuredDimension(totalWidth, resolveSize(0, heightMeasureSpec));
++            return;
++        }
++
++        // Measure the children. We don't use the ViewGroup.measureChildren() method here because
++        // it only measures visible children. In a situation where a child is invisible before
++        // this measurement and we decide to show it after the measurement, it will not have its
++        // dimensions and will not be displayed.
++        for (int i = 0; i < childCount; i++) {
++            measureChild(getChildAt(i), MeasureSpec.UNSPECIFIED, MeasureSpec.UNSPECIFIED);
++        }
++
++        // Determine the number of columns that will fit.
++        int childHeight = getChildAt(0).getMeasuredHeight();
++        int childWidth = getChildAt(0).getMeasuredWidth();
++        int numColumns =
++                MathUtils.clamp(
++                        (totalWidth + mMinHorizontalSpacing) / (childWidth + mMinHorizontalSpacing),
++                        1,
++                        mMaxColumns);
++
++        // Determine how much padding to use between and around the tiles.
++        int gridWidthMinusColumns = Math.max(0, totalWidth - numColumns * childWidth);
++        Pair<Integer, Integer> gridProperties =
++                computeHorizontalDimensions(gridWidthMinusColumns, numColumns);
++        int gridStart = gridProperties.first;
++        int horizontalSpacing = gridProperties.second;
++
++        // Limit the number of rows to mMaxRows.
++        int visibleChildCount = Math.min(childCount, mMaxRows * numColumns);
++
++        // Arrange the visible children in a grid.
++        int numRows = (visibleChildCount + numColumns - 1) / numColumns;
++        int paddingTop = getPaddingTop();
++        boolean isRtl = getLayoutDirection() == LAYOUT_DIRECTION_RTL;
++
++        for (int i = 0; i < visibleChildCount; i++) {
++            View child = getChildAt(i);
++            child.setVisibility(View.VISIBLE);
++            int row = i / numColumns;
++            int column = i % numColumns;
++            int childTop = row * (childHeight + mVerticalSpacing);
++            int childStart = gridStart + (column * (childWidth + horizontalSpacing));
++            MarginLayoutParams layoutParams = (MarginLayoutParams) child.getLayoutParams();
++            layoutParams.setMargins(isRtl ? 0 : childStart, childTop, isRtl ? childStart : 0, 0);
++            child.setLayoutParams(layoutParams);
++        }
++
++        // Hide any extra children in case there are more than needed for the maximum number of
++        // rows.
++        for (int i = visibleChildCount; i < childCount; i++) {
++            getChildAt(i).setVisibility(View.GONE);
++        }
++
++        int totalHeight =
++                paddingTop
++                        + getPaddingBottom()
++                        + numRows * childHeight
++                        + (numRows - 1) * mVerticalSpacing;
++
++        setMeasuredDimension(totalWidth, resolveSize(totalHeight, heightMeasureSpec));
++    }
++
++    /**
++     * @param availableWidth The space available to spread between and around the tiles.
++     * @param numColumns The number of columns to be organised.
++     * @return The [gridStart, horizontalSpacing] pair of dimensions.
++     */
++    @VisibleForTesting
++    Pair<Integer, Integer> computeHorizontalDimensions(int availableWidth, int numColumns) {
++        int gridStart;
++        float horizontalSpacing;
++
++        // Identically sized spacers are added both between and around the tiles.
++        int spacerCount = numColumns + 1;
++        horizontalSpacing = (float) availableWidth / spacerCount;
++        gridStart = Math.round(horizontalSpacing);
++
++        if (horizontalSpacing < mMinHorizontalSpacing
++                || horizontalSpacing > mMaxHorizontalSpacing) {
++            // Ensure column spacing isn't greater than mMaxHorizontalSpacing.
++            long gridSidePadding = availableWidth - (long) mMaxHorizontalSpacing * (numColumns - 1);
++            if (gridSidePadding > 0) {
++                horizontalSpacing = mMaxHorizontalSpacing;
++                gridStart = (int) (gridSidePadding / 2);
++            } else {
++                horizontalSpacing = (float) availableWidth / Math.max(1, numColumns - 1);
++                gridStart = 0;
++            }
++        }
++        int screenWidth = getResources().getDisplayMetrics().widthPixels;
++        int screenHeight = getResources().getDisplayMetrics().heightPixels;
++        String logMessage =
++                "|horizontalSpacing| = "
++                        + horizontalSpacing
++                        + " |numColumns| = "
++                        + numColumns
++                        + " |availableWidth| = "
++                        + availableWidth
++                        + " |screenWidth| = "
++                        + screenWidth
++                        + " |screenHeight| = "
++                        + screenHeight
++                        + ".";
++        assert horizontalSpacing >= mMinHorizontalSpacing
++                : "Horizontal spacing shouldn't be smaller than minimal horizontal spacing: "
++                        + logMessage;
++        assert horizontalSpacing <= mMaxHorizontalSpacing
++                : "Horizontal spacing shouldn't be larger than maximal horizontal spacing: "
++                        + logMessage;
++
++        return Pair.create(gridStart, Math.round(horizontalSpacing));
++    }
++
++    // TODO(crbug.com/40226731): Remove this method when the Feed position experiment is cleaned up.
++    private int getGridMVTVerticalSpacingResourcesId() {
++        return R.dimen.tile_grid_layout_vertical_spacing;
++    }
++}
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/suggestions/tile/MostVisitedTilesMediator.java b/chrome/android/java/src/org/chromium/chrome/browser/suggestions/tile/MostVisitedTilesMediator.java
+--- a/chrome/android/java/src/org/chromium/chrome/browser/suggestions/tile/MostVisitedTilesMediator.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/suggestions/tile/MostVisitedTilesMediator.java
+@@ -12,6 +12,7 @@ import static org.chromium.chrome.browser.suggestions.tile.MostVisitedTilesPrope
+ 
+ import android.content.res.Configuration;
+ import android.content.res.Resources;
++import android.view.ViewGroup;
+ import android.view.ViewStub;
+ 
+ import androidx.annotation.Nullable;
+@@ -37,7 +38,7 @@ public class MostVisitedTilesMediator implements TileGroup.Observer, TemplateUrl
+ 
+     private final Resources mResources;
+     private final UiConfig mUiConfig;
+-    private final MostVisitedTilesLayout mMvTilesLayout;
++    private final ViewGroup mMvTilesLayout;
+     private final ViewStub mNoMvPlaceholderStub;
+     private final PropertyModel mModel;
+     private final boolean mIsTablet;
+@@ -59,7 +60,7 @@ public class MostVisitedTilesMediator implements TileGroup.Observer, TemplateUrl
+     public MostVisitedTilesMediator(
+             Resources resources,
+             UiConfig uiConfig,
+-            MostVisitedTilesLayout mvTilesLayout,
++            ViewGroup mvTilesLayout,
+             ViewStub noMvPlaceholderStub,
+             TileRenderer renderer,
+             PropertyModel propertyModel,
+@@ -166,8 +167,8 @@ public class MostVisitedTilesMediator implements TileGroup.Observer, TemplateUrl
+     }
+ 
+     public void destroy() {
+-        if (mMvTilesLayout != null) {
+-            mMvTilesLayout.destroy();
++        if (mMvTilesLayout instanceof MostVisitedTilesLayout) {
++            ((MostVisitedTilesLayout)mMvTilesLayout).destroy();
+         }
+ 
+         if (mTileGroup != null) {
+diff --git a/chrome/browser/engagement/important_sites_util.cc b/chrome/browser/engagement/important_sites_util.cc
+--- a/chrome/browser/engagement/important_sites_util.cc
++++ b/chrome/browser/engagement/important_sites_util.cc
+@@ -66,7 +66,7 @@ static const int kTimesIgnoredForSuppression = 3;
+ // These are the maximum # of bookmarks we can use as signals. If the user has
+ // <= kMaxBookmarks, then we just use those bookmarks. Otherwise we filter all
+ // bookmarks on site engagement > 0, sort, and trim to kMaxBookmarks.
+-static const int kMaxBookmarks = 5;
++static const int kMaxBookmarks = 4 * 4 + 2;
+ 
+ // We need this to be a macro, as the histogram macros cache their pointers
+ // after the first call, so when we change the uma name we check fail if we're
 diff --git a/chrome/browser/flags/android/chrome_feature_list.cc b/chrome/browser/flags/android/chrome_feature_list.cc
 --- a/chrome/browser/flags/android/chrome_feature_list.cc
 +++ b/chrome/browser/flags/android/chrome_feature_list.cc
-@@ -228,6 +228,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
+@@ -240,6 +240,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
      &kGcmNativeBackgroundTask,
      &kIncognitoReauthenticationForAndroid,
      &kIncognitoScreenshot,
@@ -357,23 +707,44 @@ diff --git a/chrome/browser/flags/android/chrome_feature_list.cc b/chrome/browse
 diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
 --- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
 +++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
-@@ -340,6 +340,7 @@ public abstract class ChromeFeatureList {
-             "LookalikeUrlNavigationSuggestionsUI";
-     public static final String MAGIC_STACK_ANDROID = "MagicStackAndroid";
+@@ -349,6 +349,7 @@ public abstract class ChromeFeatureList {
+     public static final String MAYLAUNCHURL_USES_SEPARATE_STORAGE_PARTITION =
+             "MayLaunchUrlUsesSeparateStoragePartition";
      public static final String MESSAGES_FOR_ANDROID_ADS_BLOCKED = "MessagesForAndroidAdsBlocked";
 +    public static final String SIMPLIFIED_NTP = "SimplifiedNTP";
      public static final String SEARCH_READY_OMNIBOX = "SearchReadyOmnibox";
      public static final String MIGRATE_ACCOUNT_MANAGEMENT_SETTINGS_TO_CAPABILITIES =
              "MigrateAccountManagementSettingsToCapabilities";
-@@ -637,7 +638,7 @@ public abstract class ChromeFeatureList {
+@@ -625,7 +626,7 @@ public abstract class ChromeFeatureList {
+     public static final CachedFlag sIncognitoReauthenticationForAndroid =
+             newCachedFlag(INCOGNITO_REAUTHENTICATION_FOR_ANDROID, true);
+     public static final CachedFlag sLogoPolish = newCachedFlag(LOGO_POLISH, false);
+-    public static final CachedFlag sMagicStackAndroid = newCachedFlag(MAGIC_STACK_ANDROID, true);
++    public static final CachedFlag sMagicStackAndroid = newCachedFlag(MAGIC_STACK_ANDROID, false);
+     public static final CachedFlag sMultiInstanceApplicationStatusCleanup =
+             newCachedFlag(MUlTI_INSTANCE_APPLICATION_STATUS_CLEANUP, false);
+     public static final CachedFlag sNavBarColorMatchesTabBackground =
+@@ -658,7 +659,7 @@ public abstract class ChromeFeatureList {
              newCachedFlag(START_SURFACE_RETURN_TIME, true);
      public static final CachedFlag sStopAppIndexingReport =
              newCachedFlag(STOP_APP_INDEXING_REPORT, true);
 -    public static final CachedFlag sSurfacePolish = newCachedFlag(SURFACE_POLISH, true);
 +    public static final CachedFlag sSurfacePolish = newCachedFlag(SURFACE_POLISH, false);
+     public static final CachedFlag sSurfacePolishForToolbarKillSwitch =
+             newCachedFlag(SURFACE_POLISH_FOR_TOOLBAR_KILL_SWITCH, true);
      public static final CachedFlag sTabDragDropAsWindowAndroid =
-             newCachedFlag(TAB_DRAG_DROP_ANDROID, false);
-     public static final CachedFlag sTabGroupPaneAndroid =
+diff --git a/components/history/core/browser/top_sites_impl.h b/components/history/core/browser/top_sites_impl.h
+--- a/components/history/core/browser/top_sites_impl.h
++++ b/components/history/core/browser/top_sites_impl.h
+@@ -40,7 +40,7 @@ class TopSitesImplTest;
+ struct SitesAndQueriesRequest;
+ 
+ // How many top sites to store in the cache.
+-static constexpr size_t kTopSitesNumber = 10;
++static constexpr size_t kTopSitesNumber = 4 * 4 + 2;
+ 
+ // This class allows requests for most visited urls on any thread. All other
+ // methods must be invoked on the UI thread. All mutations to internal state
 diff --git a/cromite_flags/chrome/browser/about_flags_cc/Restore-Simplified-NTP-launch.inc b/cromite_flags/chrome/browser/about_flags_cc/Restore-Simplified-NTP-launch.inc
 new file mode 100644
 --- /dev/null
@@ -395,12 +766,13 @@ diff --git a/cromite_flags/chrome/browser/flags/android/chrome_feature_list_cc/R
 new file mode 100644
 --- /dev/null
 +++ b/cromite_flags/chrome/browser/flags/android/chrome_feature_list_cc/Restore-Simplified-NTP-launch.inc
-@@ -0,0 +1,5 @@
+@@ -0,0 +1,6 @@
 +CROMITE_FEATURE(kSimplifiedNTP,
 +                "SimplifiedNTP",
 +                base::FEATURE_ENABLED_BY_DEFAULT);
 +
 +SET_CROMITE_FEATURE_DISABLED(kSurfacePolish);
++SET_CROMITE_FEATURE_DISABLED(kMagicStackAndroid);
 diff --git a/cromite_flags/chrome/browser/flags/android/chrome_feature_list_h/Restore-Simplified-NTP-launch.inc b/cromite_flags/chrome/browser/flags/android/chrome_feature_list_h/Restore-Simplified-NTP-launch.inc
 new file mode 100644
 --- /dev/null

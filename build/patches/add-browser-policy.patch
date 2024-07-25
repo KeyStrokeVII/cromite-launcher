@@ -22,7 +22,7 @@ License: GPL-2.0-or-later - https://spdx.org/licenses/GPL-2.0-or-later.html
  .../commerce/core/commerce_feature_list.cc    |  65 ++-------
  .../core/browser/browser_policy_connector.cc  |   3 +
  .../common/command_line_policy_provider.cc    |   3 +
- .../core/common/policy_loader_command_line.cc | 133 +++++++++++++++---
+ .../core/common/policy_loader_command_line.cc | 132 +++++++++++++++---
  .../policy/core/common/policy_pref_names.cc   |   3 +
  .../policy/core/common/policy_pref_names.h    |   1 +
  .../policy/core/common/policy_service_impl.cc |   3 +
@@ -36,7 +36,7 @@ License: GPL-2.0-or-later - https://spdx.org/licenses/GPL-2.0-or-later.html
  .../gaia_cookie_manager_service.cc            |   4 +
  google_apis/gaia/gaia_auth_fetcher.cc         |   1 +
  net/socket/ssl_client_socket_impl.cc          |   3 +
- 32 files changed, 319 insertions(+), 150 deletions(-)
+ 32 files changed, 318 insertions(+), 150 deletions(-)
 
 diff --git a/base/win/win_util.cc b/base/win/win_util.cc
 --- a/base/win/win_util.cc
@@ -153,7 +153,7 @@ diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/Andro
 diff --git a/chrome/browser/android/preferences/privacy_preferences_manager_impl.cc b/chrome/browser/android/preferences/privacy_preferences_manager_impl.cc
 --- a/chrome/browser/android/preferences/privacy_preferences_manager_impl.cc
 +++ b/chrome/browser/android/preferences/privacy_preferences_manager_impl.cc
-@@ -56,6 +56,11 @@ static jboolean
+@@ -58,6 +58,11 @@ static jboolean
  JNI_PrivacyPreferencesManagerImpl_IsMetricsReportingDisabledByPolicy(
      JNIEnv* env) {
    const PrefService* local_state = g_browser_process->local_state();
@@ -177,7 +177,7 @@ diff --git a/chrome/browser/metrics/chrome_feature_list_creator.cc b/chrome/brow
  
  #if BUILDFLAG(IS_CHROMEOS_ASH)
  #include "chrome/browser/ash/policy/core/browser_policy_connector_ash.h"
-@@ -222,6 +224,16 @@ void ChromeFeatureListCreator::CreatePrefService() {
+@@ -218,6 +220,16 @@ void ChromeFeatureListCreator::CreatePrefService() {
    // ManagementService's cache.
    if (local_state_pref_store->ReadPrefs() ==
        JsonPrefStore::PREF_READ_ERROR_NONE) {
@@ -222,7 +222,7 @@ diff --git a/chrome/browser/policy/chrome_browser_policy_connector.cc b/chrome/b
 diff --git a/chrome/browser/policy/configuration_policy_handler_list_factory.cc b/chrome/browser/policy/configuration_policy_handler_list_factory.cc
 --- a/chrome/browser/policy/configuration_policy_handler_list_factory.cc
 +++ b/chrome/browser/policy/configuration_policy_handler_list_factory.cc
-@@ -2200,9 +2200,9 @@ bool AreFuturePoliciesEnabledByDefault() {
+@@ -2237,9 +2237,9 @@ bool AreFuturePoliciesEnabledByDefault() {
    if (base::CommandLine::ForCurrentProcess()->HasSwitch(switches::kTestType)) {
      return true;
    }
@@ -265,7 +265,7 @@ diff --git a/chrome/browser/signin/account_consistency_mode_manager.cc b/chrome/
 +  return AccountConsistencyMethod::kDisabled;
  #endif
  
-   NOTREACHED();
+   NOTREACHED_IN_MIGRATION();
 diff --git a/chrome/browser/signin/account_consistency_mode_manager_factory.cc b/chrome/browser/signin/account_consistency_mode_manager_factory.cc
 --- a/chrome/browser/signin/account_consistency_mode_manager_factory.cc
 +++ b/chrome/browser/signin/account_consistency_mode_manager_factory.cc
@@ -279,7 +279,7 @@ diff --git a/chrome/browser/signin/account_consistency_mode_manager_factory.cc b
 diff --git a/chrome/browser/signin/bound_session_credentials/throttled_gaia_auth_fetcher.cc b/chrome/browser/signin/bound_session_credentials/throttled_gaia_auth_fetcher.cc
 --- a/chrome/browser/signin/bound_session_credentials/throttled_gaia_auth_fetcher.cc
 +++ b/chrome/browser/signin/bound_session_credentials/throttled_gaia_auth_fetcher.cc
-@@ -13,6 +13,7 @@
+@@ -15,6 +15,7 @@
  #include "net/cookies/cookie_util.h"
  #include "services/network/public/cpp/shared_url_loader_factory.h"
  #include "services/network/public/mojom/fetch_api.mojom-shared.h"
@@ -287,15 +287,15 @@ diff --git a/chrome/browser/signin/bound_session_credentials/throttled_gaia_auth
  
  ThrottledGaiaAuthFetcher::ThrottledGaiaAuthFetcher(
      GaiaAuthConsumer* consumer,
-@@ -39,6 +40,7 @@ void ThrottledGaiaAuthFetcher::CreateAndStartGaiaFetcher(
+@@ -41,6 +42,7 @@ void ThrottledGaiaAuthFetcher::CreateAndStartGaiaFetcher(
      const GURL& gaia_gurl,
      network::mojom::CredentialsMode credentials_mode,
      const net::NetworkTrafficAnnotationTag& traffic_annotation) {
 +#if BUILDFLAG(ENABLE_BOUND_SESSION_CREDENTIALS)
    if ((IsListAccountsUrl(gaia_gurl) || IsMultiloginUrl(gaia_gurl)) &&
        credentials_mode == network::mojom::CredentialsMode::kInclude &&
-       GoogleURLLoaderThrottle::ShouldDeferRequestForBoundSession(
-@@ -54,6 +56,7 @@ void ThrottledGaiaAuthFetcher::CreateAndStartGaiaFetcher(
+       GoogleURLLoaderThrottle::GetRequestBoundSessionStatus(
+@@ -59,6 +61,7 @@ void ThrottledGaiaAuthFetcher::CreateAndStartGaiaFetcher(
    GaiaAuthFetcher::CreateAndStartGaiaFetcher(body, body_content_type, headers,
                                               gaia_gurl, credentials_mode,
                                               traffic_annotation);
@@ -303,7 +303,7 @@ diff --git a/chrome/browser/signin/bound_session_credentials/throttled_gaia_auth
  }
  
  void ThrottledGaiaAuthFetcher::OnGaiaFetcherResumedOrCancelled(
-@@ -65,6 +68,7 @@ void ThrottledGaiaAuthFetcher::OnGaiaFetcherResumedOrCancelled(
+@@ -70,6 +73,7 @@ void ThrottledGaiaAuthFetcher::OnGaiaFetcherResumedOrCancelled(
      const net::NetworkTrafficAnnotationTag& traffic_annotation,
      BoundSessionRequestThrottledHandler::UnblockAction unblock_action,
      chrome::mojom::ResumeBlockedRequestsTrigger resume_trigger) {
@@ -311,7 +311,7 @@ diff --git a/chrome/browser/signin/bound_session_credentials/throttled_gaia_auth
    switch (unblock_action) {
      case BoundSessionRequestThrottledHandler::UnblockAction::kResume:
        GaiaAuthFetcher::CreateAndStartGaiaFetcher(
-@@ -76,4 +80,5 @@ void ThrottledGaiaAuthFetcher::OnGaiaFetcherResumedOrCancelled(
+@@ -81,4 +85,5 @@ void ThrottledGaiaAuthFetcher::OnGaiaFetcherResumedOrCancelled(
                               /*response_code=*/0);
        break;
    }
@@ -344,7 +344,7 @@ diff --git a/chrome/browser/signin/chrome_signin_client.cc b/chrome/browser/sign
 diff --git a/chrome/browser/signin/dice_response_handler.cc b/chrome/browser/signin/dice_response_handler.cc
 --- a/chrome/browser/signin/dice_response_handler.cc
 +++ b/chrome/browser/signin/dice_response_handler.cc
-@@ -485,8 +485,10 @@ void DiceResponseHandler::ProcessDiceSignoutHeader(
+@@ -479,8 +479,10 @@ void DiceResponseHandler::ProcessDiceSignoutHeader(
    // - If there is a policy restriction on removing the primary account.
    bool invalidate_only_primary_account =
        identity_manager_->HasPrimaryAccount(signin::ConsentLevel::kSync) ||
@@ -574,7 +574,7 @@ diff --git a/components/commerce/core/commerce_feature_list.cc b/components/comm
  }  // namespace
  
  namespace switches {
-@@ -322,6 +272,16 @@ const char kParcelTrackingTestDataParamDelivered[] = "Delivered";
+@@ -326,6 +276,16 @@ const char kParcelTrackingTestDataParamDelivered[] = "Delivered";
  const char kParcelTrackingTestDataParamInProgress[] = "InProgress";
  const char kParcelTrackingTestDataParamOutForDelivery[] = "OutForDelivery";
  
@@ -591,7 +591,7 @@ diff --git a/components/commerce/core/commerce_feature_list.cc b/components/comm
  // Params for Discount Consent V2 in the NTP Cart module.
  const char kNtpChromeCartModuleDiscountConsentNtpVariationParam[] =
      "discount-consent-ntp-variation";
-@@ -447,11 +407,11 @@ bool IsPartnerMerchant(const GURL& url) {
+@@ -451,11 +411,11 @@ bool IsPartnerMerchant(const GURL& url) {
  }
  
  bool IsRuleDiscountPartnerMerchant(const GURL& url) {
@@ -605,7 +605,7 @@ diff --git a/components/commerce/core/commerce_feature_list.cc b/components/comm
  }
  
  bool IsCartDiscountFeatureEnabled() {
-@@ -534,6 +494,7 @@ base::TimeDelta GetDiscountFetchDelay() {
+@@ -538,6 +498,7 @@ base::TimeDelta GetDiscountFetchDelay() {
  }
  
  bool IsNoDiscountMerchant(const GURL& url) {
@@ -674,7 +674,7 @@ diff --git a/components/policy/core/common/policy_loader_command_line.cc b/compo
  
  namespace policy {
  
-@@ -21,25 +46,101 @@ PolicyLoaderCommandLine::~PolicyLoaderCommandLine() = default;
+@@ -21,25 +46,100 @@ PolicyLoaderCommandLine::~PolicyLoaderCommandLine() = default;
  
  PolicyBundle PolicyLoaderCommandLine::Load() {
    PolicyBundle bundle;
@@ -764,7 +764,6 @@ diff --git a/components/policy/core/common/policy_loader_command_line.cc b/compo
 +  AddPolicy(disabled_policies_list, policy_map, policy::key::kSideSearchEnabled, base::Value(false));
 +#endif
 +
-+  AddPolicy(disabled_policies_list, policy_map, policy::key::kBlockTruncatedCookies, base::Value(true));
 +  // kFirstPartySetsEnabled
 +  // kLensCameraAssistedSearchEnabled
 +  // kPasswordLeakDetectionEnabled
@@ -986,7 +985,7 @@ diff --git a/google_apis/gaia/gaia_auth_fetcher.cc b/google_apis/gaia/gaia_auth_
 diff --git a/net/socket/ssl_client_socket_impl.cc b/net/socket/ssl_client_socket_impl.cc
 --- a/net/socket/ssl_client_socket_impl.cc
 +++ b/net/socket/ssl_client_socket_impl.cc
-@@ -772,6 +772,7 @@ int SSLClientSocketImpl::Init() {
+@@ -777,6 +777,7 @@ int SSLClientSocketImpl::Init() {
      return ERR_UNEXPECTED;
    }
  
@@ -994,7 +993,7 @@ diff --git a/net/socket/ssl_client_socket_impl.cc b/net/socket/ssl_client_socket
    // Disable SHA-1 server signatures.
    // TODO(crbug.com/boringssl/699): Once the default is flipped in BoringSSL, we
    // no longer need to override it.
-@@ -1178,6 +1179,8 @@ ssl_verify_result_t SSLClientSocketImpl::HandleVerifyResult() {
+@@ -1183,6 +1184,8 @@ ssl_verify_result_t SSLClientSocketImpl::HandleVerifyResult() {
  
    cert_verifier_request_.reset();
  

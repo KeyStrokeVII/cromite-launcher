@@ -21,15 +21,15 @@ License: GPL-2.0-or-later - https://spdx.org/licenses/GPL-2.0-or-later.html
 diff --git a/chrome/android/features/tab_ui/java/src/org/chromium/chrome/browser/tasks/tab_management/TabUiFeatureUtilities.java b/chrome/android/features/tab_ui/java/src/org/chromium/chrome/browser/tasks/tab_management/TabUiFeatureUtilities.java
 --- a/chrome/android/features/tab_ui/java/src/org/chromium/chrome/browser/tasks/tab_management/TabUiFeatureUtilities.java
 +++ b/chrome/android/features/tab_ui/java/src/org/chromium/chrome/browser/tasks/tab_management/TabUiFeatureUtilities.java
-@@ -16,6 +16,7 @@ import org.chromium.build.BuildConfig;
+@@ -14,6 +14,7 @@ import org.chromium.base.cached_flags.IntCachedFieldTrialParameter;
+ import org.chromium.build.BuildConfig;
  import org.chromium.chrome.browser.flags.ChromeFeatureList;
- import org.chromium.chrome.browser.multiwindow.MultiWindowUtils;
  import org.chromium.ui.base.DeviceFormFactor;
 +import org.chromium.chrome.browser.flags.cromite.sTabSwitcherListMode;
  
- import java.util.Collections;
- import java.util.HashSet;
-@@ -115,8 +116,7 @@ public class TabUiFeatureUtilities {
+ /** A class to handle the state of flags for tab_management. */
+ public class TabUiFeatureUtilities {
+@@ -67,8 +68,7 @@ public class TabUiFeatureUtilities {
  
      /** Returns whether the Grid Tab Switcher UI should use list mode. */
      public static boolean shouldUseListMode() {
@@ -42,7 +42,7 @@ diff --git a/chrome/android/features/tab_ui/java/src/org/chromium/chrome/browser
 diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
-@@ -85,6 +85,13 @@ found in the LICENSE file.
+@@ -90,6 +90,13 @@ found in the LICENSE file.
          android:summary="@string/settings_incognito_tab_lock_summary_android_setting_off"
          android:persistent="false" />
  
@@ -119,7 +119,7 @@ diff --git a/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/brow
  import org.chromium.chrome.browser.omnibox.LocationBar;
  import org.chromium.chrome.browser.omnibox.LocationBarCoordinator;
  import org.chromium.chrome.browser.omnibox.NewTabPageDelegate;
-@@ -516,7 +517,8 @@ public class ToolbarPhone extends ToolbarLayout
+@@ -521,7 +522,8 @@ public class ToolbarPhone extends ToolbarLayout
  
      private void inflateTabSwitchingResources() {
          mToggleTabStackButton = findViewById(R.id.tab_switcher_button);
@@ -129,7 +129,7 @@ diff --git a/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/brow
      }
  
      private void enableTabSwitchingResources() {
-@@ -2007,14 +2009,15 @@ public class ToolbarPhone extends ToolbarLayout
+@@ -2016,14 +2018,15 @@ public class ToolbarPhone extends ToolbarLayout
          // On entering the tab switcher, set the focusability of the url bar to be false. This will
          // occur at the start of the enter event, and will later be reset to true upon finishing the
          // exit event only in #onStartSurfaceStateChanged.
@@ -147,7 +147,7 @@ diff --git a/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/brow
              // Prevent pressing the tab switcher button until after transition finishes.
              mToggleTabStackButton.setClickable(false);
              return;
-@@ -2034,7 +2037,8 @@ public class ToolbarPhone extends ToolbarLayout
+@@ -2043,7 +2046,8 @@ public class ToolbarPhone extends ToolbarLayout
              return;
          }
          // Prevent pressing the tab switcher button until after transition finishes.
@@ -157,7 +157,7 @@ diff --git a/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/brow
  
          mTabSwitcherState = inTabSwitcherMode ? ENTERING_TAB_SWITCHER : EXITING_TAB_SWITCHER;
  
-@@ -2128,7 +2132,8 @@ public class ToolbarPhone extends ToolbarLayout
+@@ -2142,7 +2146,8 @@ public class ToolbarPhone extends ToolbarLayout
          }
          if (mTabSwitcherState == ENTERING_TAB_SWITCHER) {
              mTabSwitcherState = TAB_SWITCHER;

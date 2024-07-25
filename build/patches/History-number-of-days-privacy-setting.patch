@@ -38,7 +38,7 @@ License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
 diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
-@@ -119,6 +119,12 @@ found in the LICENSE file.
+@@ -124,6 +124,12 @@ found in the LICENSE file.
          android:title="@string/cablev2_paask_title"
          android:summary="@string/cablev2_paask_body"
          android:fragment="org.chromium.chrome.browser.webauthn.PrivacySettingsFragment" />
@@ -54,15 +54,15 @@ diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/androi
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -47,6 +47,7 @@ import org.chromium.chrome.browser.sync.settings.GoogleServicesSettings;
- import org.chromium.chrome.browser.sync.settings.ManageSyncSettings;
+@@ -44,6 +44,7 @@ import org.chromium.chrome.browser.sync.settings.ManageSyncSettings;
  import org.chromium.chrome.browser.usage_stats.UsageStatsConsentDialog;
  import org.chromium.components.browser_ui.settings.ChromeSwitchPreference;
+ import org.chromium.components.browser_ui.settings.FragmentSettingsLauncher;
 +import org.chromium.components.browser_ui.settings.SpinnerPreference;
  import org.chromium.components.browser_ui.settings.SettingsLauncher;
  import org.chromium.components.browser_ui.settings.SettingsUtils;
  import org.chromium.components.browser_ui.site_settings.ContentSettingsResources;
-@@ -66,6 +67,9 @@ import org.chromium.chrome.browser.preferences.ChromeSharedPreferences;
+@@ -62,6 +63,9 @@ import org.chromium.chrome.browser.preferences.ChromeSharedPreferences;
  import org.chromium.components.browser_ui.settings.ChromeSwitchPreference;
  import org.chromium.components.browser_ui.settings.ManagedPreferenceDelegate;
  
@@ -71,8 +71,8 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/setting
 +
  /** Fragment to keep track of the all the privacy related preferences. */
  public class PrivacySettings extends ChromeBaseSettingsFragment
-         implements Preference.OnPreferenceChangeListener {
-@@ -106,6 +110,8 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
+         implements Preference.OnPreferenceChangeListener, FragmentSettingsLauncher {
+@@ -104,6 +108,8 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
      private ChromeSwitchPreference allowCustomTabIntentsPref;
      private ChromeSwitchPreference openExternalLinksPref;
  
@@ -81,9 +81,9 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/setting
      @Override
      public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
          getActivity().setTitle(R.string.prefs_privacy_security);
-@@ -238,6 +244,40 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
+@@ -236,6 +242,40 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
          Preference syncAndServicesLink = findPreference(PREF_SYNC_AND_SERVICES_LINK);
-         syncAndServicesLink.setSummary(buildSyncAndServicesLink());
+         syncAndServicesLink.setSummary(buildFooterString());
  
 +        // set up history expire days threshold preference
 +        List<TimeFrequencySpinnerOption> options = new ArrayList<>();
@@ -122,8 +122,8 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/setting
          Preference thirdPartyCookies = findPreference(PREF_THIRD_PARTY_COOKIES);
          Preference doNotTrackPref = findPreference(PREF_DO_NOT_TRACK);
  
-@@ -477,6 +517,29 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
-         return ChromeFeatureList.isEnabled(ChromeFeatureList.IP_PROTECTION_UX);
+@@ -479,6 +519,29 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
+                 && ChromeFeatureList.isEnabled(ChromeFeatureList.FINGERPRINTING_PROTECTION_SETTING);
      }
  
 +    class TimeFrequencySpinnerOption {
@@ -155,7 +155,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/setting
 diff --git a/chrome/browser/extensions/api/settings_private/prefs_util.cc b/chrome/browser/extensions/api/settings_private/prefs_util.cc
 --- a/chrome/browser/extensions/api/settings_private/prefs_util.cc
 +++ b/chrome/browser/extensions/api/settings_private/prefs_util.cc
-@@ -36,6 +36,7 @@
+@@ -37,6 +37,7 @@
  #include "components/content_settings/core/common/pref_names.h"
  #include "components/dom_distiller/core/pref_names.h"
  #include "components/drive/drive_pref_names.h"
@@ -163,7 +163,7 @@ diff --git a/chrome/browser/extensions/api/settings_private/prefs_util.cc b/chro
  #include "components/embedder_support/pref_names.h"
  #include "components/language/core/browser/pref_names.h"
  #include "components/live_caption/pref_names.h"
-@@ -205,6 +206,9 @@ const PrefsUtil::TypedPrefMap& PrefsUtil::GetAllowlistedKeys() {
+@@ -210,6 +211,9 @@ const PrefsUtil::TypedPrefMap& PrefsUtil::GetAllowlistedKeys() {
    (*s_allowlist)[::prefs::kShowForwardButton] =
        settings_api::PrefType::kBoolean;
  
@@ -188,7 +188,7 @@ diff --git a/chrome/browser/history/history_service_factory.cc b/chrome/browser/
 diff --git a/chrome/browser/profiles/profile_impl.cc b/chrome/browser/profiles/profile_impl.cc
 --- a/chrome/browser/profiles/profile_impl.cc
 +++ b/chrome/browser/profiles/profile_impl.cc
-@@ -372,6 +372,7 @@ std::unique_ptr<Profile> Profile::CreateProfile(const base::FilePath& path,
+@@ -375,6 +375,7 @@ std::unique_ptr<Profile> Profile::CreateProfile(const base::FilePath& path,
  void ProfileImpl::RegisterProfilePrefs(
      user_prefs::PrefRegistrySyncable* registry) {
    registry->RegisterBooleanPref(prefs::kSavingBrowserHistoryDisabled, false);
@@ -214,7 +214,7 @@ diff --git a/chrome/browser/resources/settings/privacy_page/privacy_page.html b/
 +        </div>
        </div>
  
- <if expr="is_chromeos">
+ <if expr="use_nss_certs">
 diff --git a/chrome/browser/resources/settings/privacy_page/privacy_page.ts b/chrome/browser/resources/settings/privacy_page/privacy_page.ts
 --- a/chrome/browser/resources/settings/privacy_page/privacy_page.ts
 +++ b/chrome/browser/resources/settings/privacy_page/privacy_page.ts
@@ -245,7 +245,7 @@ diff --git a/chrome/browser/resources/settings/privacy_page/privacy_page.ts b/ch
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1255,6 +1255,18 @@ Your Google account may have other forms of browsing history like searches and a
+@@ -1281,6 +1281,18 @@ Your Google account may have other forms of browsing history like searches and a
        <message name="IDS_CLEAR_HISTORY_TITLE" desc="Title for Clear History in Clear Browsing Data dialog">
          Browsing history
        </message>
@@ -267,7 +267,7 @@ diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chro
 diff --git a/chrome/browser/ui/webui/settings/settings_localized_strings_provider.cc b/chrome/browser/ui/webui/settings/settings_localized_strings_provider.cc
 --- a/chrome/browser/ui/webui/settings/settings_localized_strings_provider.cc
 +++ b/chrome/browser/ui/webui/settings/settings_localized_strings_provider.cc
-@@ -1820,6 +1820,11 @@ void AddPrivacyStrings(content::WebUIDataSource* html_source,
+@@ -1814,6 +1814,11 @@ void AddPrivacyStrings(content::WebUIDataSource* html_source,
        {"safeBrowsingStandardDesc", IDS_SETTINGS_SAFEBROWSING_STANDARD_DESC},
        {"safeBrowsingStandardDescUpdated",
         IDS_SETTINGS_SAFEBROWSING_STANDARD_DESC_UPDATED},
@@ -574,7 +574,7 @@ diff --git a/components/history/core/browser/history_service.h b/components/hist
    // Triggers the backend to load if it hasn't already, and then returns whether
    // it's finished loading.
    // Note: Virtual needed for mocking.
-@@ -1216,6 +1220,10 @@ class HistoryService : public KeyedService,
+@@ -1217,6 +1221,10 @@ class HistoryService : public KeyedService,
    raw_ptr<syncer::LocalDeviceInfoProvider> local_device_info_provider_ =
        nullptr;
  

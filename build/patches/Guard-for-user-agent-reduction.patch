@@ -12,7 +12,7 @@ License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
 diff --git a/chrome/browser/chrome_content_browser_client.cc b/chrome/browser/chrome_content_browser_client.cc
 --- a/chrome/browser/chrome_content_browser_client.cc
 +++ b/chrome/browser/chrome_content_browser_client.cc
-@@ -1569,7 +1569,7 @@ void ChromeContentBrowserClient::RegisterProfilePrefs(
+@@ -1591,7 +1591,7 @@ void ChromeContentBrowserClient::RegisterProfilePrefs(
    registry->RegisterIntegerPref(
        prefs::kUserAgentReduction,
        static_cast<int>(
@@ -54,7 +54,7 @@ diff --git a/content/common/user_agent.cc b/content/common/user_agent.cc
 diff --git a/third_party/blink/renderer/platform/runtime_enabled_features.json5 b/third_party/blink/renderer/platform/runtime_enabled_features.json5
 --- a/third_party/blink/renderer/platform/runtime_enabled_features.json5
 +++ b/third_party/blink/renderer/platform/runtime_enabled_features.json5
-@@ -3219,23 +3219,23 @@
+@@ -3245,23 +3245,23 @@
        // If enabled, the deviceModel will be reduced to "K" and the
        // androidVersion will be reduced to a static "10" string in android
        // User-Agent string.

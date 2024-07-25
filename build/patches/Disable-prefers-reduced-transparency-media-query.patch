@@ -51,7 +51,7 @@ diff --git a/third_party/blink/renderer/core/preferences/preference_manager.idl 
 diff --git a/third_party/blink/renderer/platform/runtime_enabled_features.json5 b/third_party/blink/renderer/platform/runtime_enabled_features.json5
 --- a/third_party/blink/renderer/platform/runtime_enabled_features.json5
 +++ b/third_party/blink/renderer/platform/runtime_enabled_features.json5
-@@ -3069,6 +3069,10 @@
+@@ -3091,6 +3091,10 @@
        name: "PrefersReducedData",
        status: "experimental",
      },

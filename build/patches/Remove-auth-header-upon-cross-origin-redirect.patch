@@ -19,7 +19,7 @@ new file mode 100644
 diff --git a/third_party/blink/renderer/platform/loader/fetch/resource_loader.cc b/third_party/blink/renderer/platform/loader/fetch/resource_loader.cc
 --- a/third_party/blink/renderer/platform/loader/fetch/resource_loader.cc
 +++ b/third_party/blink/renderer/platform/loader/fetch/resource_loader.cc
-@@ -600,6 +600,9 @@ bool ResourceLoader::WillFollowRedirect(
+@@ -595,6 +595,9 @@ bool ResourceLoader::WillFollowRedirect(
                                       new_url)) {
      fetcher_->GetUseCounter().CountUse(
          mojom::WebFeature::kAuthorizationCrossOrigin);

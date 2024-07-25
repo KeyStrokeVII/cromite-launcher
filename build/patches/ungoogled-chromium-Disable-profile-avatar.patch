@@ -14,7 +14,7 @@ License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
 diff --git a/chrome/browser/BUILD.gn b/chrome/browser/BUILD.gn
 --- a/chrome/browser/BUILD.gn
 +++ b/chrome/browser/BUILD.gn
-@@ -1407,8 +1407,6 @@ static_library("browser") {
+@@ -1397,8 +1397,6 @@ static_library("browser") {
      "profiles/profile_attributes_storage.cc",
      "profiles/profile_attributes_storage.h",
      "profiles/profile_attributes_storage_observer.h",

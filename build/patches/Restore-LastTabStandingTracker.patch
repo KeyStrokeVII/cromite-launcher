@@ -27,7 +27,7 @@ License: GPL-2.0-or-later - https://spdx.org/licenses/GPL-2.0-or-later.html
 diff --git a/chrome/browser/BUILD.gn b/chrome/browser/BUILD.gn
 --- a/chrome/browser/BUILD.gn
 +++ b/chrome/browser/BUILD.gn
-@@ -1982,6 +1982,16 @@ static_library("browser") {
+@@ -1935,6 +1935,16 @@ static_library("browser") {
      ]
    }
  
@@ -372,7 +372,7 @@ new file mode 100644
 + private:
 +  explicit LastTabStandingTrackerTabHelper(content::WebContents* webContents);
 +  friend class content::WebContentsUserData<LastTabStandingTrackerTabHelper>;
-+  absl::optional<url::Origin> last_committed_origin_;
++  std::optional<url::Origin> last_committed_origin_;
 +
 +  WEB_CONTENTS_USER_DATA_KEY_DECL();
 +};
@@ -389,7 +389,7 @@ diff --git a/chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.cc
  #include "chrome/browser/permissions/notifications_engagement_service_factory.h"
  #include "chrome/browser/permissions/one_time_permissions_tracker_factory.h"
  #include "chrome/browser/permissions/origin_keyed_permission_action_service_factory.h"
-@@ -983,6 +984,7 @@ void ChromeBrowserMainExtraPartsProfiles::
+@@ -1006,6 +1007,7 @@ void ChromeBrowserMainExtraPartsProfiles::
  #if BUILDFLAG(BUILD_WITH_TFLITE_LIB)
    OnDeviceTailModelServiceFactory::GetInstance();
  #endif
@@ -400,7 +400,7 @@ diff --git a/chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.cc
 diff --git a/chrome/browser/ui/tab_helpers.cc b/chrome/browser/ui/tab_helpers.cc
 --- a/chrome/browser/ui/tab_helpers.cc
 +++ b/chrome/browser/ui/tab_helpers.cc
-@@ -53,6 +53,7 @@
+@@ -55,6 +55,7 @@
  #include "chrome/browser/page_info/page_info_features.h"
  #include "chrome/browser/page_load_metrics/page_load_metrics_initialize.h"
  #include "chrome/browser/password_manager/chrome_password_manager_client.h"
@@ -408,7 +408,7 @@ diff --git a/chrome/browser/ui/tab_helpers.cc b/chrome/browser/ui/tab_helpers.cc
  #include "chrome/browser/permissions/one_time_permissions_tracker_helper.h"
  #include "chrome/browser/predictors/loading_predictor_factory.h"
  #include "chrome/browser/predictors/loading_predictor_tab_helper.h"
-@@ -419,6 +420,7 @@ void TabHelpers::AttachTabHelpers(WebContents* web_contents) {
+@@ -421,6 +422,7 @@ void TabHelpers::AttachTabHelpers(WebContents* web_contents) {
    HistoryEmbeddingsTabHelper::CreateForWebContents(web_contents);
    HttpsOnlyModeTabHelper::CreateForWebContents(web_contents);
    webapps::InstallableManager::CreateForWebContents(web_contents);

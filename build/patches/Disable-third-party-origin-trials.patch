@@ -20,7 +20,7 @@ License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
 diff --git a/android_webview/common/aw_content_client.cc b/android_webview/common/aw_content_client.cc
 --- a/android_webview/common/aw_content_client.cc
 +++ b/android_webview/common/aw_content_client.cc
-@@ -126,7 +126,6 @@ blink::OriginTrialPolicy* AwContentClient::GetOriginTrialPolicy() {
+@@ -128,7 +128,6 @@ blink::OriginTrialPolicy* AwContentClient::GetOriginTrialPolicy() {
    // flag to true after construction. This will work because trial token
    // validator will always get the current instance of policy when needed.
    if (IsDisableOriginTrialsSafeModeActionOn()) {
@@ -76,7 +76,7 @@ diff --git a/components/embedder_support/origin_trials/origin_trial_policy_impl.
 diff --git a/content/browser/renderer_host/navigation_request.cc b/content/browser/renderer_host/navigation_request.cc
 --- a/content/browser/renderer_host/navigation_request.cc
 +++ b/content/browser/renderer_host/navigation_request.cc
-@@ -8888,7 +8888,6 @@ void NavigationRequest::SetSourceSiteInstanceToInitiatorIfNeeded() {
+@@ -8971,7 +8971,6 @@ void NavigationRequest::SetSourceSiteInstanceToInitiatorIfNeeded() {
  void NavigationRequest::ForceEnableOriginTrials(
      const std::vector<std::string>& trials) {
    DCHECK(!HasCommitted());
@@ -193,7 +193,7 @@ diff --git a/third_party/blink/common/origin_trials/trial_token_validator.cc b/t
 diff --git a/third_party/blink/renderer/core/loader/document_loader.cc b/third_party/blink/renderer/core/loader/document_loader.cc
 --- a/third_party/blink/renderer/core/loader/document_loader.cc
 +++ b/third_party/blink/renderer/core/loader/document_loader.cc
-@@ -186,13 +186,6 @@ namespace {
+@@ -188,13 +188,6 @@ namespace {
  Vector<mojom::blink::OriginTrialFeature> CopyInitiatorOriginTrials(
      const WebVector<int>& initiator_origin_trial_features) {
    Vector<mojom::blink::OriginTrialFeature> result;
@@ -207,7 +207,7 @@ diff --git a/third_party/blink/renderer/core/loader/document_loader.cc b/third_p
    return result;
  }
  
-@@ -206,18 +199,12 @@ WebVector<int> CopyInitiatorOriginTrials(
+@@ -208,18 +201,12 @@ WebVector<int> CopyInitiatorOriginTrials(
  Vector<String> CopyForceEnabledOriginTrials(
      const WebVector<WebString>& force_enabled_origin_trials) {
    Vector<String> result;
@@ -226,7 +226,7 @@ diff --git a/third_party/blink/renderer/core/loader/document_loader.cc b/third_p
    return result;
  }
  
-@@ -3080,10 +3067,6 @@ void DocumentLoader::CreateParserPostCommit() {
+@@ -3070,10 +3057,6 @@ void DocumentLoader::CreateParserPostCommit() {
            mojom::blink::OriginTrialFeature::kTouchEventFeatureDetection);
      }
  
@@ -240,7 +240,7 @@ diff --git a/third_party/blink/renderer/core/loader/document_loader.cc b/third_p
 diff --git a/third_party/blink/renderer/core/loader/http_equiv.cc b/third_party/blink/renderer/core/loader/http_equiv.cc
 --- a/third_party/blink/renderer/core/loader/http_equiv.cc
 +++ b/third_party/blink/renderer/core/loader/http_equiv.cc
-@@ -108,7 +108,7 @@ void HttpEquiv::ProcessHttpEquivDefaultStyle(Document& document,
+@@ -107,7 +107,7 @@ void HttpEquiv::ProcessHttpEquivDefaultStyle(Document& document,
  
  void HttpEquiv::ProcessHttpEquivOriginTrial(LocalDOMWindow* window,
                                              const AtomicString& content) {

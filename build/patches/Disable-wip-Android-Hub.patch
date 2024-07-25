@@ -12,15 +12,15 @@ Temporarily disable android hub being still in work in progress
 diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
 --- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
 +++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
-@@ -543,7 +543,7 @@ public abstract class ChromeFeatureList {
+@@ -557,7 +557,7 @@ public abstract class ChromeFeatureList {
              newCachedFlag(ANDROID_APP_INTEGRATION, false);
      public static final CachedFlag sAndroidElegantTextHeight =
              newCachedFlag(ANDROID_ELEGANT_TEXT_HEIGHT, false);
 -    public static final CachedFlag sAndroidHub = newCachedFlag(ANDROID_HUB, true);
 +    public static final CachedFlag sAndroidHub = newCachedFlag(ANDROID_HUB, false);
-     public static final CachedFlag sAndroidTabGroupStableIds =
+     public static final CachedFlag sAndroidHubFloatingActionButton =
              newCachedFlag(
-                     ANDROID_TAB_GROUP_STABLE_IDS,
+                     ANDROID_HUB_FLOATING_ACTION_BUTTON,
 diff --git a/cromite_flags/chrome/browser/flags/android/chrome_feature_list_cc/Disable-Android-Hub.inc b/cromite_flags/chrome/browser/flags/android/chrome_feature_list_cc/Disable-Android-Hub.inc
 new file mode 100644
 --- /dev/null

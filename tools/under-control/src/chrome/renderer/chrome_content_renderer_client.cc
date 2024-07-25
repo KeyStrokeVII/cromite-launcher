@@ -108,8 +108,8 @@
 #include "components/safe_browsing/buildflags.h"
 #include "components/safe_browsing/content/renderer/threat_dom_details.h"
 #include "components/spellcheck/spellcheck_buildflags.h"
+#include "components/subresource_filter/content/renderer/safe_browsing_unverified_ruleset_dealer.h"
 #include "components/subresource_filter/content/renderer/subresource_filter_agent.h"
-#include "components/subresource_filter/content/renderer/unverified_ruleset_dealer.h"
 #include "components/subresource_filter/core/common/common_features.h"
 #include "components/variations/net/variations_http_headers.h"
 #include "components/variations/variations_switches.h"
@@ -202,7 +202,6 @@
 #endif
 
 #if BUILDFLAG(ENABLE_EXTENSIONS)
-#include "chrome/common/controlled_frame/controlled_frame.h"
 #include "chrome/common/initialize_extensions_client.h"
 #include "chrome/renderer/extensions/api/chrome_extensions_renderer_api_provider.h"
 #include "chrome/renderer/extensions/chrome_extensions_renderer_client.h"
@@ -255,10 +254,6 @@
 
 #if BUILDFLAG(ENABLE_LIBRARY_CDMS) || BUILDFLAG(IS_WIN) || BUILDFLAG(IS_ANDROID)
 #include "chrome/renderer/media/chrome_key_systems.h"
-#endif
-
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
-#include "chrome/renderer/cco/multiline_detector.h"
 #endif
 
 using autofill::AutofillAgent;
@@ -389,8 +384,7 @@ ChromeContentRendererClient::ChromeContentRendererClient()
 #endif
       ) {
 #if BUILDFLAG(ENABLE_EXTENSIONS)
-  EnsureExtensionsClientInitialized(
-      controlled_frame::CreateAvailabilityCheckMap());
+  EnsureExtensionsClientInitialized();
   extensions::ExtensionsRendererClient::Set(
       ChromeExtensionsRendererClient::GetInstance());
 #endif
@@ -462,8 +456,8 @@ void ChromeContentRendererClient::RenderThreadStarted() {
     InitSpellCheck();
 #endif
 
-  subresource_filter_ruleset_dealer_ =
-      std::make_unique<subresource_filter::UnverifiedRulesetDealer>();
+  subresource_filter_ruleset_dealer_ = std::make_unique<
+      subresource_filter::SafeBrowsingUnverifiedRulesetDealer>();
 
   phishing_model_setter_ =
       std::make_unique<safe_browsing::PhishingModelSetterImpl>();
@@ -731,7 +725,7 @@ void ChromeContentRendererClient::RenderFrameCreated(
 
   // Owned by |render_frame|.
   new page_load_metrics::MetricsRenderFrameObserver(render_frame);
-  // There is no render thread, thus no UnverifiedRulesetDealer in
+  // There is no render thread, thus no SafeBrowsingUnverifiedRulesetDealer in
   // ChromeRenderViewTests.
   if (subresource_filter_ruleset_dealer_) {
     auto* subresource_filter_agent =
@@ -781,10 +775,6 @@ void ChromeContentRendererClient::RenderFrameCreated(
             base::BindRepeating(&RenderFrameFontFamilyAccessor::Bind,
                                 render_frame));
   }
-#endif
-
-#if !BUILDFLAG(IS_ANDROID) && !BUILDFLAG(IS_CHROMEOS)
-  MultilineDetector::InstallIfNecessary(render_frame);
 #endif
 
   if (render_frame->IsMainFrame()) {
@@ -1020,7 +1010,7 @@ WebPlugin* ChromeContentRendererClient::CreatePlugin(
     };
     switch (status) {
       case chrome::mojom::PluginStatus::kNotFound: {
-        NOTREACHED();
+        NOTREACHED_IN_MIGRATION();
         break;
       }
       case chrome::mojom::PluginStatus::kAllowed:
@@ -1328,8 +1318,9 @@ void ChromeContentRendererClient::ReportNaClAppType(
       }
     } else {
       // We found an extension that is not covered by any metric
-      NOTREACHED() << "Invalid NaCl usage in extension. Extension name: "
-                   << extension->name() << ", type: " << extension->GetType();
+      NOTREACHED_IN_MIGRATION()
+          << "Invalid NaCl usage in extension. Extension name: "
+          << extension->name() << ", type: " << extension->GetType();
     }
   }
 
@@ -1495,6 +1486,12 @@ uint64_t ChromeContentRendererClient::VisitedLinkHash(
 
 bool ChromeContentRendererClient::IsLinkVisited(uint64_t link_hash) {
   return chrome_observer_->visited_link_reader()->IsVisited(link_hash);
+}
+
+void ChromeContentRendererClient::AddOrUpdateVisitedLinkSalt(
+    const url::Origin& origin,
+    uint64_t salt) {
+  return chrome_observer_->visited_link_reader()->AddOrUpdateSalt(origin, salt);
 }
 
 std::unique_ptr<blink::WebPrescientNetworking>

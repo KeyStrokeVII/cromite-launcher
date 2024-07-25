@@ -4,18 +4,21 @@ Subject: Keep ComputePressure disabled
 
 License: GPL-2.0-or-later - https://spdx.org/licenses/GPL-2.0-or-later.html
 ---
- .../blink/renderer/platform/runtime_enabled_features.json5   | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ .../renderer/platform/runtime_enabled_features.json5      | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
 diff --git a/third_party/blink/renderer/platform/runtime_enabled_features.json5 b/third_party/blink/renderer/platform/runtime_enabled_features.json5
 --- a/third_party/blink/renderer/platform/runtime_enabled_features.json5
 +++ b/third_party/blink/renderer/platform/runtime_enabled_features.json5
-@@ -699,8 +699,9 @@
+@@ -707,11 +707,9 @@
+       status: "experimental",
      },
      {
-       // Shipping in M125. Should be removed after M127.
 -      name: "ComputePressure",
--      status: "stable",
+-      status: {
+-        "Android": "",
+-        "default": "stable",
+-      }
 +      name: "ComputePressure", // disabled
 +      status: "experimental",  // by default
 +      public: true,

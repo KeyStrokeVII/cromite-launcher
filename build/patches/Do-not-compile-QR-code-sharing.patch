@@ -14,7 +14,7 @@ License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -3598,7 +3598,6 @@ generate_jni("chrome_jni_headers") {
+@@ -3606,7 +3606,6 @@ generate_jni("chrome_jni_headers") {
      "../browser/share/android/java/src/org/chromium/chrome/browser/share/link_to_text/LinkToTextBridge.java",
      "../browser/share/android/java/src/org/chromium/chrome/browser/share/long_screenshots/bitmap_generation/LongScreenshotsTabService.java",
      "../browser/share/android/java/src/org/chromium/chrome/browser/share/long_screenshots/bitmap_generation/LongScreenshotsTabServiceFactory.java",
@@ -25,7 +25,7 @@ diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ui/RootUiCoordinator.java b/chrome/android/java/src/org/chromium/chrome/browser/ui/RootUiCoordinator.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ui/RootUiCoordinator.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ui/RootUiCoordinator.java
-@@ -113,7 +113,6 @@ import org.chromium.chrome.browser.share.ShareButtonController;
+@@ -114,7 +114,6 @@ import org.chromium.chrome.browser.share.ShareButtonController;
  import org.chromium.chrome.browser.share.ShareDelegate;
  import org.chromium.chrome.browser.share.ShareDelegate.ShareOrigin;
  import org.chromium.chrome.browser.share.ShareUtils;
@@ -33,7 +33,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ui/RootUiCoordi
  import org.chromium.chrome.browser.share.scroll_capture.ScrollCaptureManager;
  import org.chromium.chrome.browser.tab.AccessibilityVisibilityHandler;
  import org.chromium.chrome.browser.tab.AutofillSessionLifetimeController;
-@@ -605,10 +604,6 @@ public class RootUiCoordinator
+@@ -604,10 +603,6 @@ public class RootUiCoordinator
      }
  
      public void onAttachFragment(Fragment fragment) {

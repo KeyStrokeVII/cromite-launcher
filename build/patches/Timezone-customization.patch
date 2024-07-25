@@ -559,7 +559,7 @@ new file mode 100644
 diff --git a/components/browser_ui/site_settings/android/website_preference_bridge.cc b/components/browser_ui/site_settings/android/website_preference_bridge.cc
 --- a/components/browser_ui/site_settings/android/website_preference_bridge.cc
 +++ b/components/browser_ui/site_settings/android/website_preference_bridge.cc
-@@ -1118,3 +1118,19 @@ JNI_WebsitePreferenceBridge_ToHostOnlyPattern(
+@@ -1121,3 +1121,19 @@ JNI_WebsitePreferenceBridge_ToHostOnlyPattern(
            ContentSettingsPattern::FromString(pattern_string));
    return ConvertUTF8ToJavaString(env, host_only_pattern.ToString());
  }
@@ -747,7 +747,7 @@ diff --git a/components/content_settings/core/browser/host_content_settings_map.
 diff --git a/components/content_settings/core/browser/host_content_settings_map.h b/components/content_settings/core/browser/host_content_settings_map.h
 --- a/components/content_settings/core/browser/host_content_settings_map.h
 +++ b/components/content_settings/core/browser/host_content_settings_map.h
-@@ -368,6 +368,9 @@ class HostContentSettingsMap : public content_settings::Observer,
+@@ -367,6 +367,9 @@ class HostContentSettingsMap : public content_settings::Observer,
      allow_invalid_secondary_pattern_for_testing_ = allow;
    }
  
@@ -815,7 +815,7 @@ diff --git a/components/content_settings/core/common/content_settings_mojom_trai
 diff --git a/components/content_settings/core/common/pref_names.h b/components/content_settings/core/common/pref_names.h
 --- a/components/content_settings/core/common/pref_names.h
 +++ b/components/content_settings/core/common/pref_names.h
-@@ -234,6 +234,9 @@ inline constexpr char kDesktopSiteWindowSettingEnabled[] =
+@@ -232,6 +232,9 @@ inline constexpr char kDesktopSiteWindowSettingEnabled[] =
      "desktop_site.window_setting";
  #endif
  

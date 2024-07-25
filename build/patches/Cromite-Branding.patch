@@ -53,8 +53,7 @@ License: GPL-2.0-or-later - https://spdx.org/licenses/GPL-2.0-or-later.html
  .../chromium/product_logo_white.png           | Bin 2512 -> 6790 bytes
  content/child/runtime_features.cc             |  23 +++--
  tools/grit/grit/grd_reader.py                 |  35 +++++++
- ui/base/ui_base_features.cc                   |   3 +
- 50 files changed, 175 insertions(+), 111 deletions(-)
+ 49 files changed, 172 insertions(+), 111 deletions(-)
 
 diff --git a/build/BUILD.gn b/build/BUILD.gn
 --- a/build/BUILD.gn
@@ -9180,7 +9179,7 @@ diff --git a/chrome/app/extensions_strings.grdp b/chrome/app/extensions_strings.
 diff --git a/chrome/app/settings_strings.grdp b/chrome/app/settings_strings.grdp
 --- a/chrome/app/settings_strings.grdp
 +++ b/chrome/app/settings_strings.grdp
-@@ -402,7 +402,7 @@
+@@ -414,7 +414,7 @@
      Change
    </message>
    <message name="IDS_SETTINGS_WEB_STORE" desc="Sub-label about choosing something from the Chrome Web Store.">
@@ -13134,7 +13133,7 @@ e)fqMZZ`3a)Ds&5H<cfp<0000<MNUMnLSTYHt&Yn8
 diff --git a/chrome/browser/BUILD.gn b/chrome/browser/BUILD.gn
 --- a/chrome/browser/BUILD.gn
 +++ b/chrome/browser/BUILD.gn
-@@ -2103,6 +2103,7 @@ static_library("browser") {
+@@ -2061,6 +2061,7 @@ static_library("browser") {
      "//build:chromeos_buildflags",
      "//build/config/chromebox_for_meetings:buildflags",
      "//build/config/compiler:compiler_buildflags",
@@ -13163,9 +13162,9 @@ diff --git a/chrome/browser/prefs/chrome_pref_service_factory.cc b/chrome/browse
  #include "build/chromeos_buildflags.h"
 +#include "build/cromite_flags.h"
  #include "chrome/browser/browser_process.h"
+ #include "chrome/browser/enterprise/signin/enterprise_signin_prefs.h"
  #include "chrome/browser/policy/chrome_browser_policy_connector.h"
- #include "chrome/browser/prefs/chrome_command_line_pref_store.h"
-@@ -273,10 +274,7 @@ std::unique_ptr<ProfilePrefStoreManager> CreateProfilePrefStoreManager(
+@@ -277,10 +278,7 @@ std::unique_ptr<ProfilePrefStoreManager> CreateProfilePrefStoreManager(
  #endif
    std::string seed;
    CHECK(ui::ResourceBundle::HasSharedInstance());
@@ -13211,7 +13210,7 @@ diff --git a/chrome/browser/resources/settings/settings_menu/settings_menu.html 
        #menu {
          color: var(--google-grey-700);
          display: flex;
-@@ -162,7 +174,7 @@
+@@ -164,7 +176,7 @@
          </a>
          <a role="menuitem" id="about-menu" href="/help"
              class="cr-nav-menu-item">
@@ -13223,7 +13222,7 @@ diff --git a/chrome/browser/resources/settings/settings_menu/settings_menu.html 
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -2200,7 +2200,7 @@ Your Google account may have other forms of browsing history like searches and a
+@@ -2264,7 +2264,7 @@ Your Google account may have other forms of browsing history like searches and a
          About Chrome
        </message>
        <message name="IDS_LEGAL_INFORMATION_SUMMARY" desc="Summary for legal information" meaning="Android">
@@ -13235,7 +13234,7 @@ diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chro
 diff --git a/chrome/common/url_constants.h b/chrome/common/url_constants.h
 --- a/chrome/common/url_constants.h
 +++ b/chrome/common/url_constants.h
-@@ -126,7 +126,7 @@ inline constexpr char kChromeHelpViaMenuURL[] =
+@@ -132,7 +132,7 @@ inline constexpr char kChromeHelpViaMenuURL[] =
  #endif  // BUILDFLAG(IS_CHROMEOS_ASH)
  
  inline constexpr char kChromeHelpViaWebUIURL[] =
@@ -13244,7 +13243,7 @@ diff --git a/chrome/common/url_constants.h b/chrome/common/url_constants.h
  #if BUILDFLAG(IS_CHROMEOS_ASH)
  inline constexpr char kChromeOsHelpViaWebUIURL[] =
  #if BUILDFLAG(GOOGLE_CHROME_BRANDING)
-@@ -189,7 +189,7 @@ inline constexpr char kChromeUIUntrustedNewTabPageUrl[] =
+@@ -195,7 +195,7 @@ inline constexpr char kChromeUIUntrustedNewTabPageUrl[] =
      "chrome-untrusted://new-tab-page/";
  
  // The URL for the Chromium project used in the About dialog.
@@ -18865,7 +18864,7 @@ EKU(of)Bpeg
 diff --git a/content/child/runtime_features.cc b/content/child/runtime_features.cc
 --- a/content/child/runtime_features.cc
 +++ b/content/child/runtime_features.cc
-@@ -616,7 +616,7 @@ void ResolveInvalidConfigurations() {
+@@ -620,7 +620,7 @@ void ResolveInvalidConfigurations() {
         base::FeatureList::IsEnabled(
             features::kPrivacySandboxAdsAPIsM1Override)) &&
        !base::FeatureList::IsEnabled(blink::features::kFencedFrames)) {
@@ -18874,7 +18873,7 @@ diff --git a/content/child/runtime_features.cc b/content/child/runtime_features.
          << "Fenced frames cannot be enabled in this configuration. Use --"
          << switches::kEnableFeatures << "="
          << blink::features::kFencedFrames.name << " instead.";
-@@ -626,9 +626,8 @@ void ResolveInvalidConfigurations() {
+@@ -630,9 +630,8 @@ void ResolveInvalidConfigurations() {
    if (!base::FeatureList::IsEnabled(blink::features::kFencedFrames) &&
        base::FeatureList::IsEnabled(
            blink::features::kFencedFramesLocalUnpartitionedDataAccess)) {
@@ -18886,7 +18885,7 @@ diff --git a/content/child/runtime_features.cc b/content/child/runtime_features.
          << "Fenced frames must be enabled in order to enable local "
             "unpartitioned "
          << "data access. Use --" << switches::kEnableFeatures << "="
-@@ -641,7 +640,7 @@ void ResolveInvalidConfigurations() {
+@@ -645,7 +644,7 @@ void ResolveInvalidConfigurations() {
    // The Document API should be additionally gated by the
    // `kBrowsingTopicsDocumentAPI` feature.
    if (!base::FeatureList::IsEnabled(blink::features::kBrowsingTopics)) {
@@ -18895,7 +18894,7 @@ diff --git a/content/child/runtime_features.cc b/content/child/runtime_features.
          << "Topics cannot be enabled in this configuration. Use --"
          << switches::kEnableFeatures << "="
          << blink::features::kBrowsingTopics.name << " in addition.";
-@@ -661,7 +660,7 @@ void ResolveInvalidConfigurations() {
+@@ -665,7 +664,7 @@ void ResolveInvalidConfigurations() {
    }
  
    if (!base::FeatureList::IsEnabled(blink::features::kSharedStorageAPI)) {
@@ -18904,7 +18903,7 @@ diff --git a/content/child/runtime_features.cc b/content/child/runtime_features.
          << "SharedStorage cannot be enabled in this "
             "configuration. Use --"
          << switches::kEnableFeatures << "="
-@@ -671,7 +670,7 @@ void ResolveInvalidConfigurations() {
+@@ -675,7 +674,7 @@ void ResolveInvalidConfigurations() {
  
    if (!base::FeatureList::IsEnabled(blink::features::kSharedStorageAPIM118) ||
        !base::FeatureList::IsEnabled(blink::features::kSharedStorageAPI)) {
@@ -18913,7 +18912,7 @@ diff --git a/content/child/runtime_features.cc b/content/child/runtime_features.
          << "SharedStorage for M118+ cannot be enabled in this "
             "configuration. Use --"
          << switches::kEnableFeatures << "="
-@@ -682,7 +681,7 @@ void ResolveInvalidConfigurations() {
+@@ -686,7 +685,7 @@ void ResolveInvalidConfigurations() {
  
    if (!base::FeatureList::IsEnabled(blink::features::kSharedStorageAPIM125) ||
        !base::FeatureList::IsEnabled(blink::features::kSharedStorageAPI)) {
@@ -18922,7 +18921,7 @@ diff --git a/content/child/runtime_features.cc b/content/child/runtime_features.
          << "SharedStorage for M125+ cannot be enabled in this "
             "configuration. Use --"
          << switches::kEnableFeatures << "="
-@@ -693,7 +692,7 @@ void ResolveInvalidConfigurations() {
+@@ -697,7 +696,7 @@ void ResolveInvalidConfigurations() {
  
    if (!base::FeatureList::IsEnabled(
            attribution_reporting::features::kConversionMeasurement)) {
@@ -18931,7 +18930,7 @@ diff --git a/content/child/runtime_features.cc b/content/child/runtime_features.
          << "AttributionReporting cannot be enabled in this "
             "configuration. Use --"
          << switches::kEnableFeatures << "="
-@@ -706,8 +705,8 @@ void ResolveInvalidConfigurations() {
+@@ -710,8 +709,8 @@ void ResolveInvalidConfigurations() {
            attribution_reporting::features::kConversionMeasurement) ||
        !base::FeatureList::IsEnabled(
            network::features::kAttributionReportingCrossAppWeb)) {
@@ -18942,7 +18941,7 @@ diff --git a/content/child/runtime_features.cc b/content/child/runtime_features.
          << "AttributionReportingCrossAppWeb cannot be enabled in this "
             "configuration. Use --"
          << switches::kEnableFeatures << "="
-@@ -718,7 +717,7 @@ void ResolveInvalidConfigurations() {
+@@ -722,7 +721,7 @@ void ResolveInvalidConfigurations() {
    }
  
    if (!base::FeatureList::IsEnabled(blink::features::kInterestGroupStorage)) {
@@ -19003,15 +19002,4 @@ diff --git a/tools/grit/grit/grd_reader.py b/tools/grit/grit/grd_reader.py
  
  class GrdPartContentHandler(xml.sax.handler.ContentHandler):
    def __init__(self, parent):
-diff --git a/ui/base/ui_base_features.cc b/ui/base/ui_base_features.cc
---- a/ui/base/ui_base_features.cc
-+++ b/ui/base/ui_base_features.cc
-@@ -549,4 +549,7 @@ BASE_FEATURE(kUseGammaContrastRegistrySettings,
- BASE_FEATURE(kBubbleFrameViewTitleIsHeading,
-              "BubbleFrameViewTitleIsHeading",
-              base::FEATURE_ENABLED_BY_DEFAULT);
-+
-+SET_CROMITE_FEATURE_ENABLED(kChromeRefresh2023);
-+SET_CROMITE_FEATURE_ENABLED(kChromeRefreshSecondary2023);
- }  // namespace features
 --

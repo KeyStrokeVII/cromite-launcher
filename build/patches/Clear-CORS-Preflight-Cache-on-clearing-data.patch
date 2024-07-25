@@ -79,7 +79,7 @@ diff --git a/services/network/cors/preflight_result.cc b/services/network/cors/p
 diff --git a/services/network/network_context.cc b/services/network/network_context.cc
 --- a/services/network/network_context.cc
 +++ b/services/network/network_context.cc
-@@ -1186,6 +1186,8 @@ void NetworkContext::ClearHttpCache(base::Time start_time,
+@@ -1247,6 +1247,8 @@ void NetworkContext::ClearHttpCache(base::Time start_time,
        base::BindOnce(&NetworkContext::OnHttpCacheCleared,
                       base::Unretained(this), std::move(callback))));
  

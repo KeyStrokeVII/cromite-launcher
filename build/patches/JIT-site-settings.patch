@@ -287,7 +287,7 @@ diff --git a/components/content_settings/core/browser/content_settings_registry.
 diff --git a/content/browser/renderer_host/render_process_host_impl.cc b/content/browser/renderer_host/render_process_host_impl.cc
 --- a/content/browser/renderer_host/render_process_host_impl.cc
 +++ b/content/browser/renderer_host/render_process_host_impl.cc
-@@ -3350,13 +3350,8 @@ void RenderProcessHostImpl::AppendRendererCommandLine(
+@@ -3396,13 +3396,8 @@ void RenderProcessHostImpl::AppendRendererCommandLine(
    }
  
    if (IsJitDisabled()) {

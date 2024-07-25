@@ -1,0 +1,149 @@
+From: uazo <uazo@users.noreply.github.com>
+Date: Thu, 18 Jul 2024 14:03:12 +0000
+Subject: Restore BookmarkToolbar#setCurrentFolder
+
+restore https://chromium-review.googlesource.com/c/chromium/src/+/5554182
+
+License: GPL-2.0-or-later - https://spdx.org/licenses/GPL-2.0-or-later.html
+---
+ .../chrome/browser/bookmarks/BookmarkToolbar.java    | 12 ++++++++++++
+ .../bookmarks/BookmarkToolbarCoordinator.java        |  1 +
+ .../browser/bookmarks/BookmarkToolbarMediator.java   |  1 +
+ .../browser/bookmarks/BookmarkToolbarProperties.java |  8 ++++++++
+ .../browser/bookmarks/BookmarkToolbarViewBinder.java |  4 ++++
+ 5 files changed, 26 insertions(+)
+
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbar.java b/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbar.java
+--- a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbar.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbar.java
+@@ -10,11 +10,13 @@ import android.view.MenuItem;
+ import android.view.View.OnClickListener;
+ 
+ import androidx.annotation.IdRes;
++import androidx.annotation.Nullable;
+ import androidx.appcompat.widget.Toolbar.OnMenuItemClickListener;
+ import androidx.core.view.MenuCompat;
+ 
+ import org.chromium.chrome.R;
+ import org.chromium.chrome.browser.bookmarks.BookmarkUiState.BookmarkUiMode;
++import org.chromium.components.bookmarks.BookmarkItem;
+ import org.chromium.components.bookmarks.BookmarkId;
+ import org.chromium.components.browser_ui.util.ToolbarUtils;
+ import org.chromium.components.browser_ui.widget.selectable_list.SelectableListToolbar;
+@@ -30,9 +32,11 @@ import java.util.function.Function;
+  */
+ public class BookmarkToolbar extends SelectableListToolbar<BookmarkId>
+         implements OnMenuItemClickListener, OnClickListener {
++    private BookmarkModel mBookmarkModel;
+     private BookmarkOpener mBookmarkOpener;
+     private SelectionDelegate<BookmarkId> mSelectionDelegate;
+ 
++    private @Nullable BookmarkItem mCurrentFolder;
+     private boolean mEditButtonVisible;
+     private boolean mNewFolderButtonVisible;
+     private boolean mNewFolderButtonEnabled;
+@@ -60,6 +64,10 @@ public class BookmarkToolbar extends SelectableListToolbar<BookmarkId>
+         setOnMenuItemClickListener(this);
+     }
+ 
++    void setBookmarkModel(BookmarkModel bookmarkModel) {
++        mBookmarkModel = bookmarkModel;
++    }
++
+     void setBookmarkOpener(BookmarkOpener bookmarkOpener) {
+         mBookmarkOpener = bookmarkOpener;
+     }
+@@ -167,6 +175,10 @@ public class BookmarkToolbar extends SelectableListToolbar<BookmarkId>
+         getMenu().findItem(id).setChecked(true);
+     }
+ 
++    void setCurrentFolder(BookmarkId folder) {
++        mCurrentFolder = mBookmarkModel.getBookmarkById(folder);
++    }
++
+     void setNavigateBackRunnable(Runnable navigateBackRunnable) {
+         mNavigateBackRunnable = navigateBackRunnable;
+     }
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbarCoordinator.java b/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbarCoordinator.java
+--- a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbarCoordinator.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbarCoordinator.java
+@@ -55,6 +55,7 @@ public class BookmarkToolbarCoordinator {
+                 searchDelegate, R.string.bookmark_toolbar_search, R.id.search_menu_id);
+ 
+         mModel = new PropertyModel.Builder(BookmarkToolbarProperties.ALL_KEYS).build();
++        mModel.set(BookmarkToolbarProperties.BOOKMARK_MODEL, bookmarkModel);
+         mModel.set(BookmarkToolbarProperties.BOOKMARK_OPENER, bookmarkOpener);
+         mModel.set(BookmarkToolbarProperties.SELECTION_DELEGATE, selectionDelegate);
+         mModel.set(BookmarkToolbarProperties.BOOKMARK_UI_MODE, BookmarkUiMode.LOADING);
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbarMediator.java b/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbarMediator.java
+--- a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbarMediator.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbarMediator.java
+@@ -290,6 +290,7 @@ class BookmarkToolbarMediator
+     @Override
+     public void onFolderStateSet(BookmarkId folder) {
+         mCurrentFolder = folder;
++        mModel.set(BookmarkToolbarProperties.CURRENT_FOLDER, mCurrentFolder);
+ 
+         BookmarkItem folderItem =
+                 mCurrentFolder == null ? null : mBookmarkModel.getBookmarkById(mCurrentFolder);
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbarProperties.java b/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbarProperties.java
+--- a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbarProperties.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbarProperties.java
+@@ -4,6 +4,7 @@
+ 
+ package org.chromium.chrome.browser.bookmarks;
+ 
++import org.chromium.components.bookmarks.BookmarkId;
+ import org.chromium.components.browser_ui.widget.selectable_list.SelectionDelegate;
+ import org.chromium.ui.modelutil.PropertyKey;
+ import org.chromium.ui.modelutil.PropertyModel.WritableBooleanPropertyKey;
+@@ -19,6 +20,8 @@ import java.util.function.Function;
+  */
+ class BookmarkToolbarProperties {
+     /** Dependencies */
++    static final WritableObjectPropertyKey<BookmarkModel> BOOKMARK_MODEL =
++            new WritableObjectPropertyKey<>();
+     static final WritableObjectPropertyKey<BookmarkOpener> BOOKMARK_OPENER =
+             new WritableObjectPropertyKey<>();
+ 
+@@ -68,6 +71,10 @@ class BookmarkToolbarProperties {
+     static final WritableObjectPropertyKey<Boolean> FAKE_SELECTION_STATE_CHANGE =
+             new WritableObjectPropertyKey<>(/* skipEquality= */ true);
+ 
++    /** Bookmark state properties. */
++    static final WritableObjectPropertyKey<BookmarkId> CURRENT_FOLDER =
++            new WritableObjectPropertyKey<>(/* skipEquality= */ true);
++
+     /** Callables to delegate business logic back to the mediator */
+     static final WritableObjectPropertyKey<Function<Integer, Boolean>> MENU_ID_CLICKED_FUNCTION =
+             new WritableObjectPropertyKey<>();
+@@ -88,6 +95,7 @@ class BookmarkToolbarProperties {
+         NEW_FOLDER_BUTTON_VISIBLE,
+         NEW_FOLDER_BUTTON_ENABLED,
+         NAVIGATION_BUTTON_STATE,
++        CURRENT_FOLDER,
+         SORT_MENU_IDS,
+         SORT_MENU_IDS_ENABLED,
+         CHECKED_SORT_MENU_ID,
+diff --git a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbarViewBinder.java b/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbarViewBinder.java
+--- a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbarViewBinder.java
++++ b/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbarViewBinder.java
+@@ -13,6 +13,8 @@ class BookmarkToolbarViewBinder {
+     public static void bind(PropertyModel model, BookmarkToolbar bookmarkToolbar, PropertyKey key) {
+         if (key == BookmarkToolbarProperties.BOOKMARK_OPENER) {
+             bookmarkToolbar.setBookmarkOpener(model.get(BookmarkToolbarProperties.BOOKMARK_OPENER));
++        } else if (key == BookmarkToolbarProperties.BOOKMARK_MODEL) {
++            bookmarkToolbar.setBookmarkModel(model.get(BookmarkToolbarProperties.BOOKMARK_MODEL));
+         } else if (key == BookmarkToolbarProperties.SELECTION_DELEGATE) {
+             bookmarkToolbar.setSelectionDelegate(
+                     model.get(BookmarkToolbarProperties.SELECTION_DELEGATE));
+@@ -52,6 +54,8 @@ class BookmarkToolbarViewBinder {
+         } else if (key == BookmarkToolbarProperties.CHECKED_VIEW_MENU_ID) {
+             bookmarkToolbar.setCheckedViewMenuId(
+                     model.get(BookmarkToolbarProperties.CHECKED_VIEW_MENU_ID));
++        } else if (key == BookmarkToolbarProperties.CURRENT_FOLDER) {
++            bookmarkToolbar.setCurrentFolder(model.get(BookmarkToolbarProperties.CURRENT_FOLDER));
+         } else if (key == BookmarkToolbarProperties.NAVIGATE_BACK_RUNNABLE) {
+             bookmarkToolbar.setNavigateBackRunnable(
+                     model.get(BookmarkToolbarProperties.NAVIGATE_BACK_RUNNABLE));
+--

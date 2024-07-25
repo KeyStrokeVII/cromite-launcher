@@ -45,7 +45,7 @@ do
     -v /casefold:/win_sdk \
     --network none \
     --device=/dev/kvm \
-    uazo/github-runner:2.316.1
+    uazo/github-runner:2.317.0
 
   echo "You can stop now"
   sleep 5s

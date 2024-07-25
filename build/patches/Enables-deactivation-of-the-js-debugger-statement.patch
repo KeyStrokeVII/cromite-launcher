@@ -101,7 +101,7 @@ diff --git a/third_party/devtools-frontend/src/front_end/core/sdk/sdk-meta.ts b/
 diff --git a/third_party/devtools-frontend/src/front_end/generated/InspectorBackendCommands.js b/third_party/devtools-frontend/src/front_end/generated/InspectorBackendCommands.js
 --- a/third_party/devtools-frontend/src/front_end/generated/InspectorBackendCommands.js
 +++ b/third_party/devtools-frontend/src/front_end/generated/InspectorBackendCommands.js
-@@ -1342,6 +1342,10 @@ inspectorBackend.registerCommand("Debugger.restartFrame", [{"name": "callFrameId
+@@ -1346,6 +1346,10 @@ inspectorBackend.registerCommand("Debugger.restartFrame", [{"name": "callFrameId
  inspectorBackend.registerCommand("Debugger.resume", [{"name": "terminateOnResume", "type": "boolean", "optional": true, "description": "Set to true to terminate execution upon resuming execution. In contrast to Runtime.terminateExecution, this will allows to execute further JavaScript (i.e. via evaluation) until execution of the paused code is actually resumed, at which point termination is triggered. If execution is currently not paused, this parameter has no effect.", "typeRef": null}], [], "Resumes JavaScript execution.");
  inspectorBackend.registerCommand("Debugger.searchInContent", [{"name": "scriptId", "type": "string", "optional": false, "description": "Id of the script to search in.", "typeRef": "Runtime.ScriptId"}, {"name": "query", "type": "string", "optional": false, "description": "String to search for.", "typeRef": null}, {"name": "caseSensitive", "type": "boolean", "optional": true, "description": "If true, search is case sensitive.", "typeRef": null}, {"name": "isRegex", "type": "boolean", "optional": true, "description": "If true, treats string parameter as regex.", "typeRef": null}], ["result"], "Searches for given string in script content.");
  inspectorBackend.registerCommand("Debugger.setAsyncCallStackDepth", [{"name": "maxDepth", "type": "number", "optional": false, "description": "Maximum depth of async call stacks. Setting to `0` will effectively disable collecting async call stacks (default).", "typeRef": null}], [], "Enables or disables async call stacks tracking.");
@@ -115,7 +115,7 @@ diff --git a/third_party/devtools-frontend/src/front_end/generated/InspectorBack
 diff --git a/third_party/devtools-frontend/src/front_end/generated/protocol-mapping.d.ts b/third_party/devtools-frontend/src/front_end/generated/protocol-mapping.d.ts
 --- a/third_party/devtools-frontend/src/front_end/generated/protocol-mapping.d.ts
 +++ b/third_party/devtools-frontend/src/front_end/generated/protocol-mapping.d.ts
-@@ -4563,6 +4563,10 @@ export namespace ProtocolMapping {
+@@ -4598,6 +4598,10 @@ export namespace ProtocolMapping {
        paramsType: [Protocol.Debugger.SetAsyncCallStackDepthRequest];
        returnType: void;
      };
@@ -129,7 +129,7 @@ diff --git a/third_party/devtools-frontend/src/front_end/generated/protocol-mapp
 diff --git a/third_party/devtools-frontend/src/front_end/generated/protocol-proxy-api.d.ts b/third_party/devtools-frontend/src/front_end/generated/protocol-proxy-api.d.ts
 --- a/third_party/devtools-frontend/src/front_end/generated/protocol-proxy-api.d.ts
 +++ b/third_party/devtools-frontend/src/front_end/generated/protocol-proxy-api.d.ts
-@@ -4050,6 +4050,8 @@ declare namespace ProtocolProxyApi {
+@@ -4079,6 +4079,8 @@ declare namespace ProtocolProxyApi {
       */
      invoke_setAsyncCallStackDepth(params: Protocol.Debugger.SetAsyncCallStackDepthRequest): Promise<Protocol.ProtocolResponseWithError>;
  
@@ -141,7 +141,7 @@ diff --git a/third_party/devtools-frontend/src/front_end/generated/protocol-prox
 diff --git a/third_party/devtools-frontend/src/front_end/generated/protocol.ts b/third_party/devtools-frontend/src/front_end/generated/protocol.ts
 --- a/third_party/devtools-frontend/src/front_end/generated/protocol.ts
 +++ b/third_party/devtools-frontend/src/front_end/generated/protocol.ts
-@@ -17757,6 +17757,10 @@ export namespace Debugger {
+@@ -17831,6 +17831,10 @@ export namespace Debugger {
      maxDepth: integer;
    }
  
@@ -155,7 +155,7 @@ diff --git a/third_party/devtools-frontend/src/front_end/generated/protocol.ts b
 diff --git a/third_party/devtools-frontend/src/third_party/blink/public/devtools_protocol/browser_protocol.json b/third_party/devtools-frontend/src/third_party/blink/public/devtools_protocol/browser_protocol.json
 --- a/third_party/devtools-frontend/src/third_party/blink/public/devtools_protocol/browser_protocol.json
 +++ b/third_party/devtools-frontend/src/third_party/blink/public/devtools_protocol/browser_protocol.json
-@@ -26821,8 +26821,17 @@
+@@ -26939,8 +26939,17 @@
                              "$ref": "WasmDisassemblyChunk"
                          }
                      ]
@@ -175,7 +175,7 @@ diff --git a/third_party/devtools-frontend/src/third_party/blink/public/devtools
                      "name": "nextWasmDisassemblyChunk",
                      "description": "Disassemble the next chunk of lines for the module corresponding to the\nstream. If disassembly is complete, this API will invalidate the streamId\nand return an empty chunk. Any subsequent calls for the now invalid stream\nwill return errors.",
                      "experimental": true,
-@@ -29948,4 +29957,4 @@
+@@ -30066,4 +30075,4 @@
              ]
          }
      ]
@@ -238,7 +238,7 @@ diff --git a/v8/src/debug/debug-interface.h b/v8/src/debug/debug-interface.h
 diff --git a/v8/src/debug/debug.h b/v8/src/debug/debug.h
 --- a/v8/src/debug/debug.h
 +++ b/v8/src/debug/debug.h
-@@ -428,6 +428,9 @@ class V8_EXPORT_PRIVATE Debug {
+@@ -433,6 +433,9 @@ class V8_EXPORT_PRIVATE Debug {
    void set_break_points_active(bool v) { break_points_active_ = v; }
    bool break_points_active() const { return break_points_active_; }
  
@@ -248,7 +248,7 @@ diff --git a/v8/src/debug/debug.h b/v8/src/debug/debug.h
    StackFrameId break_frame_id() { return thread_local_.break_frame_id_; }
  
    Handle<Object> return_value_handle();
-@@ -587,6 +590,8 @@ class V8_EXPORT_PRIVATE Debug {
+@@ -607,6 +610,8 @@ class V8_EXPORT_PRIVATE Debug {
    // Termination exception because side effect check has failed.
    bool side_effect_check_failed_;
  
@@ -260,7 +260,7 @@ diff --git a/v8/src/debug/debug.h b/v8/src/debug/debug.h
 diff --git a/v8/src/execution/messages.cc b/v8/src/execution/messages.cc
 --- a/v8/src/execution/messages.cc
 +++ b/v8/src/execution/messages.cc
-@@ -500,6 +500,7 @@ MaybeHandle<String> MessageFormatter::TryFormat(
+@@ -496,6 +496,7 @@ MaybeHandle<String> MessageFormatter::TryFormat(
        MessageTemplate::kUndefinedOrNullToObject,
        MessageTemplate::kUnexpectedStrictReserved,
        MessageTemplate::kUnexpectedTokenIdentifier,

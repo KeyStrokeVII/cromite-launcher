@@ -9,7 +9,7 @@ Subject: Never treat Proguard warnings as errors
 diff --git a/build/config/android/internal_rules.gni b/build/config/android/internal_rules.gni
 --- a/build/config/android/internal_rules.gni
 +++ b/build/config/android/internal_rules.gni
-@@ -1264,9 +1264,9 @@ if (enable_java_templates) {
+@@ -1267,9 +1267,9 @@ if (enable_java_templates) {
        _source_file_template,
        "--proguard-configs=@FileArg($_rebased_build_config:deps_info:proguard_all_configs)",
      ]

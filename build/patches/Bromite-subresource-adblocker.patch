@@ -68,7 +68,7 @@ License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
 diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 --- a/chrome/android/BUILD.gn
 +++ b/chrome/android/BUILD.gn
-@@ -339,6 +339,7 @@ if (current_toolchain == default_toolchain) {
+@@ -338,6 +338,7 @@ if (current_toolchain == default_toolchain) {
        "//chrome/android/modules/cablev2_authenticator/public:java",
        "//chrome/android/modules/stack_unwinder/provider:java",
        "//chrome/android/webapk/libs/client:client_java",
@@ -79,7 +79,7 @@ diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
 diff --git a/chrome/android/chrome_java_resources.gni b/chrome/android/chrome_java_resources.gni
 --- a/chrome/android/chrome_java_resources.gni
 +++ b/chrome/android/chrome_java_resources.gni
-@@ -424,6 +424,7 @@ chrome_java_resources = [
+@@ -426,6 +426,7 @@ chrome_java_resources = [
    "java/res/layout/account_divider_preference.xml",
    "java/res/layout/account_management_account_row.xml",
    "java/res/layout/app_history_filter.xml",
@@ -98,7 +98,7 @@ diff --git a/chrome/android/chrome_java_resources.gni b/chrome/android/chrome_ja
 diff --git a/chrome/android/chrome_java_sources.gni b/chrome/android/chrome_java_sources.gni
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -965,6 +965,8 @@ chrome_java_sources = [
+@@ -954,6 +954,8 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/permissions/PermissionSettingsBridge.java",
    "java/src/org/chromium/chrome/browser/permissions/PermissionUpdateRequester.java",
    "java/src/org/chromium/chrome/browser/photo_picker/DecoderServiceImpl.java",
@@ -182,7 +182,7 @@ new file mode 100644
 diff --git a/chrome/android/java/res/values/styles.xml b/chrome/android/java/res/values/styles.xml
 --- a/chrome/android/java/res/values/styles.xml
 +++ b/chrome/android/java/res/values/styles.xml
-@@ -247,6 +247,24 @@ found in the LICENSE file.
+@@ -253,6 +253,24 @@ found in the LICENSE file.
          </item>
      </style>
  
@@ -428,7 +428,7 @@ new file mode 100644
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/tabmodel/TabModelImpl.java b/chrome/android/java/src/org/chromium/chrome/browser/tabmodel/TabModelImpl.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/tabmodel/TabModelImpl.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/tabmodel/TabModelImpl.java
-@@ -864,7 +864,7 @@ public class TabModelImpl extends TabModelJniBridge {
+@@ -865,7 +865,7 @@ public class TabModelImpl extends TabModelJniBridge {
      protected boolean createTabWithWebContents(
              Tab parent, Profile profile, WebContents webContents) {
          return getTabCreator(profile.isOffTheRecord())
@@ -440,7 +440,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/tabmodel/TabMod
 diff --git a/chrome/app/generated_resources.grd b/chrome/app/generated_resources.grd
 --- a/chrome/app/generated_resources.grd
 +++ b/chrome/app/generated_resources.grd
-@@ -15480,6 +15480,16 @@ Please help our engineers fix this problem. Tell us what happened right before y
+@@ -15679,6 +15679,16 @@ Please help our engineers fix this problem. Tell us what happened right before y
        Never show this again.
      </message>
  
@@ -469,7 +469,7 @@ diff --git a/chrome/browser/after_startup_task_utils.cc b/chrome/browser/after_s
  using content::BrowserThread;
  
  namespace {
-@@ -132,6 +134,8 @@ void SetBrowserStartupIsComplete() {
+@@ -134,6 +136,8 @@ void SetBrowserStartupIsComplete() {
    }
    GetAfterStartupTasks().clear();
    GetAfterStartupTasks().shrink_to_fit();
@@ -511,7 +511,7 @@ diff --git a/chrome/browser/browser_process.h b/chrome/browser/browser_process.h
 diff --git a/chrome/browser/browser_process_impl.cc b/chrome/browser/browser_process_impl.cc
 --- a/chrome/browser/browser_process_impl.cc
 +++ b/chrome/browser/browser_process_impl.cc
-@@ -1199,6 +1199,27 @@ BrowserProcessImpl::component_updater() {
+@@ -1197,6 +1197,27 @@ BrowserProcessImpl::component_updater() {
    return component_updater_.get();
  }
  
@@ -702,8 +702,8 @@ diff --git a/chrome/browser/sessions/session_restore_android.cc b/chrome/browser
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -222,6 +222,20 @@ CHAR_LIMIT guidelines:
-         Control your data &amp; account
+@@ -217,6 +217,20 @@ CHAR_LIMIT guidelines:
+         Advanced
        </message>
  
 +      <!-- AdBlock settings -->
@@ -726,7 +726,7 @@ diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chro
 diff --git a/chrome/common/pref_names.h b/chrome/common/pref_names.h
 --- a/chrome/common/pref_names.h
 +++ b/chrome/common/pref_names.h
-@@ -2731,6 +2731,11 @@ inline constexpr char kAudioCaptureAllowed[] = "hardware.audio_capture_enabled";
+@@ -2754,6 +2754,11 @@ inline constexpr char kAudioCaptureAllowed[] = "hardware.audio_capture_enabled";
  inline constexpr char kAudioCaptureAllowedUrls[] =
      "hardware.audio_capture_allowed_urls";
  
@@ -1550,7 +1550,7 @@ new file mode 100644
 diff --git a/components/subresource_filter/content/browser/content_subresource_filter_throttle_manager.cc b/components/subresource_filter/content/browser/content_subresource_filter_throttle_manager.cc
 --- a/components/subresource_filter/content/browser/content_subresource_filter_throttle_manager.cc
 +++ b/components/subresource_filter/content/browser/content_subresource_filter_throttle_manager.cc
-@@ -15,6 +15,9 @@
+@@ -17,6 +17,9 @@
  #include "base/strings/stringprintf.h"
  #include "base/trace_event/trace_event.h"
  #include "base/trace_event/traced_value.h"
@@ -1560,7 +1560,7 @@ diff --git a/components/subresource_filter/content/browser/content_subresource_f
  #include "components/subresource_filter/content/browser/ad_tagging_utils.h"
  #include "components/subresource_filter/content/browser/content_subresource_filter_web_contents_helper.h"
  #include "components/subresource_filter/content/browser/profile_interaction_manager.h"
-@@ -152,6 +155,7 @@ ContentSubresourceFilterThrottleManager::
+@@ -108,6 +111,7 @@ ContentSubresourceFilterThrottleManager::
        profile_interaction_manager_(
            std::make_unique<subresource_filter::ProfileInteractionManager>(
                profile_context)),
@@ -1568,7 +1568,7 @@ diff --git a/components/subresource_filter/content/browser/content_subresource_f
        web_contents_helper_(web_contents_helper) {}
  
  ContentSubresourceFilterThrottleManager::
-@@ -675,6 +679,17 @@ ContentSubresourceFilterThrottleManager::
+@@ -641,6 +645,17 @@ ContentSubresourceFilterThrottleManager::
        throttle->NotifyPageActivationWithRuleset(EnsureRulesetHandle(),
                                                  ad_tagging_state);
      }
@@ -1601,7 +1601,7 @@ diff --git a/components/subresource_filter/content/browser/content_subresource_f
 diff --git a/components/subresource_filter/content/shared/browser/ruleset_service.cc b/components/subresource_filter/content/shared/browser/ruleset_service.cc
 --- a/components/subresource_filter/content/shared/browser/ruleset_service.cc
 +++ b/components/subresource_filter/content/shared/browser/ruleset_service.cc
-@@ -50,9 +50,7 @@ namespace {
+@@ -52,9 +52,7 @@ namespace {
  void RecordIndexAndWriteRulesetResult(
      std::string_view uma_tag,
      RulesetService::IndexAndWriteRulesetResult result) {
@@ -1612,7 +1612,7 @@ diff --git a/components/subresource_filter/content/shared/browser/ruleset_servic
  }
  
  // Implements operations on a `sentinel file`, which is used as a safeguard to
-@@ -231,10 +229,13 @@ RulesetService::RulesetService(
+@@ -235,10 +233,13 @@ RulesetService::RulesetService(
  RulesetService::~RulesetService() {}
  
  void RulesetService::IndexAndStoreAndPublishRulesetIfNeeded(
@@ -1628,7 +1628,7 @@ diff --git a/components/subresource_filter/content/shared/browser/ruleset_servic
    // Trying to store a ruleset with the same version for a second time would
    // not only be futile, but would fail on Windows due to "File System
    // Tunneling" as long as the previously stored copy of the rules is still
-@@ -244,13 +245,16 @@ void RulesetService::IndexAndStoreAndPublishRulesetIfNeeded(
+@@ -248,13 +249,16 @@ void RulesetService::IndexAndStoreAndPublishRulesetIfNeeded(
    if (most_recently_indexed_version.IsCurrentFormatVersion() &&
        most_recently_indexed_version.content_version ==
            unindexed_ruleset_info.content_version) {
@@ -1645,7 +1645,7 @@ diff --git a/components/subresource_filter/content/shared/browser/ruleset_servic
      return;
    }
  
-@@ -270,6 +274,23 @@ IndexedRulesetVersion RulesetService::IndexAndWriteRuleset(
+@@ -274,6 +278,23 @@ IndexedRulesetVersion RulesetService::IndexAndWriteRuleset(
      const RulesetConfig& config,
      const base::FilePath& indexed_ruleset_base_dir,
      const UnindexedRulesetInfo& unindexed_ruleset_info) {
@@ -1669,7 +1669,7 @@ diff --git a/components/subresource_filter/content/shared/browser/ruleset_servic
    base::ScopedBlockingCall scoped_blocking_call(FROM_HERE,
                                                  base::BlockingType::MAY_BLOCK);
  
-@@ -277,6 +298,7 @@ IndexedRulesetVersion RulesetService::IndexAndWriteRuleset(
+@@ -281,6 +302,7 @@ IndexedRulesetVersion RulesetService::IndexAndWriteRuleset(
        unindexed_ruleset_info);
  
    if (!unindexed_ruleset_stream_generator.ruleset_stream()) {
@@ -1677,7 +1677,7 @@ diff --git a/components/subresource_filter/content/shared/browser/ruleset_servic
      RecordIndexAndWriteRulesetResult(
          config.uma_tag,
          IndexAndWriteRulesetResult::FAILED_OPENING_UNINDEXED_RULESET);
-@@ -291,6 +313,7 @@ IndexedRulesetVersion RulesetService::IndexAndWriteRuleset(
+@@ -295,6 +317,7 @@ IndexedRulesetVersion RulesetService::IndexAndWriteRuleset(
            indexed_ruleset_base_dir, indexed_version);
  
    if (!base::CreateDirectory(indexed_ruleset_version_dir)) {
@@ -1685,7 +1685,7 @@ diff --git a/components/subresource_filter/content/shared/browser/ruleset_servic
      RecordIndexAndWriteRulesetResult(
          config.uma_tag,
          IndexAndWriteRulesetResult::FAILED_CREATING_VERSION_DIR);
-@@ -299,13 +322,11 @@ IndexedRulesetVersion RulesetService::IndexAndWriteRuleset(
+@@ -303,13 +326,11 @@ IndexedRulesetVersion RulesetService::IndexAndWriteRuleset(
  
    SentinelFile sentinel_file(indexed_ruleset_version_dir);
    if (sentinel_file.IsPresent()) {
@@ -1701,7 +1701,7 @@ diff --git a/components/subresource_filter/content/shared/browser/ruleset_servic
      RecordIndexAndWriteRulesetResult(
          config.uma_tag,
          IndexAndWriteRulesetResult::FAILED_CREATING_SENTINEL_FILE);
-@@ -320,6 +341,7 @@ IndexedRulesetVersion RulesetService::IndexAndWriteRuleset(
+@@ -324,6 +345,7 @@ IndexedRulesetVersion RulesetService::IndexAndWriteRuleset(
    RulesetIndexer indexer;
    if (!(*g_index_ruleset_func)(config, &unindexed_ruleset_stream_generator,
                                 &indexer)) {
@@ -1709,7 +1709,7 @@ diff --git a/components/subresource_filter/content/shared/browser/ruleset_servic
      RecordIndexAndWriteRulesetResult(
          config.uma_tag,
          IndexAndWriteRulesetResult::FAILED_PARSING_UNINDEXED_RULESET);
-@@ -339,8 +361,12 @@ IndexedRulesetVersion RulesetService::IndexAndWriteRuleset(
+@@ -343,8 +365,12 @@ IndexedRulesetVersion RulesetService::IndexAndWriteRuleset(
        WriteRuleset(indexed_ruleset_version_dir,
                     unindexed_ruleset_info.license_path, indexer.data());
    RecordIndexAndWriteRulesetResult(config.uma_tag, result);
@@ -1721,12 +1721,12 @@ diff --git a/components/subresource_filter/content/shared/browser/ruleset_servic
 +
 +  LOG(INFO) << "RulesetService: successful parsing.";
  
-   DCHECK(indexed_version.IsValid());
+   CHECK(indexed_version.IsValid(), base::NotFatalUntil::M129);
    return indexed_version;
-@@ -466,6 +492,7 @@ void RulesetService::IndexAndStoreRuleset(
+@@ -472,6 +498,7 @@ void RulesetService::IndexAndStoreRuleset(
  void RulesetService::OnWrittenRuleset(WriteRulesetCallback result_callback,
                                        const IndexedRulesetVersion& version) {
-   DCHECK(!result_callback.is_null());
+   CHECK(!result_callback.is_null(), base::NotFatalUntil::M129);
 +  LOG(INFO) << "RulesetService: valid version: " << version.IsValid();
    if (!version.IsValid())
      return;
@@ -1743,7 +1743,7 @@ diff --git a/components/subresource_filter/content/shared/browser/ruleset_servic
  
    // Get the ruleset version associated with the current local_state_.
    IndexedRulesetVersion GetMostRecentlyIndexedVersion() const;
-@@ -219,6 +219,12 @@ class RulesetService {
+@@ -221,6 +221,12 @@ class RulesetService {
        const base::FilePath& indexed_ruleset_base_dir,
        const UnindexedRulesetInfo& unindexed_ruleset_info);
  
@@ -1759,7 +1759,7 @@ diff --git a/components/subresource_filter/content/shared/browser/ruleset_servic
 diff --git a/components/subresource_filter/content/shared/browser/unindexed_ruleset_stream_generator.cc b/components/subresource_filter/content/shared/browser/unindexed_ruleset_stream_generator.cc
 --- a/components/subresource_filter/content/shared/browser/unindexed_ruleset_stream_generator.cc
 +++ b/components/subresource_filter/content/shared/browser/unindexed_ruleset_stream_generator.cc
-@@ -12,6 +12,7 @@
+@@ -13,6 +13,7 @@
  #include "third_party/protobuf/src/google/protobuf/io/zero_copy_stream_impl.h"
  #include "third_party/protobuf/src/google/protobuf/io/zero_copy_stream_impl_lite.h"
  #include "ui/base/resource/resource_bundle.h"
@@ -1767,7 +1767,7 @@ diff --git a/components/subresource_filter/content/shared/browser/unindexed_rule
  
  namespace subresource_filter {
  
-@@ -46,6 +47,8 @@ void UnindexedRulesetStreamGenerator::GenerateStreamFromFile(
+@@ -49,6 +50,8 @@ void UnindexedRulesetStreamGenerator::GenerateStreamFromFile(
  
    ruleset_size_ = unindexed_ruleset_file.GetLength();
  
@@ -1949,10 +1949,10 @@ diff --git a/components/subresource_filter/core/browser/verified_ruleset_dealer.
  #include "base/functional/callback_helpers.h"
  #include "base/location.h"
 +#include "base/logging.h"
+ #include "base/not_fatal_until.h"
  #include "base/notreached.h"
  #include "base/task/sequenced_task_runner.h"
- #include "base/trace_event/trace_event.h"
-@@ -38,6 +39,9 @@ RulesetFilePtr VerifiedRulesetDealer::OpenAndSetRulesetFile(
+@@ -39,6 +40,9 @@ RulesetFilePtr VerifiedRulesetDealer::OpenAndSetRulesetFile(
    TRACE_EVENT1(TRACE_DISABLED_BY_DEFAULT("loading"),
                 "VerifiedRulesetDealer::OpenAndSetRulesetFile", "file_valid",
                 file->IsValid());
@@ -1971,9 +1971,9 @@ diff --git a/components/subresource_filter/core/common/indexed_ruleset.cc b/comp
  #include "base/hash/hash.h"
 +#include "base/logging.h"
  #include "base/metrics/histogram_macros.h"
+ #include "base/not_fatal_until.h"
  #include "base/trace_event/trace_event.h"
- #include "components/subresource_filter/core/common/first_party_origin.h"
-@@ -36,7 +37,9 @@ VerifyStatus GetVerifyStatus(base::span<const uint8_t> buffer,
+@@ -37,7 +38,9 @@ VerifyStatus GetVerifyStatus(base::span<const uint8_t> buffer,
    // least once.  The verifier detects a subset of the errors detected by the
    // checksum, and is unneeded once expected_checksum is consistently nonzero.
    flatbuffers::Verifier verifier(buffer.data(), buffer.size());

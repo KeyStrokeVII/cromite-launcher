@@ -35,7 +35,7 @@ diff --git a/third_party/blink/renderer/core/dom/build.gni b/third_party/blink/r
 diff --git a/third_party/blink/renderer/core/dom/document.cc b/third_party/blink/renderer/core/dom/document.cc
 --- a/third_party/blink/renderer/core/dom/document.cc
 +++ b/third_party/blink/renderer/core/dom/document.cc
-@@ -304,6 +304,7 @@
+@@ -305,6 +305,7 @@
  #include "third_party/blink/renderer/core/page/pointer_lock_controller.h"
  #include "third_party/blink/renderer/core/page/scrolling/fragment_anchor.h"
  #include "third_party/blink/renderer/core/page/scrolling/root_scroller_controller.h"
@@ -43,7 +43,7 @@ diff --git a/third_party/blink/renderer/core/dom/document.cc b/third_party/blink
  #include "third_party/blink/renderer/core/page/scrolling/snap_coordinator.h"
  #include "third_party/blink/renderer/core/page/scrolling/top_document_root_scroller_controller.h"
  #include "third_party/blink/renderer/core/page/spatial_navigation_controller.h"
-@@ -383,6 +384,8 @@
+@@ -384,6 +385,8 @@
  #include "third_party/blink/renderer/platform/wtf/text/string_buffer.h"
  #include "third_party/blink/renderer/platform/wtf/text/text_encoding_registry.h"
  
@@ -52,7 +52,7 @@ diff --git a/third_party/blink/renderer/core/dom/document.cc b/third_party/blink
  #ifndef NDEBUG
  using WeakDocumentSet = blink::HeapHashSet<blink::WeakMember<blink::Document>>;
  static WeakDocumentSet& LiveDocumentSet();
-@@ -7373,6 +7376,64 @@ void Document::OnPrepareToStopParsing() {
+@@ -7398,6 +7401,64 @@ void Document::OnPrepareToStopParsing() {
        MilestoneForDelayedAsyncScript::kFinishedParsing);
  }
  
@@ -117,7 +117,7 @@ diff --git a/third_party/blink/renderer/core/dom/document.cc b/third_party/blink
  void Document::FinishedParsing() {
    TRACE_EVENT_WITH_FLOW0("blink", "Document::FinishedParsing",
                           TRACE_ID_LOCAL(this),
-@@ -7453,6 +7514,9 @@ void Document::FinishedParsing() {
+@@ -7483,6 +7544,9 @@ void Document::FinishedParsing() {
      }
  
      frame->Loader().FinishedParsing();
@@ -130,7 +130,7 @@ diff --git a/third_party/blink/renderer/core/dom/document.cc b/third_party/blink
 diff --git a/third_party/blink/renderer/core/dom/document.h b/third_party/blink/renderer/core/dom/document.h
 --- a/third_party/blink/renderer/core/dom/document.h
 +++ b/third_party/blink/renderer/core/dom/document.h
-@@ -2179,6 +2179,9 @@ class CORE_EXPORT Document : public ContainerNode,
+@@ -2185,6 +2185,9 @@ class CORE_EXPORT Document : public ContainerNode,
    void AXContextModeChanged();
    void ClearAXObjectCache();
  
@@ -165,7 +165,7 @@ new file mode 100644
 diff --git a/third_party/blink/renderer/core/html/html_script_element.cc b/third_party/blink/renderer/core/html/html_script_element.cc
 --- a/third_party/blink/renderer/core/html/html_script_element.cc
 +++ b/third_party/blink/renderer/core/html/html_script_element.cc
-@@ -193,6 +193,11 @@ void HTMLScriptElement::setTextContent(const String& string) {
+@@ -192,6 +192,11 @@ void HTMLScriptElement::setTextContent(const String& string) {
    Node::setTextContent(string);
  }
  

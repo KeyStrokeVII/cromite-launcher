@@ -2,12 +2,14 @@ From: csagan5 <32685696+csagan5@users.noreply.github.com>
 Date: Sat, 9 Apr 2022 23:01:55 +0200
 Subject: Bookmarks select all menu entry
 
+Requires: Restore-BookmarkToolbar-setCurrentFolder.patch
+
 License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
 ---
- .../res/menu/bookmark_toolbar_menu_improved.xml   |  7 +++++++
- .../chrome/browser/bookmarks/BookmarkToolbar.java | 15 +++++++++++++++
- .../ui/android/strings/android_chrome_strings.grd |  3 +++
- 3 files changed, 25 insertions(+)
+ .../menu/bookmark_toolbar_menu_improved.xml    |  7 +++++++
+ .../browser/bookmarks/BookmarkToolbar.java     | 18 ++++++++++++++++++
+ .../android/strings/android_chrome_strings.grd |  3 +++
+ 3 files changed, 28 insertions(+)
 
 diff --git a/chrome/android/java/res/menu/bookmark_toolbar_menu_improved.xml b/chrome/android/java/res/menu/bookmark_toolbar_menu_improved.xml
 --- a/chrome/android/java/res/menu/bookmark_toolbar_menu_improved.xml
@@ -29,7 +31,7 @@ diff --git a/chrome/android/java/res/menu/bookmark_toolbar_menu_improved.xml b/c
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbar.java b/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbar.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbar.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkToolbar.java
-@@ -28,6 +28,8 @@ import java.util.ArrayList;
+@@ -26,6 +26,8 @@ import java.util.ArrayList;
  import java.util.List;
  import java.util.function.Function;
  
@@ -38,15 +40,24 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/Bookm
  /**
   * Main toolbar of bookmark UI. It is responsible for displaying title and buttons associated with
   * the current context.
-@@ -159,6 +161,7 @@ public class BookmarkToolbar extends SelectableListToolbar<BookmarkId>
- 
+@@ -189,12 +191,16 @@ public class BookmarkToolbar extends SelectableListToolbar<BookmarkId>
      void setCurrentFolder(BookmarkId folder) {
          mCurrentFolder = mBookmarkModel.getBookmarkById(folder);
-+        getMenu().findItem(R.id.select_all_menu_id).setVisible(true);
+         enableImportExportMenu();
++        enableSelectAllMenu();
+     }
+ 
+     void enableImportExportMenu() {
          getMenu().findItem(R.id.import_menu_id).setVisible(true);
          getMenu().findItem(R.id.export_menu_id).setVisible(true);
      }
-@@ -187,6 +190,17 @@ public class BookmarkToolbar extends SelectableListToolbar<BookmarkId>
++
++    void enableSelectAllMenu() {
++        getMenu().findItem(R.id.select_all_menu_id).setVisible(true);
+     }
+ 
+     void setNavigateBackRunnable(Runnable navigateBackRunnable) {
+@@ -221,6 +227,17 @@ public class BookmarkToolbar extends SelectableListToolbar<BookmarkId>
              mExportBookmarkRunnable.run();
              return true;
          }
@@ -64,7 +75,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/Bookm
          return mMenuIdClickedFunction.apply(menuItem.getItemId());
      }
  
-@@ -204,6 +218,7 @@ public class BookmarkToolbar extends SelectableListToolbar<BookmarkId>
+@@ -238,6 +255,7 @@ public class BookmarkToolbar extends SelectableListToolbar<BookmarkId>
  
          getMenu().findItem(R.id.import_menu_id).setVisible(mCurrentFolder != null);
          getMenu().findItem(R.id.export_menu_id).setVisible(mCurrentFolder != null);
@@ -75,7 +86,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/Bookm
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -250,6 +250,9 @@ CHAR_LIMIT guidelines:
+@@ -245,6 +245,9 @@ CHAR_LIMIT guidelines:
        <message name="IDS_NOTIFICATION_CATEGORY_SITES" desc="Label for notifications from websites, within a list of notification categories. [CHAR_LIMIT=32]">
          Sites
        </message>

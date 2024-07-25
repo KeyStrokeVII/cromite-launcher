@@ -24,7 +24,7 @@ License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivityBase.java b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivityBase.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivityBase.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivityBase.java
-@@ -64,7 +64,7 @@ public abstract class FirstRunActivityBase extends AsyncInitializationActivity
+@@ -63,7 +63,7 @@ public abstract class FirstRunActivityBase extends AsyncInitializationActivity
      static final String SHOW_SYNC_CONSENT_PAGE = "ShowSyncConsent";
      static final String SHOW_HISTORY_SYNC_PAGE = "ShowHistorySync";
  
@@ -91,7 +91,7 @@ diff --git a/chrome/browser/android/ntp/most_visited_sites_bridge.cc b/chrome/br
 diff --git a/chrome/browser/browser_process_impl.cc b/chrome/browser/browser_process_impl.cc
 --- a/chrome/browser/browser_process_impl.cc
 +++ b/chrome/browser/browser_process_impl.cc
-@@ -1101,7 +1101,7 @@ void BrowserProcessImpl::RegisterPrefs(PrefRegistrySimple* registry) {
+@@ -1099,7 +1099,7 @@ void BrowserProcessImpl::RegisterPrefs(PrefRegistrySimple* registry) {
  #endif  // BUILDFLAG(IS_CHROMEOS_ASH)
  
    registry->RegisterBooleanPref(metrics::prefs::kMetricsReportingEnabled,
@@ -103,7 +103,7 @@ diff --git a/chrome/browser/browser_process_impl.cc b/chrome/browser/browser_pro
 diff --git a/chrome/browser/chrome_content_browser_client.cc b/chrome/browser/chrome_content_browser_client.cc
 --- a/chrome/browser/chrome_content_browser_client.cc
 +++ b/chrome/browser/chrome_content_browser_client.cc
-@@ -84,7 +84,6 @@
+@@ -85,7 +85,6 @@
  #include "chrome/browser/history/history_service_factory.h"
  #include "chrome/browser/interstitials/enterprise_util.h"
  #include "chrome/browser/lifetime/browser_shutdown.h"
@@ -111,7 +111,7 @@ diff --git a/chrome/browser/chrome_content_browser_client.cc b/chrome/browser/ch
  #include "chrome/browser/media/audio_service_util.h"
  #include "chrome/browser/media/prefs/capture_device_ranking.h"
  #include "chrome/browser/media/router/media_router_feature.h"
-@@ -5053,16 +5052,6 @@ ChromeContentBrowserClient::CreateThrottlesForNavigation(
+@@ -5106,16 +5105,6 @@ ChromeContentBrowserClient::CreateThrottlesForNavigation(
      content::NavigationHandle* handle) {
    std::vector<std::unique_ptr<content::NavigationThrottle>> throttles;
  
@@ -128,8 +128,8 @@ diff --git a/chrome/browser/chrome_content_browser_client.cc b/chrome/browser/ch
  #if BUILDFLAG(IS_ANDROID)
    // TODO(davidben): This is insufficient to integrate with prerender properly.
    // https://crbug.com/370595
-@@ -5162,10 +5151,6 @@ ChromeContentBrowserClient::CreateThrottlesForNavigation(
-     throttle_manager->MaybeAppendNavigationThrottles(handle, &throttles);
+@@ -5223,10 +5212,6 @@ ChromeContentBrowserClient::CreateThrottlesForNavigation(
+     }
    }
  
 -  MaybeAddThrottle(
@@ -199,7 +199,7 @@ diff --git a/components/ntp_tiles/BUILD.gn b/components/ntp_tiles/BUILD.gn
 diff --git a/components/ntp_tiles/custom_links_manager_impl.cc b/components/ntp_tiles/custom_links_manager_impl.cc
 --- a/components/ntp_tiles/custom_links_manager_impl.cc
 +++ b/components/ntp_tiles/custom_links_manager_impl.cc
-@@ -203,7 +203,6 @@ void CustomLinksManagerImpl::RemoveCustomLinksForPreinstalledApps() {
+@@ -217,7 +217,6 @@ void CustomLinksManagerImpl::RemoveCustomLinksForPreinstalledApps() {
        }
      }
      if (default_app_links_deleted) {
@@ -210,7 +210,7 @@ diff --git a/components/ntp_tiles/custom_links_manager_impl.cc b/components/ntp_
 diff --git a/components/ntp_tiles/most_visited_sites.cc b/components/ntp_tiles/most_visited_sites.cc
 --- a/components/ntp_tiles/most_visited_sites.cc
 +++ b/components/ntp_tiles/most_visited_sites.cc
-@@ -721,8 +721,6 @@ void MostVisitedSites::SaveTilesAndNotify(
+@@ -747,8 +747,6 @@ void MostVisitedSites::SaveTilesAndNotify(
                                     : new_tiles;
  
    if (fixed_tiles.size() != new_tiles.size()) {

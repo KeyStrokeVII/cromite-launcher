@@ -24,18 +24,18 @@ License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
 diff --git a/chrome/browser/browser_features.h b/chrome/browser/browser_features.h
 --- a/chrome/browser/browser_features.h
 +++ b/chrome/browser/browser_features.h
-@@ -24,6 +24,7 @@ BASE_DECLARE_FEATURE(kAppBoundEncryptionMetrics);
- 
+@@ -21,6 +21,7 @@ namespace features {
  BASE_DECLARE_FEATURE(kAutocompleteActionPredictorConfidenceCutoff);
+ BASE_DECLARE_FEATURE(kBookmarksTreeView);
  BASE_DECLARE_FEATURE(kBookmarkTriggerForPrerender2);
 +BASE_DECLARE_FEATURE(kCertificateTransparency);
  BASE_DECLARE_FEATURE(kCertificateTransparencyAskBeforeEnabling);
  BASE_DECLARE_FEATURE(kClosedTabCache);
- BASE_DECLARE_FEATURE(kDeferredSpareRendererForTopChromeWebUI);
+ 
 diff --git a/chrome/browser/net/system_network_context_manager.cc b/chrome/browser/net/system_network_context_manager.cc
 --- a/chrome/browser/net/system_network_context_manager.cc
 +++ b/chrome/browser/net/system_network_context_manager.cc
-@@ -1034,7 +1034,7 @@ bool SystemNetworkContextManager::IsCertificateTransparencyEnabled() {
+@@ -1032,7 +1032,7 @@ bool SystemNetworkContextManager::IsCertificateTransparencyEnabled() {
    //   - on an opt-in basis for other builds and embedders, controlled with the
    //     kCertificateTransparencyAskBeforeEnabling flag
    return base::FeatureList::IsEnabled(
@@ -94,7 +94,7 @@ new file mode 100644
 diff --git a/net/http/transport_security_state.cc b/net/http/transport_security_state.cc
 --- a/net/http/transport_security_state.cc
 +++ b/net/http/transport_security_state.cc
-@@ -186,6 +186,7 @@ class HSTSPreloadDecoder : public net::extras::PreloadDecoder {
+@@ -191,6 +191,7 @@ class HSTSPreloadDecoder : public extras::PreloadDecoder {
  
  bool DecodeHSTSPreload(const std::string& search_hostname, PreloadResult* out) {
  #if !BUILDFLAG(INCLUDE_TRANSPORT_SECURITY_STATE_PRELOAD_LIST)

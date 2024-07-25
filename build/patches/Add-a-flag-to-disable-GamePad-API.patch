@@ -14,7 +14,7 @@ License: GPL-2.0-or-later - https://spdx.org/licenses/GPL-2.0-or-later.html
 diff --git a/chrome/browser/flag-metadata.json b/chrome/browser/flag-metadata.json
 --- a/chrome/browser/flag-metadata.json
 +++ b/chrome/browser/flag-metadata.json
-@@ -7452,9 +7452,9 @@
+@@ -7694,9 +7694,9 @@
      "expiry_milestone": 130
    },
    {
@@ -29,7 +29,7 @@ diff --git a/chrome/browser/flag-metadata.json b/chrome/browser/flag-metadata.js
 diff --git a/chrome/browser/flag_descriptions.cc b/chrome/browser/flag_descriptions.cc
 --- a/chrome/browser/flag_descriptions.cc
 +++ b/chrome/browser/flag_descriptions.cc
-@@ -3062,7 +3062,7 @@ const char kResetShortcutCustomizationsDescription[] =
+@@ -3109,7 +3109,7 @@ const char kResetShortcutCustomizationsDescription[] =
  
  const char kRestrictGamepadAccessName[] = "Restrict gamepad access";
  const char kRestrictGamepadAccessDescription[] =
@@ -41,7 +41,7 @@ diff --git a/chrome/browser/flag_descriptions.cc b/chrome/browser/flag_descripti
 diff --git a/device/gamepad/public/cpp/gamepad_features.cc b/device/gamepad/public/cpp/gamepad_features.cc
 --- a/device/gamepad/public/cpp/gamepad_features.cc
 +++ b/device/gamepad/public/cpp/gamepad_features.cc
-@@ -65,4 +65,5 @@ bool IsGamepadMultitouchEnabled() {
+@@ -64,4 +64,5 @@ bool IsGamepadMultitouchEnabled() {
    return false;
  }
  

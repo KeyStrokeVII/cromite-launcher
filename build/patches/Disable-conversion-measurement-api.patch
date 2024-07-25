@@ -14,7 +14,8 @@ License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
  .../browser/aw_content_browser_client.cc      |   3 +
  .../chromium/android_webview/AwSettings.java  |   4 +-
  chrome/android/java/AndroidManifest.xml       |   4 -
- components/attribution_reporting/features.cc  |   2 +
+ .../aggregatable_trigger_config.cc            |   2 +-
+ components/attribution_reporting/features.cc  |   1 +
  .../origin_trials/features.cc                 |   2 +
  .../render_view_context_menu_base.cc          |   3 -
  .../aggregatable_report_sender.cc             |  15 +-
@@ -38,7 +39,7 @@ License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
  third_party/blink/renderer/core/page/page.cc  |   2 +-
  .../platform/runtime_enabled_features.json5   |   1 +
  ui/events/android/motion_event_android.cc     |   6 +-
- 27 files changed, 73 insertions(+), 375 deletions(-)
+ 28 files changed, 73 insertions(+), 376 deletions(-)
  create mode 100644 cromite_flags/content/common/features_cc/Disable-conversion-measurement-api.inc
  create mode 100644 cromite_flags/content/public/common/content_features_cc/Disable-conversion-measurement-api.inc
  create mode 100644 cromite_flags/services/network/public/cpp/features_cc/Disable-conversion-measurement-api.inc
@@ -47,7 +48,7 @@ License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
 diff --git a/android_webview/browser/aw_content_browser_client.cc b/android_webview/browser/aw_content_browser_client.cc
 --- a/android_webview/browser/aw_content_browser_client.cc
 +++ b/android_webview/browser/aw_content_browser_client.cc
-@@ -1249,6 +1249,7 @@ network::mojom::AttributionSupport
+@@ -1246,6 +1246,7 @@ network::mojom::AttributionSupport
  AwContentBrowserClient::GetAttributionSupport(
      AttributionReportingOsApiState state,
      bool client_os_disabled) {
@@ -55,28 +56,28 @@ diff --git a/android_webview/browser/aw_content_browser_client.cc b/android_webv
    // WebView only supports OS-level attribution and not web-attribution.
    switch (state) {
      case AttributionReportingOsApiState::kDisabled:
-@@ -1267,6 +1268,8 @@ bool AwContentBrowserClient::IsAttributionReportingOperationAllowed(
+@@ -1264,6 +1265,8 @@ bool AwContentBrowserClient::IsAttributionReportingOperationAllowed(
      const url::Origin* destination_origin,
      const url::Origin* reporting_origin,
      bool* can_bypass) {
 +  if ((true))
 +    return false;
+   AwBrowserContext* aw_context =
+       static_cast<AwBrowserContext*>(browser_context);
    // WebView only supports OS-level attribution and not web-attribution.
-   // Note: We do not check here if attribution reporting has been disabled
-   // for the associated WebView as this is checked at the start of processing
 diff --git a/android_webview/java/src/org/chromium/android_webview/AwSettings.java b/android_webview/java/src/org/chromium/android_webview/AwSettings.java
 --- a/android_webview/java/src/org/chromium/android_webview/AwSettings.java
 +++ b/android_webview/java/src/org/chromium/android_webview/AwSettings.java
-@@ -170,7 +170,7 @@ public class AwSettings {
+@@ -172,7 +172,7 @@ public class AwSettings {
      private boolean mSpatialNavigationEnabled; // Default depends on device features.
      private boolean mEnableSupportedHardwareAcceleratedFeatures;
      private int mMixedContentMode = WebSettings.MIXED_CONTENT_NEVER_ALLOW;
 -    private int mAttributionBehavior = AttributionBehavior.APP_SOURCE_AND_WEB_TRIGGER;
 +    private int mAttributionBehavior = AttributionBehavior.DISABLED;
-     private boolean mCSSHexAlphaColorEnabled;
-     private boolean mScrollTopLeftInteropEnabled;
-     private boolean mWillSuppressErrorPage;
-@@ -1740,7 +1740,7 @@ public class AwSettings {
+ 
+     @SpeculativeLoadingAllowedFlags
+     private int mSpeculativeLoadingAllowedFlags =
+@@ -1773,7 +1773,7 @@ public class AwSettings {
      public void setAttributionBehavior(@AttributionBehavior int behavior) {
          synchronized (mAwSettingsLock) {
              if (mAttributionBehavior != behavior) {
@@ -96,7 +97,7 @@ diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/Andro
      <uses-permission-sdk-23 android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30"/>
      <uses-permission-sdk-23 android:name="android.permission.BLUETOOTH_CONNECT"/>
      <!--
-@@ -1154,9 +1153,6 @@ by a child template that "extends" this file.
+@@ -1151,9 +1150,6 @@ by a child template that "extends" this file.
              android:configChanges="orientation|keyboardHidden|keyboard|screenSize|mcc|mnc|screenLayout|smallestScreenSize" >
          </activity>
  
@@ -106,15 +107,26 @@ diff --git a/chrome/android/java/AndroidManifest.xml b/chrome/android/java/Andro
          {% set enable_openxr = enable_openxr|default(0) %}
          {% if enable_openxr == "true" %}
            <!-- launchMode is set to singleTask because there should never be multiple copies of the app running. -->
+diff --git a/components/attribution_reporting/aggregatable_trigger_config.cc b/components/attribution_reporting/aggregatable_trigger_config.cc
+--- a/components/attribution_reporting/aggregatable_trigger_config.cc
++++ b/components/attribution_reporting/aggregatable_trigger_config.cc
+@@ -86,7 +86,7 @@ bool IsValid(SourceRegistrationTimeConfig source_registration_time_config,
+ 
+ base::expected<std::optional<std::string>, TriggerRegistrationError>
+ ParseTriggerContextId(base::Value* value) {
+-  if (!value) {
++  if ((true)) {
+     return std::nullopt;
+   }
+ 
 diff --git a/components/attribution_reporting/features.cc b/components/attribution_reporting/features.cc
 --- a/components/attribution_reporting/features.cc
 +++ b/components/attribution_reporting/features.cc
-@@ -17,4 +17,6 @@ BASE_FEATURE(kAttributionReportingTriggerContextId,
-              "AttributionReportingTriggerContextId",
+@@ -17,4 +17,5 @@ BASE_FEATURE(kAttributionAggregatableDebugReporting,
+              "AttributionAggregatableDebugReporting",
               base::FEATURE_ENABLED_BY_DEFAULT);
  
 +SET_CROMITE_FEATURE_DISABLED(kConversionMeasurement);
-+SET_CROMITE_FEATURE_DISABLED(kAttributionReportingTriggerContextId);
  }  // namespace attribution_reporting::features
 diff --git a/components/embedder_support/origin_trials/features.cc b/components/embedder_support/origin_trials/features.cc
 --- a/components/embedder_support/origin_trials/features.cc
@@ -172,7 +184,7 @@ diff --git a/content/browser/aggregation_service/aggregatable_report_sender.cc b
 diff --git a/content/browser/aggregation_service/aggregation_service_features.cc b/content/browser/aggregation_service/aggregation_service_features.cc
 --- a/content/browser/aggregation_service/aggregation_service_features.cc
 +++ b/content/browser/aggregation_service/aggregation_service_features.cc
-@@ -24,4 +24,5 @@ BASE_FEATURE(kPrivacySandboxAggregationServiceFilteringIds,
+@@ -20,4 +20,5 @@ BASE_FEATURE(kPrivacySandboxAggregationServiceFilteringIds,
               "PrivacySandboxAggregationServiceFilteringIds",
               base::FEATURE_ENABLED_BY_DEFAULT);
  
@@ -181,7 +193,7 @@ diff --git a/content/browser/aggregation_service/aggregation_service_features.cc
 diff --git a/content/browser/attribution_reporting/attribution_data_host_manager_impl.cc b/content/browser/attribution_reporting/attribution_data_host_manager_impl.cc
 --- a/content/browser/attribution_reporting/attribution_data_host_manager_impl.cc
 +++ b/content/browser/attribution_reporting/attribution_data_host_manager_impl.cc
-@@ -1128,6 +1128,7 @@ void AttributionDataHostManagerImpl::ParseHeader(
+@@ -1134,6 +1134,7 @@ void AttributionDataHostManagerImpl::ParseHeader(
      HeaderPendingDecode pending_decode,
      Registrar registrar) {
    CHECK(it != registrations_.end());
@@ -223,7 +235,7 @@ diff --git a/content/browser/attribution_reporting/attribution_os_level_manager.
 diff --git a/content/browser/attribution_reporting/attribution_report_network_sender.cc b/content/browser/attribution_reporting/attribution_report_network_sender.cc
 --- a/content/browser/attribution_reporting/attribution_report_network_sender.cc
 +++ b/content/browser/attribution_reporting/attribution_report_network_sender.cc
-@@ -89,6 +89,9 @@ void AttributionReportNetworkSender::SendReport(GURL url,
+@@ -125,6 +125,9 @@ void AttributionReportNetworkSender::SendReport(GURL url,
                                                  const std::string& body,
                                                  net::HttpRequestHeaders headers,
                                                  UrlLoaderCallback callback) {
@@ -233,7 +245,7 @@ diff --git a/content/browser/attribution_reporting/attribution_report_network_se
    auto resource_request = std::make_unique<network::ResourceRequest>();
    resource_request->url = std::move(url);
    resource_request->headers = std::move(headers);
-@@ -164,6 +167,12 @@ void AttributionReportNetworkSender::OnReportSent(
+@@ -200,6 +203,12 @@ void AttributionReportNetworkSender::OnReportSent(
      ReportSentCallback sent_callback,
      UrlLoaderList::iterator it,
      scoped_refptr<net::HttpResponseHeaders> headers) {
@@ -249,7 +261,7 @@ diff --git a/content/browser/attribution_reporting/attribution_report_network_se
 diff --git a/content/browser/attribution_reporting/attribution_storage_sql.cc b/content/browser/attribution_reporting/attribution_storage_sql.cc
 --- a/content/browser/attribution_reporting/attribution_storage_sql.cc
 +++ b/content/browser/attribution_reporting/attribution_storage_sql.cc
-@@ -461,14 +461,16 @@ base::FilePath DatabasePath(const base::FilePath& user_data_directory) {
+@@ -471,14 +471,16 @@ base::FilePath DatabasePath(const base::FilePath& user_data_directory) {
    return user_data_directory.Append(kDatabasePath);
  }
  
@@ -259,7 +271,7 @@ diff --git a/content/browser/attribution_reporting/attribution_storage_sql.cc b/
  
  AttributionStorageSql::AttributionStorageSql(
      const base::FilePath& user_data_directory,
-     std::unique_ptr<AttributionStorageDelegate> delegate)
+     AttributionResolverDelegate* delegate)
 -    : path_to_database_(user_data_directory.empty()
 -                            ? base::FilePath()
 -                            : DatabasePath(user_data_directory)),
@@ -267,8 +279,8 @@ diff --git a/content/browser/attribution_reporting/attribution_storage_sql.cc b/
 +                             ? base::FilePath()
 +                             : DatabasePath(user_data_directory)),
        db_(sql::DatabaseOptions{.page_size = 4096, .cache_size = 32}),
-       delegate_(std::move(delegate)),
-       rate_limit_table_(delegate_.get()) {
+       delegate_(delegate),
+       rate_limit_table_(delegate_),
 diff --git a/content/browser/storage_partition_impl.cc b/content/browser/storage_partition_impl.cc
 --- a/content/browser/storage_partition_impl.cc
 +++ b/content/browser/storage_partition_impl.cc
@@ -291,7 +303,7 @@ diff --git a/content/browser/storage_partition_impl.cc b/content/browser/storage
 diff --git a/content/public/android/BUILD.gn b/content/public/android/BUILD.gn
 --- a/content/public/android/BUILD.gn
 +++ b/content/public/android/BUILD.gn
-@@ -181,8 +181,6 @@ android_library("content_full_java") {
+@@ -189,8 +189,6 @@ android_library("content_full_java") {
      "//third_party/androidx:androidx_appcompat_appcompat_resources_java",
      "//third_party/androidx:androidx_collection_collection_java",
      "//third_party/androidx:androidx_core_core_java",
@@ -765,7 +777,7 @@ diff --git a/content/public/android/java/src/org/chromium/content/browser/Attrib
 diff --git a/content/public/browser/content_browser_client.cc b/content/public/browser/content_browser_client.cc
 --- a/content/public/browser/content_browser_client.cc
 +++ b/content/public/browser/content_browser_client.cc
-@@ -546,6 +546,7 @@ void ContentBrowserClient::OnAuctionComplete(
+@@ -550,6 +550,7 @@ void ContentBrowserClient::OnAuctionComplete(
  network::mojom::AttributionSupport ContentBrowserClient::GetAttributionSupport(
      AttributionReportingOsApiState state,
      bool client_os_disabled) {
@@ -773,7 +785,7 @@ diff --git a/content/public/browser/content_browser_client.cc b/content/public/b
    switch (state) {
      case AttributionReportingOsApiState::kDisabled:
        return network::mojom::AttributionSupport::kWeb;
-@@ -563,13 +564,13 @@ bool ContentBrowserClient::IsAttributionReportingOperationAllowed(
+@@ -567,13 +568,13 @@ bool ContentBrowserClient::IsAttributionReportingOperationAllowed(
      const url::Origin* destination_origin,
      const url::Origin* reporting_origin,
      bool* can_bypass) {
@@ -789,7 +801,7 @@ diff --git a/content/public/browser/content_browser_client.cc b/content/public/b
  }
  
  bool ContentBrowserClient::IsAttributionReportingAllowedForContext(
-@@ -577,7 +578,7 @@ bool ContentBrowserClient::IsAttributionReportingAllowedForContext(
+@@ -581,7 +582,7 @@ bool ContentBrowserClient::IsAttributionReportingAllowedForContext(
      content::RenderFrameHost* rfh,
      const url::Origin& context_origin,
      const url::Origin& reporting_origin) {
@@ -874,7 +886,7 @@ diff --git a/services/network/public/cpp/attribution_utils.cc b/services/network
 diff --git a/third_party/blink/renderer/core/page/page.cc b/third_party/blink/renderer/core/page/page.cc
 --- a/third_party/blink/renderer/core/page/page.cc
 +++ b/third_party/blink/renderer/core/page/page.cc
-@@ -1440,7 +1440,7 @@ void Page::UpdateBrowsingContextGroup(
+@@ -1436,7 +1436,7 @@ void Page::UpdateBrowsingContextGroup(
  
  void Page::SetAttributionSupport(
      network::mojom::AttributionSupport attribution_support) {
@@ -886,7 +898,7 @@ diff --git a/third_party/blink/renderer/core/page/page.cc b/third_party/blink/re
 diff --git a/third_party/blink/renderer/platform/runtime_enabled_features.json5 b/third_party/blink/renderer/platform/runtime_enabled_features.json5
 --- a/third_party/blink/renderer/platform/runtime_enabled_features.json5
 +++ b/third_party/blink/renderer/platform/runtime_enabled_features.json5
-@@ -3976,6 +3976,7 @@
+@@ -4016,6 +4016,7 @@
      },
      {
        name: "TopicsAPI",
@@ -897,7 +909,7 @@ diff --git a/third_party/blink/renderer/platform/runtime_enabled_features.json5 
 diff --git a/ui/events/android/motion_event_android.cc b/ui/events/android/motion_event_android.cc
 --- a/ui/events/android/motion_event_android.cc
 +++ b/ui/events/android/motion_event_android.cc
-@@ -162,7 +162,11 @@ int ToEventFlags(int meta_state, int button_state) {
+@@ -166,7 +166,11 @@ int ToEventFlags(int meta_state, int button_state) {
  }
  
  base::TimeTicks FromAndroidTime(base::TimeTicks time) {

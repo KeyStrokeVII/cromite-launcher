@@ -30,7 +30,7 @@ License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
  chrome/browser/resources/proxy_config.js      | 278 +++++++++++++
  chrome/browser/ui/BUILD.gn                    |   2 +
  .../webui/chrome_web_ui_controller_factory.cc |   3 +
- chrome/browser/ui/webui/proxy_config_ui.cc    | 393 ++++++++++++++++++
+ chrome/browser/ui/webui/proxy_config_ui.cc    | 392 ++++++++++++++++++
  chrome/browser/ui/webui/proxy_config_ui.h     |  31 ++
  chrome/common/webui_url_constants.cc          |   4 +
  chrome/common/webui_url_constants.h           |   2 +
@@ -40,7 +40,7 @@ License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
  .../proxy_config/proxy_policy_handler.cc      |   2 +-
  net/proxy_resolution/proxy_config.cc          |  51 ++-
  net/proxy_resolution/proxy_config.h           |   3 +
- 25 files changed, 980 insertions(+), 17 deletions(-)
+ 25 files changed, 979 insertions(+), 17 deletions(-)
  create mode 100644 chrome/browser/resources/proxy_config.css
  create mode 100644 chrome/browser/resources/proxy_config.html
  create mode 100644 chrome/browser/resources/proxy_config.js
@@ -77,7 +77,7 @@ diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/androi
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -78,6 +78,7 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
+@@ -74,6 +74,7 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
      private static final String PREF_SAFE_BROWSING = "safe_browsing";
      private static final String PREF_SYNC_AND_SERVICES_LINK = "sync_and_services_link";
      private static final String PREF_PRIVACY_SANDBOX = "privacy_sandbox";
@@ -197,7 +197,7 @@ diff --git a/chrome/browser/net/proxy_service_factory.h b/chrome/browser/net/pro
 diff --git a/chrome/browser/prefs/browser_prefs.cc b/chrome/browser/prefs/browser_prefs.cc
 --- a/chrome/browser/prefs/browser_prefs.cc
 +++ b/chrome/browser/prefs/browser_prefs.cc
-@@ -193,6 +193,8 @@
+@@ -195,6 +195,8 @@
  #include "rlz/buildflags/buildflags.h"
  #include "services/screen_ai/buildflags/buildflags.h"
  
@@ -206,7 +206,7 @@ diff --git a/chrome/browser/prefs/browser_prefs.cc b/chrome/browser/prefs/browse
  #if BUILDFLAG(ENABLE_BACKGROUND_MODE)
  #include "chrome/browser/background/background_mode_manager.h"
  #endif
-@@ -1606,6 +1608,8 @@ void RegisterLocalState(PrefRegistrySimple* registry) {
+@@ -1697,6 +1699,8 @@ void RegisterLocalState(PrefRegistrySimple* registry) {
    component_updater::RegisterPrefs(registry);
    domain_reliability::RegisterPrefs(registry);
    embedder_support::OriginTrialPrefs::RegisterPrefs(registry);
@@ -661,7 +661,7 @@ new file mode 100644
 diff --git a/chrome/browser/ui/BUILD.gn b/chrome/browser/ui/BUILD.gn
 --- a/chrome/browser/ui/BUILD.gn
 +++ b/chrome/browser/ui/BUILD.gn
-@@ -318,6 +318,8 @@ static_library("ui") {
+@@ -327,6 +327,8 @@ static_library("ui") {
      "webui/metrics_internals/metrics_internals_ui.h",
      "webui/net_export_ui.cc",
      "webui/net_export_ui.h",
@@ -673,7 +673,7 @@ diff --git a/chrome/browser/ui/BUILD.gn b/chrome/browser/ui/BUILD.gn
 diff --git a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc b/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
 --- a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
 +++ b/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
-@@ -50,6 +50,7 @@
+@@ -49,6 +49,7 @@
  #include "chrome/browser/ui/webui/ntp_tiles_internals_ui.h"
  #include "chrome/browser/ui/webui/omnibox/omnibox_ui.h"
  #include "chrome/browser/ui/webui/policy/policy_ui.h"
@@ -681,8 +681,8 @@ diff --git a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc b/chrom
  #include "chrome/browser/ui/webui/predictors/predictors_ui.h"
  #include "chrome/browser/ui/webui/privacy_sandbox/privacy_sandbox_internals_ui.h"
  #include "chrome/browser/ui/webui/segmentation_internals/segmentation_internals_ui.h"
-@@ -439,6 +440,8 @@ WebUIFactoryFunction GetWebUIFactoryFunction(WebUI* web_ui,
-   }
+@@ -450,6 +451,8 @@ WebUIFactoryFunction GetWebUIFactoryFunction(WebUI* web_ui,
+ #endif  // BUILDFLAG(IS_CHROMEOS_ASH)
    if (url.host_piece() == chrome::kChromeUINetExportHost)
      return &NewWebUI<NetExportUI>;
 +  if (url.host_piece() == chrome::kChromeUIProxyConfigHost)
@@ -694,7 +694,7 @@ diff --git a/chrome/browser/ui/webui/proxy_config_ui.cc b/chrome/browser/ui/webu
 new file mode 100644
 --- /dev/null
 +++ b/chrome/browser/ui/webui/proxy_config_ui.cc
-@@ -0,0 +1,393 @@
+@@ -0,0 +1,392 @@
 +/*
 +    This file is part of Bromite.
 +
@@ -895,8 +895,7 @@ new file mode 100644
 +      state.SetByDottedPath("config.rules.fallback_proxies", base::Value(omitDirect(rules.fallback_proxies.ToPacString())));
 +      break;
 +    default:
-+     NOTREACHED();
-+     break;
++     NOTREACHED_NORETURN();
 +  }
 +  state.SetByDottedPath("config.rules.type", base::Value(type));
 +  state.SetByDottedPath("config.rules.bypass_rules", base::Value(rules.bypass_rules.ToString()));
@@ -1136,7 +1135,7 @@ diff --git a/chrome/common/webui_url_constants.cc b/chrome/common/webui_url_cons
  const char kChromeUIChromeURLsHost[] = "chrome-urls";
  const char kChromeUIChromeURLsURL[] = "chrome://chrome-urls/";
  const char kChromeUIComponentsHost[] = "components";
-@@ -466,6 +468,7 @@ bool IsSystemWebUIHost(std::string_view host) {
+@@ -471,6 +473,7 @@ bool IsSystemWebUIHost(std::string_view host) {
        kChromeUILockScreenNetworkHost,
        kChromeUILockScreenStartReauthHost,
        kChromeUIMobileSetupHost,
@@ -1144,7 +1143,7 @@ diff --git a/chrome/common/webui_url_constants.cc b/chrome/common/webui_url_cons
        kChromeUIMultiDeviceSetupHost,
        kChromeUINetworkHost,
        kChromeUINotificationTesterHost,
-@@ -761,6 +764,7 @@ const char* const kChromeHostURLs[] = {
+@@ -766,6 +769,7 @@ const char* const kChromeHostURLs[] = {
  #if !BUILDFLAG(IS_ANDROID)
  #if !BUILDFLAG(IS_CHROMEOS)
      kChromeUIAppLauncherPageHost,

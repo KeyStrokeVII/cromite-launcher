@@ -5,10 +5,10 @@ Subject: Disable GetInstalledRelatedApps API
 License: GPL-2.0-or-later - https://spdx.org/licenses/GPL-2.0-or-later.html
 ---
  .../components/installedapp/InstalledAppProviderImpl.java       | 1 +
- content/browser/installedapp/installed_app_provider_impl_win.cc | 1 +
+ content/browser/installedapp/installed_app_provider_impl.cc     | 2 +-
  .../content_features_cc/Disable-GetInstalledRelatedApps-API.inc | 2 ++
  .../blink/renderer/platform/runtime_enabled_features.json5      | 2 +-
- 4 files changed, 5 insertions(+), 1 deletion(-)
+ 4 files changed, 5 insertions(+), 2 deletions(-)
  create mode 100644 cromite_flags/content/public/common/content_features_cc/Disable-GetInstalledRelatedApps-API.inc
 
 diff --git a/components/installedapp/android/java/src/org/chromium/components/installedapp/InstalledAppProviderImpl.java b/components/installedapp/android/java/src/org/chromium/components/installedapp/InstalledAppProviderImpl.java
@@ -22,17 +22,18 @@ diff --git a/components/installedapp/android/java/src/org/chromium/components/in
          GURL url = mRenderFrameHost.getLastCommittedURL();
          final GURL frameUrl = url == null ? GURL.emptyGURL() : url;
          int delayMillis = 0;
-diff --git a/content/browser/installedapp/installed_app_provider_impl_win.cc b/content/browser/installedapp/installed_app_provider_impl_win.cc
---- a/content/browser/installedapp/installed_app_provider_impl_win.cc
-+++ b/content/browser/installedapp/installed_app_provider_impl_win.cc
-@@ -112,6 +112,7 @@ void FilterInstalledAppsForWin(
-     std::vector<blink::mojom::RelatedApplicationPtr> related_apps,
-     blink::mojom::InstalledAppProvider::FilterInstalledAppsCallback callback,
-     const GURL frame_url) {
-+  CHECK(true);
-   ComPtr<IUriRuntimeClassFactory> url_factory;
-   HRESULT hr =
-       base::win::GetActivationFactory<IUriRuntimeClassFactory,
+diff --git a/content/browser/installedapp/installed_app_provider_impl.cc b/content/browser/installedapp/installed_app_provider_impl.cc
+--- a/content/browser/installedapp/installed_app_provider_impl.cc
++++ b/content/browser/installedapp/installed_app_provider_impl.cc
+@@ -59,7 +59,7 @@ void InstalledAppProviderImpl::FilterInstalledApps(
+     const GURL& manifest_url,
+     FilterInstalledAppsCallback callback) {
+   DCHECK_CALLED_ON_VALID_SEQUENCE(sequence_checker_);
+-  if (!base::FeatureList::IsEnabled(features::kInstalledAppProvider)) {
++  if ((true)) {
+     base::SequencedTaskRunner::GetCurrentDefault()->PostTask(
+         FROM_HERE,
+         base::BindOnce(std::move(callback),
 diff --git a/cromite_flags/content/public/common/content_features_cc/Disable-GetInstalledRelatedApps-API.inc b/cromite_flags/content/public/common/content_features_cc/Disable-GetInstalledRelatedApps-API.inc
 new file mode 100644
 --- /dev/null
@@ -43,7 +44,7 @@ new file mode 100644
 diff --git a/third_party/blink/renderer/platform/runtime_enabled_features.json5 b/third_party/blink/renderer/platform/runtime_enabled_features.json5
 --- a/third_party/blink/renderer/platform/runtime_enabled_features.json5
 +++ b/third_party/blink/renderer/platform/runtime_enabled_features.json5
-@@ -2169,9 +2169,9 @@
+@@ -2194,9 +2194,9 @@
        status: {"Android": "test", "default": "stable"},
      },
      {

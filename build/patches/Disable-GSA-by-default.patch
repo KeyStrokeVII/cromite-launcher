@@ -4,11 +4,12 @@ Subject: Disable GSA by default
 
 License: GPL-2.0-or-later - https://spdx.org/licenses/GPL-2.0-or-later.html
 ---
- .../org/chromium/chrome/browser/IntentHandler.java |  5 -----
- .../chromium/chrome/browser/share/LensUtils.java   | 14 ++------------
- .../org/chromium/chrome/browser/gsa/GSAState.java  | 11 +++++------
- .../Disable-GSA-by-default.inc                     |  1 +
- 4 files changed, 8 insertions(+), 23 deletions(-)
+ .../chrome/browser/IntentHandler.java         |  5 -----
+ .../chrome/browser/share/LensUtils.java       | 14 ++------------
+ .../chromium/chrome/browser/gsa/GSAState.java | 14 +++++---------
+ .../GoogleBottomBarActionsHandler.java        | 19 ++-----------------
+ .../Disable-GSA-by-default.inc                |  1 +
+ 5 files changed, 10 insertions(+), 43 deletions(-)
  create mode 100644 cromite_flags/chrome/browser/flags/android/chrome_feature_list_cc/Disable-GSA-by-default.inc
 
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java b/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.java
@@ -31,7 +32,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.j
      private static final String PACKAGE_GMAIL = "com.google.android.gm";
      private static final String PACKAGE_PLUS = "com.google.android.apps.plus";
      private static final String PACKAGE_HANGOUTS = "com.google.android.talk";
-@@ -482,8 +479,6 @@ public class IntentHandler {
+@@ -485,8 +482,6 @@ public class IntentHandler {
              return ExternalAppId.LINE;
          } else if (packageName.equals(PACKAGE_WHATSAPP)) {
              return ExternalAppId.WHATSAPP;
@@ -85,16 +86,19 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/share/LensUtils
 diff --git a/chrome/browser/gsa/java/src/org/chromium/chrome/browser/gsa/GSAState.java b/chrome/browser/gsa/java/src/org/chromium/chrome/browser/gsa/GSAState.java
 --- a/chrome/browser/gsa/java/src/org/chromium/chrome/browser/gsa/GSAState.java
 +++ b/chrome/browser/gsa/java/src/org/chromium/chrome/browser/gsa/GSAState.java
-@@ -31,8 +31,6 @@ import java.util.regex.Pattern;
+@@ -31,11 +31,6 @@ import java.util.regex.Pattern;
  
  /** A class responsible for representing the current state of Chrome's integration with GSA. */
  public class GSAState {
 -    public static final String PACKAGE_NAME = "com.google.android.googlequicksearchbox";
+-    public static final String GOOGLE_APP_CLASS_NAME =
+-            "com.google.android.apps.search.googleapp.activity.GoogleAppActivity";
+-    public static final String VOICE_SEARCH_INTENT_ACTION = "android.intent.action.VOICE_ASSIST";
 -
      /** Used to observe state changes in the class. */
      public interface Observer {
          /** Called when the GSA account name is set. */
-@@ -70,7 +68,7 @@ public class GSAState {
+@@ -72,7 +67,7 @@ public class GSAState {
      private final ObserverList<Observer> mObserverList = new ObserverList<>();
  
      /** Caches the result of a computation on whether GSA is available. */
@@ -103,7 +107,7 @@ diff --git a/chrome/browser/gsa/java/src/org/chromium/chrome/browser/gsa/GSAStat
  
      /**
       * The Google account email address being used by GSA according to the latest update we have
-@@ -152,7 +150,7 @@ public class GSAState {
+@@ -154,7 +149,7 @@ public class GSAState {
  
      /** Returns whether the GSA package is installed on device. */
      public boolean isGsaInstalled() {
@@ -112,7 +116,7 @@ diff --git a/chrome/browser/gsa/java/src/org/chromium/chrome/browser/gsa/GSAStat
      }
  
      /**
-@@ -175,6 +173,7 @@ public class GSAState {
+@@ -177,6 +172,7 @@ public class GSAState {
       */
      public boolean isAgsaVersionBelowMinimum(
              String installedVersionName, String minimumVersionName) {
@@ -120,7 +124,7 @@ diff --git a/chrome/browser/gsa/java/src/org/chromium/chrome/browser/gsa/GSAStat
          if (TextUtils.isEmpty(installedVersionName) || TextUtils.isEmpty(minimumVersionName)) {
              return true;
          }
-@@ -206,7 +205,7 @@ public class GSAState {
+@@ -208,7 +204,7 @@ public class GSAState {
       * @return Whether the given intent can be handled by Agsa.
       */
      public boolean canAgsaHandleIntent(@NonNull Intent intent) {
@@ -129,7 +133,7 @@ diff --git a/chrome/browser/gsa/java/src/org/chromium/chrome/browser/gsa/GSAStat
  
          ComponentName activity =
                  intent.resolveActivity(ContextUtils.getApplicationContext().getPackageManager());
-@@ -220,7 +219,7 @@ public class GSAState {
+@@ -222,7 +218,7 @@ public class GSAState {
       * @return The version name of the Agsa package or null if it can't be found.
       */
      public @Nullable String getAgsaVersionName() {
@@ -138,6 +142,62 @@ diff --git a/chrome/browser/gsa/java/src/org/chromium/chrome/browser/gsa/GSAStat
          return packageInfo == null ? null : packageInfo.versionName;
      }
  
+diff --git a/chrome/browser/ui/android/google_bottom_bar/java/src/org/chromium/chrome/browser/ui/google_bottom_bar/GoogleBottomBarActionsHandler.java b/chrome/browser/ui/android/google_bottom_bar/java/src/org/chromium/chrome/browser/ui/google_bottom_bar/GoogleBottomBarActionsHandler.java
+--- a/chrome/browser/ui/android/google_bottom_bar/java/src/org/chromium/chrome/browser/ui/google_bottom_bar/GoogleBottomBarActionsHandler.java
++++ b/chrome/browser/ui/android/google_bottom_bar/java/src/org/chromium/chrome/browser/ui/google_bottom_bar/GoogleBottomBarActionsHandler.java
+@@ -4,9 +4,6 @@
+ 
+ package org.chromium.chrome.browser.ui.google_bottom_bar;
+ 
+-import static org.chromium.chrome.browser.gsa.GSAState.GOOGLE_APP_CLASS_NAME;
+-import static org.chromium.chrome.browser.gsa.GSAState.PACKAGE_NAME;
+-import static org.chromium.chrome.browser.gsa.GSAState.VOICE_SEARCH_INTENT_ACTION;
+ import static org.chromium.chrome.browser.ui.google_bottom_bar.GoogleBottomBarLogger.GoogleBottomBarButtonEvent.SEARCHBOX_HOME;
+ import static org.chromium.chrome.browser.ui.google_bottom_bar.GoogleBottomBarLogger.GoogleBottomBarButtonEvent.SEARCHBOX_LENS;
+ import static org.chromium.chrome.browser.ui.google_bottom_bar.GoogleBottomBarLogger.GoogleBottomBarButtonEvent.SEARCHBOX_SEARCH;
+@@ -106,11 +103,6 @@ class GoogleBottomBarActionsHandler {
+     }
+ 
+     void onSearchboxMicTap() {
+-        GoogleBottomBarLogger.logButtonClicked(SEARCHBOX_VOICE_SEARCH);
+-        Intent intent = new Intent(VOICE_SEARCH_INTENT_ACTION);
+-        intent.setPackage(PACKAGE_NAME);
+-
+-        startGoogleAppActivityForResult(intent, "openGoogleAppVoiceSearch");
+     }
+ 
+     void onSearchboxLensTap() {
+@@ -148,21 +140,13 @@ class GoogleBottomBarActionsHandler {
+     }
+ 
+     private void openGoogleAppSearch() {
+-        Intent intent = new Intent(SearchManager.INTENT_ACTION_GLOBAL_SEARCH);
+-        intent.setPackage(PACKAGE_NAME);
+-
+-        startGoogleAppActivityForResult(intent, "openGoogleAppSearch");
+     }
+ 
+     private void openGoogleAppHome() {
+-        Intent intent = new Intent(Intent.ACTION_MAIN);
+-        intent.addCategory(Intent.CATEGORY_INFO);
+-        intent.setClassName(PACKAGE_NAME, GOOGLE_APP_CLASS_NAME);
+-
+-        startGoogleAppActivityForResult(intent, "openGoogleAppHome");
+     }
+ 
+     private void startGoogleAppActivityForResult(Intent intent, String actionName) {
++        if ((true)) return;
+         intent.putExtra(EXTRA_IS_LAUNCHED_FROM_CHROME_SEARCH_ENTRYPOINT, true);
+ 
+         if (PackageManagerUtils.canResolveActivity(intent)) {
+@@ -285,6 +269,7 @@ class GoogleBottomBarActionsHandler {
+     }
+ 
+     private void sendPendingIntentWithUrl(PendingIntent pendingIntent) {
++        if ((true)) return;
+         Tab tab = mTabProvider.get();
+         if (tab == null) {
+             Log.e(TAG, "Can't send pending intent as tab is null.");
 diff --git a/cromite_flags/chrome/browser/flags/android/chrome_feature_list_cc/Disable-GSA-by-default.inc b/cromite_flags/chrome/browser/flags/android/chrome_feature_list_cc/Disable-GSA-by-default.inc
 new file mode 100644
 --- /dev/null

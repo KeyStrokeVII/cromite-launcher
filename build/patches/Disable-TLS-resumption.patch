@@ -137,7 +137,7 @@ diff --git a/net/quic/quic_session_pool.cc b/net/quic/quic_session_pool.cc
  QuicSessionRequest::QuicSessionRequest(QuicSessionPool* pool) : pool_(pool) {}
  
  QuicSessionRequest::~QuicSessionRequest() {
-@@ -1880,7 +1913,7 @@ QuicSessionPool::CreateCryptoConfigHandle(
+@@ -1881,7 +1914,7 @@ QuicSessionPool::CreateCryptoConfigHandle(
                cert_verifier_, transport_security_state_, sct_auditing_delegate_,
                HostsFromOrigins(params_.origins_to_force_quic_on),
                actual_network_anonymization_key),
@@ -149,7 +149,7 @@ diff --git a/net/quic/quic_session_pool.cc b/net/quic/quic_session_pool.cc
 diff --git a/net/socket/ssl_client_socket_impl.cc b/net/socket/ssl_client_socket_impl.cc
 --- a/net/socket/ssl_client_socket_impl.cc
 +++ b/net/socket/ssl_client_socket_impl.cc
-@@ -288,7 +288,33 @@ SSLClientSocketImpl::SSLClientSocketImpl(
+@@ -293,7 +293,33 @@ SSLClientSocketImpl::SSLClientSocketImpl(
    CHECK(context_);
  }
  
@@ -183,7 +183,7 @@ diff --git a/net/socket/ssl_client_socket_impl.cc b/net/socket/ssl_client_socket
    Disconnect();
  }
  
-@@ -672,6 +698,8 @@ int SSLClientSocketImpl::Init() {
+@@ -677,6 +703,8 @@ int SSLClientSocketImpl::Init() {
      }
      if (session)
        SSL_set_session(ssl_.get(), session.get());
@@ -192,7 +192,7 @@ diff --git a/net/socket/ssl_client_socket_impl.cc b/net/socket/ssl_client_socket
    }
  
    const int kBufferSize = GetDefaultOpenSSLBufferSize();
-@@ -958,6 +986,35 @@ int SSLClientSocketImpl::DoHandshakeComplete(int result) {
+@@ -963,6 +991,35 @@ int SSLClientSocketImpl::DoHandshakeComplete(int result) {
                      : SSLHandshakeDetails::kTLS13Full;
      }
    }
@@ -228,7 +228,7 @@ diff --git a/net/socket/ssl_client_socket_impl.cc b/net/socket/ssl_client_socket
    UMA_HISTOGRAM_ENUMERATION("Net.SSLHandshakeDetails", details);
  
    // Measure TLS connections that implement the renegotiation_info extension.
-@@ -1583,6 +1640,8 @@ bool SSLClientSocketImpl::IsRenegotiationAllowed() const {
+@@ -1588,6 +1645,8 @@ bool SSLClientSocketImpl::IsRenegotiationAllowed() const {
  }
  
  bool SSLClientSocketImpl::IsCachingEnabled() const {

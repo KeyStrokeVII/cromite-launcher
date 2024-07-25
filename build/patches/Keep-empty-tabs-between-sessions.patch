@@ -11,7 +11,7 @@ License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/tabmodel/TabPersistentStore.java b/chrome/android/java/src/org/chromium/chrome/browser/tabmodel/TabPersistentStore.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/tabmodel/TabPersistentStore.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/tabmodel/TabPersistentStore.java
-@@ -731,18 +731,6 @@ public class TabPersistentStore {
+@@ -817,18 +817,6 @@ public class TabPersistentStore {
              }
  
          } else {

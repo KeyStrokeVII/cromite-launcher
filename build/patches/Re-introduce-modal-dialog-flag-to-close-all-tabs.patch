@@ -45,18 +45,18 @@ diff --git a/chrome/android/features/tab_ui/java/src/org/chromium/chrome/browser
 diff --git a/chrome/browser/flags/android/chrome_feature_list.cc b/chrome/browser/flags/android/chrome_feature_list.cc
 --- a/chrome/browser/flags/android/chrome_feature_list.cc
 +++ b/chrome/browser/flags/android/chrome_feature_list.cc
-@@ -173,6 +173,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
+@@ -181,6 +181,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
      &kBackGestureMoveToBackDuringStartup,
      &kBackGestureRefactorAndroid,
      &kBackToHomeAnimation,
 +    &kCloseAllTabsModalDialog,
      &kBackgroundThreadPool,
      &kBlockIntentsWhileLocked,
-     &kBrowserControlsEarlyResize,
+     &kBottomBrowserControlsRefactor,
 diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
 --- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
 +++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
-@@ -247,6 +247,7 @@ public abstract class ChromeFeatureList {
+@@ -257,6 +257,7 @@ public abstract class ChromeFeatureList {
      public static final String CCT_PREWARM_TAB = "CCTPrewarmTab";
      public static final String CCT_REPORT_PARALLEL_REQUEST_STATUS =
              "CCTReportParallelRequestStatus";

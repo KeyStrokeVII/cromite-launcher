@@ -34,7 +34,7 @@ License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
 diff --git a/chrome/browser/chrome_content_browser_client.cc b/chrome/browser/chrome_content_browser_client.cc
 --- a/chrome/browser/chrome_content_browser_client.cc
 +++ b/chrome/browser/chrome_content_browser_client.cc
-@@ -3302,6 +3302,9 @@ bool ChromeContentBrowserClient::IsAttributionReportingOperationAllowed(
+@@ -3339,6 +3339,9 @@ bool ChromeContentBrowserClient::IsAttributionReportingOperationAllowed(
      const url::Origin* destination_origin,
      const url::Origin* reporting_origin,
      bool* can_bypass) {
@@ -79,7 +79,7 @@ diff --git a/chrome/browser/first_party_sets/first_party_sets_policy_service.cc 
 diff --git a/chrome/browser/prefs/browser_prefs.cc b/chrome/browser/prefs/browser_prefs.cc
 --- a/chrome/browser/prefs/browser_prefs.cc
 +++ b/chrome/browser/prefs/browser_prefs.cc
-@@ -1523,7 +1523,7 @@ void RegisterProfilePrefsForMigration(
+@@ -1577,7 +1577,7 @@ void RegisterProfilePrefsForMigration(
    registry->RegisterTimePref(kPlusAddressLastFetchedTime, base::Time());
  
    // Deprecated 03/2024.
@@ -91,7 +91,7 @@ diff --git a/chrome/browser/prefs/browser_prefs.cc b/chrome/browser/prefs/browse
 diff --git a/chrome/browser/privacy_sandbox/privacy_sandbox_service_impl.cc b/chrome/browser/privacy_sandbox/privacy_sandbox_service_impl.cc
 --- a/chrome/browser/privacy_sandbox/privacy_sandbox_service_impl.cc
 +++ b/chrome/browser/privacy_sandbox/privacy_sandbox_service_impl.cc
-@@ -424,7 +424,7 @@ bool PrivacySandboxServiceImpl::IsRestrictedNoticeEnabled() {
+@@ -471,7 +471,7 @@ bool PrivacySandboxServiceImpl::IsRestrictedNoticeEnabled() {
  void PrivacySandboxServiceImpl::SetFirstPartySetsDataAccessEnabled(
      bool enabled) {
    pref_service_->SetBoolean(prefs::kPrivacySandboxRelatedWebsiteSetsEnabled,
@@ -147,7 +147,7 @@ diff --git a/components/history/core/browser/history_backend.cc b/components/his
 diff --git a/components/privacy_sandbox/privacy_sandbox_attestations/privacy_sandbox_attestations.cc b/components/privacy_sandbox/privacy_sandbox_attestations/privacy_sandbox_attestations.cc
 --- a/components/privacy_sandbox/privacy_sandbox_attestations/privacy_sandbox_attestations.cc
 +++ b/components/privacy_sandbox/privacy_sandbox_attestations/privacy_sandbox_attestations.cc
-@@ -485,8 +485,6 @@ void PrivacySandboxAttestations::OnAttestationsParsed(
+@@ -502,8 +502,6 @@ void PrivacySandboxAttestations::OnAttestationsParsed(
    if (attestations_map.has_value() &&
        (!file_version_.IsValid() || file_version_.CompareTo(version) < 0)) {
      // Parsing succeeded and the attestations file has newer version.
@@ -159,9 +159,9 @@ diff --git a/components/privacy_sandbox/privacy_sandbox_attestations/privacy_san
 diff --git a/components/privacy_sandbox/privacy_sandbox_features.cc b/components/privacy_sandbox/privacy_sandbox_features.cc
 --- a/components/privacy_sandbox/privacy_sandbox_features.cc
 +++ b/components/privacy_sandbox/privacy_sandbox_features.cc
-@@ -230,4 +230,8 @@ const base::FeatureParam<int> kPrivacySandboxActivityTypeStorageWithinXDays{
-     &kPrivacySandboxActivityTypeStorage,
-     kPrivacySandboxActivityTypeStorageWithinXDaysName, 60};
+@@ -261,4 +261,8 @@ const base::FeatureParam<bool>
+         &kPrivacySandboxLocalNoticeConfirmation, "default-to-os-country",
+         false};
  
 +SET_CROMITE_FEATURE_DISABLED(kPrivacySandboxSettings4);
 +SET_CROMITE_FEATURE_ENABLED(kDisablePrivacySandboxPrompts);
@@ -229,7 +229,7 @@ diff --git a/components/privacy_sandbox/privacy_sandbox_settings_impl.cc b/compo
    ScopedDictPrefUpdate scoped_pref_update(
        pref_service_, prefs::kPrivacySandboxFledgeJoinBlocked);
  
-@@ -549,7 +552,8 @@ void PrivacySandboxSettingsImpl::ClearFledgeJoiningAllowedSettings(
+@@ -550,7 +553,8 @@ void PrivacySandboxSettingsImpl::ClearFledgeJoiningAllowedSettings(
  }
  
  bool PrivacySandboxSettingsImpl::IsFledgeJoiningAllowed(
@@ -239,7 +239,7 @@ diff --git a/components/privacy_sandbox/privacy_sandbox_settings_impl.cc b/compo
    ScopedDictPrefUpdate scoped_pref_update(
        pref_service_, prefs::kPrivacySandboxFledgeJoinBlocked);
    auto& pref_data = scoped_pref_update.Get();
-@@ -812,7 +816,10 @@ void PrivacySandboxSettingsImpl::SetDelegateForTesting(
+@@ -813,7 +817,10 @@ void PrivacySandboxSettingsImpl::SetDelegateForTesting(
    delegate_ = std::move(delegate);
  }
  
@@ -251,7 +251,7 @@ diff --git a/components/privacy_sandbox/privacy_sandbox_settings_impl.cc b/compo
    pref_service_->SetTime(prefs::kPrivacySandboxTopicsDataAccessibleSince,
                           base::Time::Now());
  
-@@ -825,6 +832,7 @@ PrivacySandboxSettingsImpl::Status
+@@ -826,6 +833,7 @@ PrivacySandboxSettingsImpl::Status
  PrivacySandboxSettingsImpl::GetSiteAccessAllowedStatus(
      const url::Origin& top_frame_origin,
      const GURL& url) const {
@@ -259,7 +259,7 @@ diff --git a/components/privacy_sandbox/privacy_sandbox_settings_impl.cc b/compo
    // Relying on |host_content_settings_map_| instead of |cookie_settings_|
    // allows to query whether the site associated with the |url| is allowed to
    // access Site data (aka ContentSettingsType::COOKIES) without considering any
-@@ -839,6 +847,7 @@ PrivacySandboxSettingsImpl::GetSiteAccessAllowedStatus(
+@@ -840,6 +848,7 @@ PrivacySandboxSettingsImpl::GetSiteAccessAllowedStatus(
  PrivacySandboxSettingsImpl::Status
  PrivacySandboxSettingsImpl::GetPrivacySandboxAllowedStatus(
      bool should_ignore_restriction /*=false*/) const {
@@ -270,7 +270,7 @@ diff --git a/components/privacy_sandbox/privacy_sandbox_settings_impl.cc b/compo
 diff --git a/components/privacy_sandbox/tracking_protection_prefs.cc b/components/privacy_sandbox/tracking_protection_prefs.cc
 --- a/components/privacy_sandbox/tracking_protection_prefs.cc
 +++ b/components/privacy_sandbox/tracking_protection_prefs.cc
-@@ -64,14 +64,14 @@ void RegisterProfilePrefs(PrefRegistrySimple* registry) {
+@@ -53,14 +53,14 @@ void RegisterProfilePrefs(PrefRegistrySimple* registry) {
  
    // Tracking Protection Settings Prefs
    registry->RegisterBooleanPref(
@@ -317,7 +317,7 @@ new file mode 100644
 diff --git a/third_party/blink/common/features.cc b/third_party/blink/common/features.cc
 --- a/third_party/blink/common/features.cc
 +++ b/third_party/blink/common/features.cc
-@@ -2571,6 +2571,7 @@ BASE_FEATURE(kWebviewAccelerateSmallCanvases,
+@@ -2601,6 +2601,7 @@ BASE_FEATURE(kWebviewAccelerateSmallCanvases,
  // constants for features in the section above.
  
  bool IsAllowURNsInIframeEnabled() {

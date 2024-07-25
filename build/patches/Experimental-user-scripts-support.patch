@@ -114,7 +114,7 @@ License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
  .../user_scripts/renderer/script_context.h    |  67 ++
  .../user_scripts/renderer/script_injection.cc | 295 +++++++
  .../user_scripts/renderer/script_injection.h  | 155 ++++
- .../renderer/script_injection_manager.cc      | 415 +++++++++
+ .../renderer/script_injection_manager.cc      | 414 +++++++++
  .../renderer/script_injection_manager.h       | 100 +++
  .../user_scripts/renderer/script_injector.h   |  96 +++
  .../user_scripts/renderer/scripts_run_info.cc |  31 +
@@ -123,7 +123,7 @@ License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
  .../renderer/user_script_injector.h           |  86 ++
  .../user_scripts/renderer/user_script_set.cc  | 264 ++++++
  .../user_scripts/renderer/user_script_set.h   | 101 +++
- .../renderer/user_script_set_manager.cc       |  77 ++
+ .../renderer/user_script_set_manager.cc       |  76 ++
  .../renderer/user_script_set_manager.h        |  63 ++
  .../renderer/user_scripts_dispatcher.cc       |  36 +
  .../renderer/user_scripts_dispatcher.h        |  49 ++
@@ -135,7 +135,7 @@ License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
  .../Experimental-user-scripts-support.inc     |  13 +
  ipc/ipc_message_start.h                       |   1 +
  tools/gritsettings/resource_ids.spec          |   6 +
- 108 files changed, 9494 insertions(+), 2 deletions(-)
+ 108 files changed, 9492 insertions(+), 2 deletions(-)
  create mode 100644 components/user_scripts/README.md
  create mode 100755 components/user_scripts/android/BUILD.gn
  create mode 100644 components/user_scripts/android/java/res/layout/accept_script_item.xml
@@ -239,7 +239,7 @@ diff --git a/chrome/android/BUILD.gn b/chrome/android/BUILD.gn
        ":chrome_base_module_resources",
        ":ui_locale_string_resources",
        "//chrome/android/webapk/libs/common:splash_resources",
-@@ -645,6 +649,7 @@ if (current_toolchain == default_toolchain) {
+@@ -647,6 +651,7 @@ if (current_toolchain == default_toolchain) {
        "//components/ukm/android:java",
        "//components/url_formatter/android:url_formatter_java",
        "//components/user_prefs/android:java",
@@ -288,16 +288,16 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/download/Downlo
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/init/ProcessInitializationHandler.java b/chrome/android/java/src/org/chromium/chrome/browser/init/ProcessInitializationHandler.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/init/ProcessInitializationHandler.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/init/ProcessInitializationHandler.java
-@@ -123,6 +123,8 @@ import java.util.ArrayList;
- import java.util.Date;
+@@ -146,6 +146,8 @@ import java.util.Date;
  import java.util.List;
+ import java.util.Locale;
  
 +import org.chromium.chrome.browser.user_scripts.UserScriptsUtils;
 +
  /**
-  * Handles the initialization dependences of the browser process.  This is meant to handle the
+  * Handles the initialization dependences of the browser process. This is meant to handle the
   * initialization that is not tied to any particular Activity, and the logic that should only be
-@@ -414,6 +416,8 @@ public class ProcessInitializationHandler {
+@@ -620,6 +622,8 @@ public class ProcessInitializationHandler {
  
                      DefaultBrowserInfo.initBrowserFetcher();
  
@@ -326,7 +326,7 @@ diff --git a/chrome/android/java_sources.gni b/chrome/android/java_sources.gni
 diff --git a/chrome/browser/BUILD.gn b/chrome/browser/BUILD.gn
 --- a/chrome/browser/BUILD.gn
 +++ b/chrome/browser/BUILD.gn
-@@ -3766,6 +3766,13 @@ static_library("browser") {
+@@ -3748,6 +3748,13 @@ static_library("browser") {
        ]
        deps += [ "//chrome/android/modules/dev_ui/provider:native" ]
      }
@@ -354,7 +354,7 @@ diff --git a/chrome/browser/about_flags.cc b/chrome/browser/about_flags.cc
 diff --git a/chrome/browser/prefs/browser_prefs.cc b/chrome/browser/prefs/browser_prefs.cc
 --- a/chrome/browser/prefs/browser_prefs.cc
 +++ b/chrome/browser/prefs/browser_prefs.cc
-@@ -269,6 +269,7 @@
+@@ -271,6 +271,7 @@
  #include "components/permissions/contexts/geolocation_permission_context_android.h"
  #include "components/query_tiles/tile_service_prefs.h"
  #include "components/webapps/browser/android/install_prompt_prefs.h"
@@ -362,7 +362,7 @@ diff --git a/chrome/browser/prefs/browser_prefs.cc b/chrome/browser/prefs/browse
  #else  // BUILDFLAG(IS_ANDROID)
  #include "chrome/browser/cart/cart_service.h"
  #include "chrome/browser/companion/core/promo_handler.h"
-@@ -1974,6 +1975,9 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
+@@ -2065,6 +2066,9 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
    translate::TranslatePrefs::RegisterProfilePrefs(registry);
    omnibox::RegisterProfilePrefs(registry);
    ZeroSuggestProvider::RegisterProfilePrefs(registry);
@@ -375,7 +375,7 @@ diff --git a/chrome/browser/prefs/browser_prefs.cc b/chrome/browser/prefs/browse
 diff --git a/chrome/browser/profiles/BUILD.gn b/chrome/browser/profiles/BUILD.gn
 --- a/chrome/browser/profiles/BUILD.gn
 +++ b/chrome/browser/profiles/BUILD.gn
-@@ -77,6 +77,9 @@ source_set("profile") {
+@@ -76,6 +76,9 @@ source_set("profile") {
      "//content/public/browser",
      "//extensions/buildflags",
    ]
@@ -388,7 +388,7 @@ diff --git a/chrome/browser/profiles/BUILD.gn b/chrome/browser/profiles/BUILD.gn
 diff --git a/chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.cc b/chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.cc
 --- a/chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.cc
 +++ b/chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.cc
-@@ -520,6 +520,10 @@
+@@ -531,6 +531,10 @@
  #include "chrome/browser/enterprise/data_controls/reporting_service.h"
  #endif
  
@@ -399,10 +399,10 @@ diff --git a/chrome/browser/profiles/chrome_browser_main_extra_parts_profiles.cc
  namespace chrome {
  
  void AddProfilesExtraParts(ChromeBrowserMainParts* main_parts) {
-@@ -1280,6 +1284,9 @@ void ChromeBrowserMainExtraPartsProfiles::
- #if !BUILDFLAG(IS_ANDROID)
-   WebUIContentsPreloadManager::EnsureFactoryBuilt();
+@@ -1308,6 +1312,9 @@ void ChromeBrowserMainExtraPartsProfiles::
  #endif
+   WebDataServiceFactory::GetInstance();
+   webrtc_event_logging::WebRtcEventLogManagerKeyedServiceFactory::GetInstance();
 +#if BUILDFLAG(IS_ANDROID)
 +  user_scripts::UserScriptsBrowserClient::GetInstance();
 +#endif
@@ -423,7 +423,7 @@ diff --git a/chrome/browser/profiles/profile_manager.cc b/chrome/browser/profile
  #if BUILDFLAG(ENABLE_SESSION_SERVICE)
  #include "chrome/browser/sessions/app_session_service_factory.h"
  #include "chrome/browser/sessions/session_service_factory.h"
-@@ -1529,6 +1533,13 @@ void ProfileManager::DoFinalInitForServices(Profile* profile,
+@@ -1526,6 +1530,13 @@ void ProfileManager::DoFinalInitForServices(Profile* profile,
    // initializing the supervised flag if necessary).
    ChildAccountServiceFactory::GetForProfile(profile)->Init();
    SupervisedUserServiceFactory::GetForProfile(profile)->Init();
@@ -440,7 +440,7 @@ diff --git a/chrome/browser/profiles/profile_manager.cc b/chrome/browser/profile
 diff --git a/chrome/browser/profiles/renderer_updater.cc b/chrome/browser/profiles/renderer_updater.cc
 --- a/chrome/browser/profiles/renderer_updater.cc
 +++ b/chrome/browser/profiles/renderer_updater.cc
-@@ -38,6 +38,8 @@
+@@ -39,6 +39,8 @@
  #include "chrome/browser/signin/bound_session_credentials/bound_session_cookie_refresh_service_factory.h"
  #endif  // BUILDFLAG(ENABLE_BOUND_SESSION_CREDENTIALS)
  
@@ -449,7 +449,7 @@ diff --git a/chrome/browser/profiles/renderer_updater.cc b/chrome/browser/profil
  RendererUpdater::RendererUpdater(Profile* profile)
      : profile_(profile),
        is_off_the_record_(profile_->IsOffTheRecord()),
-@@ -73,6 +75,9 @@ RendererUpdater::RendererUpdater(Profile* profile)
+@@ -74,6 +76,9 @@ RendererUpdater::RendererUpdater(Profile* profile)
    force_youtube_restrict_.Init(policy::policy_prefs::kForceYouTubeRestrict,
                                 pref_service);
    allowed_domains_for_apps_.Init(prefs::kAllowedDomainsForApps, pref_service);
@@ -459,7 +459,7 @@ diff --git a/chrome/browser/profiles/renderer_updater.cc b/chrome/browser/profil
  
    pref_change_registrar_.Init(pref_service);
    pref_change_registrar_.Add(
-@@ -87,6 +92,12 @@ RendererUpdater::RendererUpdater(Profile* profile)
+@@ -88,6 +93,12 @@ RendererUpdater::RendererUpdater(Profile* profile)
        prefs::kAllowedDomainsForApps,
        base::BindRepeating(&RendererUpdater::UpdateAllRenderers,
                            base::Unretained(this)));
@@ -472,7 +472,7 @@ diff --git a/chrome/browser/profiles/renderer_updater.cc b/chrome/browser/profil
  }
  
  RendererUpdater::~RendererUpdater() {
-@@ -230,5 +241,11 @@ chrome::mojom::DynamicParamsPtr RendererUpdater::CreateRendererDynamicParams()
+@@ -231,5 +242,11 @@ chrome::mojom::DynamicParamsPtr RendererUpdater::CreateRendererDynamicParams()
        GetBoundSessionThrottlerParams(),
  #endif
        force_google_safesearch_.GetValue(), force_youtube_restrict_.GetValue(),
@@ -501,7 +501,7 @@ diff --git a/chrome/browser/profiles/renderer_updater.h b/chrome/browser/profile
 diff --git a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc b/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
 --- a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
 +++ b/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
-@@ -92,6 +92,7 @@
+@@ -91,6 +91,7 @@
  #include "components/security_interstitials/content/known_interception_disclosure_ui.h"
  #include "components/security_interstitials/content/urls.h"
  #include "components/site_engagement/content/site_engagement_service.h"
@@ -509,7 +509,7 @@ diff --git a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc b/chrom
  #include "content/public/browser/web_contents.h"
  #include "content/public/browser/web_ui.h"
  #include "content/public/common/content_client.h"
-@@ -477,6 +478,10 @@ WebUIFactoryFunction GetWebUIFactoryFunction(WebUI* web_ui,
+@@ -488,6 +489,10 @@ WebUIFactoryFunction GetWebUIFactoryFunction(WebUI* web_ui,
      return &NewWebUI<UserActionsUI>;
    if (url.host_piece() == chrome::kChromeUIVersionHost)
      return &NewWebUI<VersionUI>;
@@ -523,7 +523,7 @@ diff --git a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc b/chrom
 diff --git a/chrome/chrome_paks.gni b/chrome/chrome_paks.gni
 --- a/chrome/chrome_paks.gni
 +++ b/chrome/chrome_paks.gni
-@@ -122,6 +122,7 @@ template("chrome_extra_paks") {
+@@ -129,6 +129,7 @@ template("chrome_extra_paks") {
        "$root_gen_dir/net/net_resources.pak",
        "$root_gen_dir/third_party/blink/public/resources/blink_resources.pak",
        "$root_gen_dir/third_party/blink/public/resources/inspector_overlay_resources.pak",
@@ -531,7 +531,7 @@ diff --git a/chrome/chrome_paks.gni b/chrome/chrome_paks.gni
        "$root_gen_dir/ui/resources/webui_resources.pak",
      ]
      deps = [
-@@ -139,6 +140,7 @@ template("chrome_extra_paks") {
+@@ -146,6 +147,7 @@ template("chrome_extra_paks") {
        "//third_party/blink/public:devtools_inspector_resources",
        "//third_party/blink/public:resources",
        "//ui/resources",
@@ -542,7 +542,7 @@ diff --git a/chrome/chrome_paks.gni b/chrome/chrome_paks.gni
 diff --git a/chrome/common/renderer_configuration.mojom b/chrome/common/renderer_configuration.mojom
 --- a/chrome/common/renderer_configuration.mojom
 +++ b/chrome/common/renderer_configuration.mojom
-@@ -29,6 +29,7 @@ struct DynamicParams {
+@@ -30,6 +30,7 @@ struct DynamicParams {
    bool force_safe_search = true;
    int32 youtube_restrict = 0;
    string allowed_domains_for_apps;
@@ -553,7 +553,7 @@ diff --git a/chrome/common/renderer_configuration.mojom b/chrome/common/renderer
 diff --git a/chrome/renderer/BUILD.gn b/chrome/renderer/BUILD.gn
 --- a/chrome/renderer/BUILD.gn
 +++ b/chrome/renderer/BUILD.gn
-@@ -242,6 +242,12 @@ static_library("renderer") {
+@@ -243,6 +243,12 @@ static_library("renderer") {
      "//v8",
    ]
  
@@ -569,8 +569,8 @@ diff --git a/chrome/renderer/BUILD.gn b/chrome/renderer/BUILD.gn
 diff --git a/chrome/renderer/chrome_content_renderer_client.cc b/chrome/renderer/chrome_content_renderer_client.cc
 --- a/chrome/renderer/chrome_content_renderer_client.cc
 +++ b/chrome/renderer/chrome_content_renderer_client.cc
-@@ -261,6 +261,11 @@
- #include "chrome/renderer/cco/multiline_detector.h"
+@@ -256,6 +256,11 @@
+ #include "chrome/renderer/media/chrome_key_systems.h"
  #endif
  
 +#if BUILDFLAG(IS_ANDROID)
@@ -581,7 +581,7 @@ diff --git a/chrome/renderer/chrome_content_renderer_client.cc b/chrome/renderer
  using autofill::AutofillAgent;
  using autofill::PasswordAutofillAgent;
  using autofill::PasswordGenerationAgent;
-@@ -457,6 +462,14 @@ void ChromeContentRendererClient::RenderThreadStarted() {
+@@ -451,6 +456,14 @@ void ChromeContentRendererClient::RenderThreadStarted() {
        WebString::FromASCII(extensions::kExtensionScheme));
  #endif
  
@@ -596,7 +596,7 @@ diff --git a/chrome/renderer/chrome_content_renderer_client.cc b/chrome/renderer
  #if BUILDFLAG(ENABLE_SPELLCHECK)
    if (!spellcheck_)
      InitSpellCheck();
-@@ -620,6 +633,15 @@ void ChromeContentRendererClient::RenderFrameCreated(
+@@ -614,6 +627,15 @@ void ChromeContentRendererClient::RenderFrameCreated(
        render_frame, registry);
  #endif
  
@@ -612,7 +612,7 @@ diff --git a/chrome/renderer/chrome_content_renderer_client.cc b/chrome/renderer
  #if BUILDFLAG(ENABLE_PPAPI)
    new PepperHelper(render_frame);
  #endif
-@@ -1640,6 +1662,17 @@ void ChromeContentRendererClient::RunScriptsAtDocumentStart(
+@@ -1637,6 +1659,17 @@ void ChromeContentRendererClient::RunScriptsAtDocumentStart(
        render_frame);
    // |render_frame| might be dead by now.
  #endif
@@ -630,7 +630,7 @@ diff --git a/chrome/renderer/chrome_content_renderer_client.cc b/chrome/renderer
  }
  
  void ChromeContentRendererClient::RunScriptsAtDocumentEnd(
-@@ -1649,6 +1682,17 @@ void ChromeContentRendererClient::RunScriptsAtDocumentEnd(
+@@ -1646,6 +1679,17 @@ void ChromeContentRendererClient::RunScriptsAtDocumentEnd(
        render_frame);
    // |render_frame| might be dead by now.
  #endif
@@ -648,7 +648,7 @@ diff --git a/chrome/renderer/chrome_content_renderer_client.cc b/chrome/renderer
  }
  
  void ChromeContentRendererClient::RunScriptsAtDocumentIdle(
-@@ -1658,6 +1702,17 @@ void ChromeContentRendererClient::RunScriptsAtDocumentIdle(
+@@ -1655,6 +1699,17 @@ void ChromeContentRendererClient::RunScriptsAtDocumentIdle(
        render_frame);
    // |render_frame| might be dead by now.
  #endif
@@ -696,9 +696,9 @@ diff --git a/components/components_strings.grd b/components/components_strings.g
        <part file="version_ui_strings.grdp" />
        <part file="webapps_strings.grdp" />
 +      <part file="user_scripts/strings/userscripts_strings.grdp" />
-       <if expr="use_blink">
-         <part file="history_clusters_strings.grdp" />
-       </if>
+       <part file="history_clusters_strings.grdp" />
+       <if expr="is_android">
+         <part file="android_system_error_page_strings.grdp" />
 diff --git a/components/user_scripts/README.md b/components/user_scripts/README.md
 new file mode 100644
 --- /dev/null
@@ -1299,7 +1299,7 @@ new file mode 100755
 +
 +        SettingsLauncher settingsLauncher = new SettingsLauncherImpl();
 +        Intent intent = settingsLauncher.createSettingsActivityIntent(
-+                context, UserScriptsPreferences.class.getName(),
++                context, UserScriptsPreferences.class,
 +                UserScriptsPreferences.createFragmentArgsForInstall(filePath));
 +        IntentUtils.safeStartActivity(context, intent);
 +
@@ -8483,7 +8483,7 @@ diff --git a/components/user_scripts/renderer/script_injection_manager.cc b/comp
 new file mode 100755
 --- /dev/null
 +++ b/components/user_scripts/renderer/script_injection_manager.cc
-@@ -0,0 +1,415 @@
+@@ -0,0 +1,414 @@
 +// Copyright 2014 The Chromium Authors. All rights reserved.
 +// Use of this source code is governed by a BSD-style license that can be
 +// found in the LICENSE file.
@@ -8538,8 +8538,7 @@ new file mode 100755
 +    case UserScript::RUN_LOCATION_LAST:
 +      break;
 +  }
-+  NOTREACHED();
-+  return UserScript::RUN_LOCATION_LAST;
++  NOTREACHED_NORETURN();
 +}
 +
 +}  // namespace
@@ -9917,7 +9916,7 @@ diff --git a/components/user_scripts/renderer/user_script_set_manager.cc b/compo
 new file mode 100755
 --- /dev/null
 +++ b/components/user_scripts/renderer/user_script_set_manager.cc
-@@ -0,0 +1,77 @@
+@@ -0,0 +1,76 @@
 +#include "user_script_set_manager.h"
 +
 +#include "base/logging.h"
@@ -9971,8 +9970,7 @@ new file mode 100755
 +void UserScriptSetManager::OnUpdateUserScripts(
 +    base::ReadOnlySharedMemoryRegion shared_memory) {
 +  if (!shared_memory.IsValid()) {
-+    NOTREACHED() << "Bad scripts handle";
-+    return;
++    NOTREACHED_NORETURN() << "Bad scripts handle";
 +  }
 +
 +  UserScriptSet* scripts = NULL;
@@ -9995,7 +9993,6 @@ new file mode 100755
 +}
 +
 +}
-\ No newline at end of file
 diff --git a/components/user_scripts/renderer/user_script_set_manager.h b/components/user_scripts/renderer/user_script_set_manager.h
 new file mode 100755
 --- /dev/null
@@ -10484,7 +10481,7 @@ diff --git a/ipc/ipc_message_start.h b/ipc/ipc_message_start.h
 diff --git a/tools/gritsettings/resource_ids.spec b/tools/gritsettings/resource_ids.spec
 --- a/tools/gritsettings/resource_ids.spec
 +++ b/tools/gritsettings/resource_ids.spec
-@@ -1012,6 +1012,12 @@
+@@ -1041,6 +1041,12 @@
    "components/search_engine_descriptions_strings.grd": {
      "messages": [7260],
    },

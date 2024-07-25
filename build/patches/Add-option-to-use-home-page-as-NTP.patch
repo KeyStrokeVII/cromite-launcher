@@ -23,15 +23,15 @@ License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
 diff --git a/chrome/android/features/tab_ui/java/src/org/chromium/chrome/browser/tasks/tab_management/TabGridDialogMediator.java b/chrome/android/features/tab_ui/java/src/org/chromium/chrome/browser/tasks/tab_management/TabGridDialogMediator.java
 --- a/chrome/android/features/tab_ui/java/src/org/chromium/chrome/browser/tasks/tab_management/TabGridDialogMediator.java
 +++ b/chrome/android/features/tab_ui/java/src/org/chromium/chrome/browser/tasks/tab_management/TabGridDialogMediator.java
-@@ -28,6 +28,7 @@ import org.chromium.base.task.TaskTraits;
- import org.chromium.chrome.browser.data_sharing.DataSharingNotificationManager;
+@@ -29,6 +29,7 @@ import org.chromium.chrome.browser.data_sharing.DataSharingNotificationManager;
  import org.chromium.chrome.browser.data_sharing.SharedImageTilesCoordinator;
  import org.chromium.chrome.browser.flags.ChromeFeatureList;
+ import org.chromium.chrome.browser.hub.HubFieldTrial;
 +import org.chromium.chrome.browser.homepage.HomepageManager;
  import org.chromium.chrome.browser.tab.Tab;
  import org.chromium.chrome.browser.tab.TabCreationState;
  import org.chromium.chrome.browser.tab.TabLaunchType;
-@@ -60,6 +61,7 @@ import org.chromium.ui.KeyboardVisibilityDelegate;
+@@ -62,6 +63,7 @@ import org.chromium.ui.KeyboardVisibilityDelegate;
  import org.chromium.ui.base.DeviceFormFactor;
  import org.chromium.ui.modelutil.PropertyModel;
  import org.chromium.ui.text.EmptyTextWatcher;
@@ -39,7 +39,7 @@ diff --git a/chrome/android/features/tab_ui/java/src/org/chromium/chrome/browser
  
  import java.util.ArrayList;
  import java.util.List;
-@@ -748,11 +750,16 @@ public class TabGridDialogMediator
+@@ -802,11 +804,16 @@ public class TabGridDialogMediator
  
              assert relatedTabs.size() > 0;
  
@@ -201,7 +201,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/tabmodel/Chrome
 diff --git a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
 --- a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
 +++ b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
-@@ -281,6 +281,7 @@ public final class ChromePreferenceKeys {
+@@ -278,6 +278,7 @@ public final class ChromePreferenceKeys {
      public static final String HOMEPAGE_USE_CHROME_NTP = "Chrome.Homepage.UseNTP";
      public static final String HOMEPAGE_USE_DEFAULT_URI = "homepage_partner_enabled";
  
@@ -223,7 +223,7 @@ diff --git a/chrome/browser/preferences/android/java/src/org/chromium/chrome/bro
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1385,6 +1385,9 @@ Your Google account may have other forms of browsing history like searches and a
+@@ -1411,6 +1411,9 @@ Your Google account may have other forms of browsing history like searches and a
        <message name="IDS_CLEAR_BROWSING_DATA_TAB_PERIOD_HOUR" desc="The option to delete browsing data from the last hour.">
          Last hour
        </message>
@@ -248,7 +248,7 @@ diff --git a/chrome/browser/ui/browser_ui_prefs.cc b/chrome/browser/ui/browser_u
 diff --git a/chrome/common/pref_names.h b/chrome/common/pref_names.h
 --- a/chrome/common/pref_names.h
 +++ b/chrome/common/pref_names.h
-@@ -1294,6 +1294,10 @@ inline constexpr char kShowHomeButton[] = "browser.show_home_button";
+@@ -1321,6 +1321,10 @@ inline constexpr char kShowHomeButton[] = "browser.show_home_button";
  // toolbar.
  inline constexpr char kShowForwardButton[] = "browser.show_forward_button";
  

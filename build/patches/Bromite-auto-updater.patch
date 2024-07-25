@@ -33,12 +33,13 @@ License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
  .../browser/omaha/UpdateStatusProvider.java   | 168 +++++++----
  .../browser/omaha/VersionNumberGetter.java    |   3 +-
  .../omaha/inline/InlineUpdateController.java  |  57 ++++
+ .../safety_hub/SafetyHubFetchService.java     |   5 -
  .../strings/android_chrome_strings.grd        |  23 +-
  .../endpoint_fetcher/endpoint_fetcher.cc      | 101 ++++++-
  .../endpoint_fetcher/endpoint_fetcher.h       |  23 +-
  .../Bromite-auto-updater.inc                  |   3 +
  .../Bromite-auto-updater.inc                  |   1 +
- 30 files changed, 1225 insertions(+), 69 deletions(-)
+ 31 files changed, 1225 insertions(+), 74 deletions(-)
  create mode 100644 chrome/android/java/src/org/chromium/chrome/browser/omaha/CromiteUpdateStatusProvider.java
  create mode 100644 chrome/android/java/src/org/chromium/chrome/browser/omaha/inline/BromiteInlineUpdateController.java
  create mode 100644 chrome/browser/endpoint_fetcher/BUILD.gn
@@ -55,8 +56,8 @@ License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
 diff --git a/build/android/java/templates/BuildConfig.template b/build/android/java/templates/BuildConfig.template
 --- a/build/android/java/templates/BuildConfig.template
 +++ b/build/android/java/templates/BuildConfig.template
-@@ -94,6 +94,8 @@ public class BuildConfig {
-     public static MAYBE_FINAL boolean IS_FOR_TEST MAYBE_FALSE;
+@@ -100,6 +100,8 @@ public class BuildConfig {
+     public static MAYBE_FINAL boolean IS_CRONET_BUILD MAYBE_FALSE;
  #endif
  
 +    public static MAYBE_FINAL String BUILD_TARGET_CPU = _BUILD_TARGET_CPU;
@@ -80,7 +81,7 @@ diff --git a/build/config/android/rules.gni b/build/config/android/rules.gni
 diff --git a/chrome/android/chrome_java_sources.gni b/chrome/android/chrome_java_sources.gni
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -874,6 +874,8 @@ chrome_java_sources = [
+@@ -869,6 +869,8 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/omaha/OmahaBase.java",
    "java/src/org/chromium/chrome/browser/omaha/OmahaDelegate.java",
    "java/src/org/chromium/chrome/browser/omaha/OmahaDelegateBase.java",
@@ -671,7 +672,7 @@ new file mode 100644
 diff --git a/chrome/browser/BUILD.gn b/chrome/browser/BUILD.gn
 --- a/chrome/browser/BUILD.gn
 +++ b/chrome/browser/BUILD.gn
-@@ -2796,6 +2796,12 @@ static_library("browser") {
+@@ -2779,6 +2779,12 @@ static_library("browser") {
    }
  
    if (is_android) {
@@ -752,7 +753,7 @@ new file mode 100644
 +#include "chrome/browser/endpoint_fetcher/jni_headers/EndpointFetcher_jni.h"
 +#include "chrome/browser/endpoint_fetcher/jni_headers/EndpointResponse_jni.h"
 +#include "chrome/browser/endpoint_fetcher/jni_headers/EndpointHeaderResponse_jni.h"
-+#include "chrome/browser/profiles/profile_android.h"
++#include "chrome/browser/profiles/profile.h"
 +#include "chrome/browser/signin/identity_manager_factory.h"
 +#include "chrome/common/channel_info.h"
 +#include "components/signin/public/base/consent_level.h"
@@ -812,7 +813,7 @@ new file mode 100644
 +  std::vector<std::string> scopes;
 +  base::android::AppendJavaStringArrayToStringVector(env, jscopes, &scopes);
 +  auto endpoint_fetcher = std::make_unique<EndpointFetcher>(
-+      ProfileAndroid::FromProfileAndroid(jprofile)
++      Profile::FromJavaObject(jprofile)
 +          ->GetDefaultStoragePartition()
 +          ->GetURLLoaderFactoryForBrowserProcess(),
 +      base::android::ConvertJavaStringToUTF8(env, joauth_consumer_name),
@@ -823,7 +824,7 @@ new file mode 100644
 +      net::NetworkTrafficAnnotationTag::FromJavaAnnotation(
 +          jannotation_hash_code),
 +      IdentityManagerFactory::GetForProfile(
-+          ProfileAndroid::FromProfileAndroid(jprofile)),
++          Profile::FromJavaObject(jprofile)),
 +      // TODO(crbug.com/1466445): ConsentLevel::kSync is deprecated and should
 +      //     be removed. See ConsentLevel::kSync documentation for details.
 +      signin::ConsentLevel::kSync);
@@ -844,7 +845,7 @@ new file mode 100644
 +    jint jannotation_hash_code,
 +    const base::android::JavaParamRef<jobject>& jcallback) {
 +  auto endpoint_fetcher = std::make_unique<EndpointFetcher>(
-+      ProfileAndroid::FromProfileAndroid(jprofile)
++      Profile::FromJavaObject(jprofile)
 +          ->GetDefaultStoragePartition()
 +          ->GetURLLoaderFactoryForBrowserProcess(),
 +      GURL(base::android::ConvertJavaStringToUTF8(env, jurl)),
@@ -871,7 +872,7 @@ new file mode 100644
 +    jint jannotation_hash_code,
 +    const base::android::JavaParamRef<jobject>& jcallback) {
 +  auto endpoint_fetcher = std::make_unique<EndpointFetcher>(
-+      ProfileAndroid::FromProfileAndroid(jprofile)
++      Profile::FromJavaObject(jprofile)
 +        ->GetDefaultStoragePartition()
 +        ->GetURLLoaderFactoryForBrowserProcess(),
 +      GURL(base::android::ConvertJavaStringToUTF8(env, jurl)),
@@ -1084,7 +1085,7 @@ new file mode 100644
 diff --git a/chrome/browser/flags/android/chrome_feature_list.cc b/chrome/browser/flags/android/chrome_feature_list.cc
 --- a/chrome/browser/flags/android/chrome_feature_list.cc
 +++ b/chrome/browser/flags/android/chrome_feature_list.cc
-@@ -240,6 +240,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
+@@ -253,6 +253,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
      &kPriceChangeModule,
      &kPwaRestoreUi,
      &kPwaRestoreUiAtStartup,
@@ -1095,14 +1096,14 @@ diff --git a/chrome/browser/flags/android/chrome_feature_list.cc b/chrome/browse
 diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
 --- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
 +++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
-@@ -327,6 +327,7 @@ public abstract class ChromeFeatureList {
+@@ -335,6 +335,7 @@ public abstract class ChromeFeatureList {
      public static final String INCOGNITO_REAUTHENTICATION_FOR_ANDROID =
              "IncognitoReauthenticationForAndroid";
      public static final String INCOGNITO_SCREENSHOT = "IncognitoScreenshot";
 +    public static final String INLINE_UPDATE_FLOW = "InlineUpdateFlow";
      public static final String INTEREST_FEED_V2_HEARTS = "InterestFeedV2Hearts";
      public static final String IP_PROTECTION_V1 = "IpProtectionV1";
-     public static final String IP_PROTECTION_UX = "IpProtectionUx";
+     public static final String KID_FRIENDLY_CONTENT_FEED = "KidFriendlyContentFeed";
 diff --git a/chrome/browser/omaha/android/BUILD.gn b/chrome/browser/omaha/android/BUILD.gn
 --- a/chrome/browser/omaha/android/BUILD.gn
 +++ b/chrome/browser/omaha/android/BUILD.gn
@@ -1645,10 +1646,32 @@ new file mode 100644
 +     */
 +    void completeUpdate();
 +}
+diff --git a/chrome/browser/safety_hub/android/java/src/org/chromium/chrome/browser/safety_hub/SafetyHubFetchService.java b/chrome/browser/safety_hub/android/java/src/org/chromium/chrome/browser/safety_hub/SafetyHubFetchService.java
+--- a/chrome/browser/safety_hub/android/java/src/org/chromium/chrome/browser/safety_hub/SafetyHubFetchService.java
++++ b/chrome/browser/safety_hub/android/java/src/org/chromium/chrome/browser/safety_hub/SafetyHubFetchService.java
+@@ -53,9 +53,6 @@ public class SafetyHubFetchService implements SyncService.SyncStateChangedListen
+         if (syncService != null) {
+             syncService.addSyncStateChangedListener(this);
+         }
+-
+-        // Fetch latest update status.
+-        UpdateStatusProvider.getInstance().addObserver(mUpdateCallback);
+     }
+ 
+     @Override
+@@ -64,8 +61,6 @@ public class SafetyHubFetchService implements SyncService.SyncStateChangedListen
+         if (syncService != null) {
+             syncService.removeSyncStateChangedListener(this);
+         }
+-
+-        UpdateStatusProvider.getInstance().removeObserver(mUpdateCallback);
+     }
+ 
+     /** See {@link ChromeActivitySessionTracker#onForegroundSessionStart()}. */
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -2135,6 +2135,12 @@ Your Google account may have other forms of browsing history like searches and a
+@@ -2199,6 +2199,12 @@ Your Google account may have other forms of browsing history like searches and a
        <message name="IDS_DEPRECATION_WARNING" desc="Warning about Chrome updates no longer being supported">
          Chrome updates are no longer supported for this version of Android
        </message>
@@ -1661,7 +1684,7 @@ diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chro
  
        <!-- Account management UI strings. -->
        <message name="IDS_ACCOUNT_MANAGEMENT_TITLE" desc="Header title for the account management screen. [CHAR_LIMIT=32]">
-@@ -3909,7 +3915,10 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the Chrome d
+@@ -4050,7 +4056,10 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the Chrome d
  
        <!-- Main menu items -->
        <message name="IDS_MENU_UPDATE" desc="Menu item for updating chrome. [CHAR_LIMIT=24]">
@@ -1673,7 +1696,7 @@ diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chro
        </message>
        <message name="IDS_MENU_UPDATE_SUMMARY_DEFAULT" desc="Summary string for update menu item explaining that a newer version of Chrome is available. [CHAR_LIMIT=30]">
          Newer version is available
-@@ -3920,6 +3929,18 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the Chrome d
+@@ -4061,6 +4070,18 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the Chrome d
        <message name="IDS_MENU_UPDATE_UNSUPPORTED_SUMMARY_DEFAULT" desc="Summary string for update menu item explaining that the Android version on the device is unsupported. [CHAR_LIMIT=30]">
          Android version is unsupported
        </message>

@@ -49,6 +49,7 @@ Multiple-fingerprinting-mitigations.patch
 Add-flag-to-configure-maximum-connections-per-host.patch
 Do-not-ignore-download-location-prompt-setting.patch
 Add-support-for-writing-URIs.patch
+Restore-BookmarkToolbar-setCurrentFolder.patch
 Add-bookmark-import-export-actions.patch
 Bookmarks-select-all-menu-entry.patch
 Add-an-always-incognito-mode.patch
@@ -69,7 +70,6 @@ autofill-miscellaneous.patch
 Enable-native-Android-autofill.patch
 translate-disable-fetching-of-languages-from-server.patch
 Offer-builtin-autocomplete-for-chrome-flags.patch
-Use-4-tile-rows-never-show-logo.patch
 Disable-various-metrics.patch
 Enable-StrictOriginIsolation-and-SitePerProcess.patch
 Use-64-bit-WebView-processes.patch

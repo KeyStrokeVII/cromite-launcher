@@ -10,7 +10,7 @@ License: GPL-2.0-or-later - https://spdx.org/licenses/GPL-2.0-or-later.html
 diff --git a/components/privacy_sandbox/tracking_protection_prefs.cc b/components/privacy_sandbox/tracking_protection_prefs.cc
 --- a/components/privacy_sandbox/tracking_protection_prefs.cc
 +++ b/components/privacy_sandbox/tracking_protection_prefs.cc
-@@ -79,7 +79,7 @@ void RegisterProfilePrefs(PrefRegistrySimple* registry) {
+@@ -70,7 +70,7 @@ void RegisterProfilePrefs(PrefRegistrySimple* registry) {
        prefs::kFingerprintingProtectionEnabled, false,
        user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
    registry->RegisterBooleanPref(

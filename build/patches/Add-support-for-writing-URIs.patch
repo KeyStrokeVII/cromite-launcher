@@ -15,7 +15,7 @@ License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
 diff --git a/base/android/content_uri_utils.cc b/base/android/content_uri_utils.cc
 --- a/base/android/content_uri_utils.cc
 +++ b/base/android/content_uri_utils.cc
-@@ -30,6 +30,16 @@ File OpenContentUriForRead(const FilePath& content_uri) {
+@@ -32,6 +32,16 @@ File OpenContentUriForRead(const FilePath& content_uri) {
    return File(fd);
  }
  

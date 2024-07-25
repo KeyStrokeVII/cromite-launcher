@@ -49,6 +49,7 @@
 #include "base/trace_event/trace_event.h"
 #include "build/build_config.h"
 #include "build/chromeos_buildflags.h"
+#include "cc/input/browser_controls_offset_tags_info.h"
 #include "components/attribution_reporting/features.h"
 #include "components/download/public/common/download_stats.h"
 #include "components/url_formatter/url_formatter.h"
@@ -89,9 +90,9 @@
 #include "content/browser/preloading/prerender/prerender_new_tab_handle.h"
 #include "content/browser/renderer_host/agent_scheduling_group_host.h"
 #include "content/browser/renderer_host/cross_process_frame_connector.h"
-#include "content/browser/renderer_host/cursor_manager.h"
 #include "content/browser/renderer_host/frame_token_message_queue.h"
 #include "content/browser/renderer_host/frame_tree_node.h"
+#include "content/browser/renderer_host/input/touch_emulator_impl.h"
 #include "content/browser/renderer_host/media/media_stream_manager.h"
 #include "content/browser/renderer_host/navigation_entry_impl.h"
 #include "content/browser/renderer_host/navigation_request.h"
@@ -103,7 +104,6 @@
 #include "content/browser/renderer_host/render_view_host_impl.h"
 #include "content/browser/renderer_host/render_widget_host_factory.h"
 #include "content/browser/renderer_host/render_widget_host_impl.h"
-#include "content/browser/renderer_host/render_widget_host_input_event_router.h"
 #include "content/browser/renderer_host/render_widget_host_view_base.h"
 #include "content/browser/renderer_host/render_widget_host_view_child_frame.h"
 #include "content/browser/renderer_host/text_input_manager.h"
@@ -120,6 +120,8 @@
 #include "content/browser/webui/web_ui_impl.h"
 #include "content/common/content_switches_internal.h"
 #include "content/common/features.h"
+#include "content/common/input/cursor_manager.h"
+#include "content/common/input/render_widget_host_input_event_router.h"
 #include "content/public/browser/ax_inspect_factory.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_plugin_guest_manager.h"
@@ -238,6 +240,11 @@
 #include "content/browser/starscan_load_observer.h"
 #endif
 
+#if !BUILDFLAG(IS_ANDROID)
+#include "content/public/browser/document_picture_in_picture_window_controller.h"
+#include "content/public/browser/picture_in_picture_window_controller.h"
+#endif  // !BUILDFLAG(IS_ANDROID)
+
 namespace content {
 
 namespace {
@@ -267,6 +274,11 @@ constexpr auto kUpdateLoadStatesInterval = base::Milliseconds(250);
 // Kill switch for crash immediately on dangling BrowserContext.
 BASE_FEATURE(kCrashOnDanglingBrowserContext,
              "CrashOnDanglingBrowserContext",
+             base::FEATURE_ENABLED_BY_DEFAULT);
+
+// Kill switch for inner WebContents visibility updates.
+BASE_FEATURE(kUpdateInnerWebContentsVisibility,
+             "UpdateInnerWebContentsVisibility",
              base::FEATURE_ENABLED_BY_DEFAULT);
 
 using LifecycleState = RenderFrameHost::LifecycleState;
@@ -837,7 +849,7 @@ class WebContentsImpl::WebContentsDestructionObserver
   raw_ptr<WebContentsImpl> owner_;
 };
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 // TODO(sreejakshetty): Make |WebContentsImpl::ColorChooserHolder| per-frame
 // instead of WebContents-owned.
 // WebContentsImpl::ColorChooserHolder -----------------------------------------
@@ -888,7 +900,7 @@ class WebContentsImpl::ColorChooserHolder : public blink::mojom::ColorChooser {
   // mojo renderer client.
   mojo::Remote<blink::mojom::ColorChooserClient> client_;
 };
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 
 // WebContentsImpl::WebContentsTreeNode ----------------------------------------
 WebContentsImpl::WebContentsTreeNode::WebContentsTreeNode(
@@ -896,9 +908,7 @@ WebContentsImpl::WebContentsTreeNode::WebContentsTreeNode(
     : current_web_contents_(current_web_contents),
       outer_web_contents_(nullptr),
       outer_contents_frame_tree_node_id_(
-          FrameTreeNode::kFrameTreeNodeInvalidId),
-      focused_frame_tree_(
-          current_web_contents->GetPrimaryFrameTree().GetSafeRef()) {}
+          FrameTreeNode::kFrameTreeNodeInvalidId) {}
 
 WebContentsImpl::WebContentsTreeNode::~WebContentsTreeNode() = default;
 
@@ -956,7 +966,7 @@ WebContentsImpl::WebContentsTreeNode::DetachInnerWebContents(
     }
   }
 
-  NOTREACHED();
+  NOTREACHED_IN_MIGRATION();
   return nullptr;
 }
 
@@ -978,12 +988,17 @@ void WebContentsImpl::WebContentsTreeNode::OnFrameTreeNodeDestroyed(
   outer_web_contents_->node_.DetachInnerWebContents(current_web_contents_);
 }
 
+FrameTree* WebContentsImpl::WebContentsTreeNode::focused_frame_tree() {
+  CHECK(focused_frame_tree_);
+  return focused_frame_tree_;
+}
+
 void WebContentsImpl::WebContentsTreeNode::SetFocusedFrameTree(
     FrameTree* frame_tree) {
   OPTIONAL_TRACE_EVENT0("content", "WebContentsTreeNode::SetFocusedFrameTree");
   DCHECK(!outer_web_contents())
       << "Only the outermost WebContents tracks focus.";
-  focused_frame_tree_ = frame_tree->GetSafeRef();
+  focused_frame_tree_ = frame_tree;
 }
 
 WebContentsImpl*
@@ -1098,7 +1113,7 @@ class WebContentsOfBrowserContext : public base::SupportsUserData::Data {
             << "WebContents (for more info see https://crbug.com/1376879#c44); "
             << "creator = " << creator;
       } else {
-        NOTREACHED()
+        NOTREACHED_IN_MIGRATION()
             << "BrowserContext is getting destroyed without first closing all "
             << "WebContents (for more info see https://crbug.com/1376879#c44); "
             << "creator = " << creator;
@@ -1147,6 +1162,7 @@ WebContentsImpl::WebContentsImpl(BrowserContext* browser_context)
       delegate_(nullptr),
       render_view_host_delegate_view_(nullptr),
       opened_by_another_window_(false),
+      node_(this),
       primary_frame_tree_(browser_context,
                           this,
                           this,
@@ -1157,7 +1173,6 @@ WebContentsImpl::WebContentsImpl(BrowserContext* browser_context)
                           this,
                           this,
                           FrameTree::Type::kPrimary),
-      node_(this),
       primary_main_frame_process_status_(
           base::TERMINATION_STATUS_STILL_RUNNING),
       primary_main_frame_process_error_code_(0),
@@ -1188,6 +1203,7 @@ WebContentsImpl::WebContentsImpl(BrowserContext* browser_context)
       prerender_host_registry_(std::make_unique<PrerenderHostRegistry>(*this)) {
   TRACE_EVENT0("content", "WebContentsImpl::WebContentsImpl");
   WebContentsOfBrowserContext::Attach(*this);
+  node_.SetFocusedFrameTree(&primary_frame_tree_);
 #if BUILDFLAG(ENABLE_PPAPI)
   pepper_playback_observer_ = std::make_unique<PepperPlaybackObserver>(this);
 #endif
@@ -1254,6 +1270,8 @@ WebContentsImpl::~WebContentsImpl() {
 
   FullscreenContentsSet(GetBrowserContext())->erase(this);
 
+  touch_emulator_.reset();
+
   rwh_input_event_router_.reset();
 
   WebContentsImpl* outermost = GetOutermostWebContents();
@@ -1288,7 +1306,7 @@ WebContentsImpl::~WebContentsImpl() {
     dialog_manager_->CancelDialogs(this, /*reset_state=*/true);
   }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
   color_chooser_holder_.reset();
 #endif
   find_request_manager_.reset();
@@ -2527,11 +2545,11 @@ bool WebContentsImpl::IsCrashed() {
     case base::TERMINATION_STATUS_STILL_RUNNING:
       return false;
     case base::TERMINATION_STATUS_MAX_ENUM:
-      NOTREACHED();
+      NOTREACHED_IN_MIGRATION();
       return false;
   }
 
-  NOTREACHED();
+  NOTREACHED_IN_MIGRATION();
   return false;
 }
 
@@ -2719,6 +2737,16 @@ WebContents::ScopedIgnoreInputEvents WebContentsImpl::IgnoreInputEvents(
             wc->web_input_event_audit_callbacks_.erase(*callback_id);
           } else {
             --wc->ignore_input_events_count_;
+            // Reset gesture detection so that we don't continue to generate new
+            // gestures from suppressed touches. These suppressed gestures would
+            // otherwise confuse the event stream validator when input is
+            // re-enabled.
+            if (wc->ignore_input_events_count_ == 0) {
+              if (auto* view = wc->GetRenderWidgetHostView()) {
+                static_cast<RenderWidgetHostViewBase*>(view)
+                    ->ResetGestureDetection();
+              }
+            }
           }
         }
       },
@@ -3141,7 +3169,7 @@ const blink::web_pref::WebPreferences WebContentsImpl::ComputeWebPreferences() {
     prefs.autoplay_policy =
         blink::mojom::AutoplayPolicy::kDocumentUserActivationRequired;
   } else {
-    NOTREACHED();
+    NOTREACHED_IN_MIGRATION();
   }
 
   prefs.dont_send_key_events_to_javascript =
@@ -3541,6 +3569,10 @@ void WebContentsImpl::Init(const WebContents::CreateParams& params,
 
   if (params.picture_in_picture_options.has_value()) {
     picture_in_picture_options_ = params.picture_in_picture_options;
+    if (GetOpener()) {
+      picture_in_picture_opener_ =
+          FromRenderFrameHostImpl(GetOpener())->GetWeakPtr();
+    }
   }
 
   // This is set before initializing the render manager since
@@ -3662,7 +3694,7 @@ void WebContentsImpl::OnWebContentsDestroyed(WebContentsImpl* web_contents) {
     pending_contents_.erase(iter);
     return;
   }
-  NOTREACHED();
+  NOTREACHED_IN_MIGRATION();
 }
 
 void WebContentsImpl::OnRenderWidgetHostDestroyed(
@@ -3822,7 +3854,7 @@ void WebContentsImpl::RenderWidgetWasResized(
 }
 
 KeyboardEventProcessingResult WebContentsImpl::PreHandleKeyboardEvent(
-    const NativeWebKeyboardEvent& event) {
+    const input::NativeWebKeyboardEvent& event) {
   OPTIONAL_TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("content.verbose"),
                         "WebContentsImpl::PreHandleKeyboardEvent");
   auto* outermost_contents = GetOutermostWebContents();
@@ -3863,7 +3895,8 @@ bool WebContentsImpl::HandleMouseEvent(const blink::WebMouseEvent& event) {
   return false;
 }
 
-bool WebContentsImpl::HandleKeyboardEvent(const NativeWebKeyboardEvent& event) {
+bool WebContentsImpl::HandleKeyboardEvent(
+    const input::NativeWebKeyboardEvent& event) {
   OPTIONAL_TRACE_EVENT0(TRACE_DISABLED_BY_DEFAULT("content.verbose"),
                         "WebContentsImpl::HandleKeyboardEvent");
   if (browser_plugin_embedder_ &&
@@ -3915,7 +3948,7 @@ RenderWidgetHostInputEventRouter* WebContentsImpl::GetInputEventRouter() {
     if (!rwh_input_event_router_.get()) {
       rwh_input_event_router_ =
           std::make_unique<RenderWidgetHostInputEventRouter>(
-              GetHostFrameSinkManager());
+              GetHostFrameSinkManager(), this);
     }
   }
   return rwh_input_event_router_.get();
@@ -4334,6 +4367,19 @@ void WebContentsImpl::UpdateVisibilityAndNotifyPageAndView(
   if (new_visibility != Visibility::VISIBLE) {
     SetVisibilityAndNotifyObservers(new_visibility);
   }
+
+  if (base::FeatureList::IsEnabled(kUpdateInnerWebContentsVisibility)) {
+    // Inner WebContents are skipped in ForEachRenderViewHost() above, which
+    // causes inner WebContents to not be notified of visibility changes.
+    //
+    // Note: An inner WebContents that is hidden within the embedder could
+    // spuriously be set to visible (e.g. if its parent is display:none), but
+    // this is ignored here for now.
+    for (WebContents* inner : GetInnerWebContents()) {
+      static_cast<WebContentsImpl*>(inner)
+          ->UpdateVisibilityAndNotifyPageAndView(new_visibility, is_activity);
+    }
+  }
 }
 
 #if BUILDFLAG(IS_ANDROID)
@@ -4462,7 +4508,7 @@ bool WebContentsImpl::RequestKeyboardLock(
                         "esc_key_locked", esc_key_locked);
   DCHECK(render_widget_host);
   if (WebContentsImpl::FromRenderWidgetHostImpl(render_widget_host) != this) {
-    NOTREACHED();
+    NOTREACHED_IN_MIGRATION();
     return false;
   }
 
@@ -5166,12 +5212,20 @@ void WebContentsImpl::AXTreeIDForMainFrameHasChanged() {
       &WebContentsObserver::AXTreeIDForMainFrameHasChanged);
 }
 
-void WebContentsImpl::AccessibilityEventReceived(
-    const ui::AXUpdatesAndEvents& details) {
+void WebContentsImpl::ProcessAccessibilityUpdatesAndEvents(
+    ui::AXUpdatesAndEvents& details) {
   OPTIONAL_TRACE_EVENT0("content",
                         "WebContentsImpl::AccessibilityEventReceived");
+
+  // First, supply the data to consumers that won't change it.
   observers_.NotifyObservers(&WebContentsObserver::AccessibilityEventReceived,
                              details);
+
+  // Next, supply the data to consumers that may change it or who need to avoid
+  // extra copying. Note that this also includes those who will pass to mojo
+  // pipes not taking const.
+  // TODO(accessibility): add support for this. WebContentsDelegate isn't the
+  // right abstraction since it contains many other side effects.
 }
 
 void WebContentsImpl::AccessibilityLocationChangesReceived(
@@ -6155,7 +6209,7 @@ bool WebContentsImpl::GotResponseToKeyboardLockRequest(bool allowed) {
   }
   if (WebContentsImpl::FromRenderWidgetHostImpl(keyboard_lock_widget_) !=
       this) {
-    NOTREACHED();
+    NOTREACHED_IN_MIGRATION();
     return false;
   }
   // KeyboardLock is only supported when called by the top-level browsing
@@ -6190,7 +6244,7 @@ WebContents* WebContentsImpl::GetFirstWebContentsInLiveOriginalOpenerChain() {
                     : nullptr;
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 void WebContentsImpl::DidChooseColorInColorChooser(SkColor color) {
   OPTIONAL_TRACE_EVENT1("content",
                         "WebContentsImpl::DidChooseColorInColorChooser",
@@ -6266,7 +6320,7 @@ void WebContentsImpl::Find(int request_id,
   OPTIONAL_TRACE_EVENT0("content", "WebContentsImpl::Find");
   // Cowardly refuse to search for no text.
   if (search_text.empty()) {
-    NOTREACHED();
+    NOTREACHED_IN_MIGRATION();
     return;
   }
 
@@ -6684,6 +6738,18 @@ void WebContentsImpl::NotifyNavigationStateChangedFromController(
   NotifyNavigationStateChanged(changed_flags);
 }
 
+TouchEmulator* WebContentsImpl::GetTouchEmulator(bool create_if_necessary) {
+  CHECK(rwh_input_event_router_);
+
+  if (!touch_emulator_ && create_if_necessary) {
+    touch_emulator_ = std::make_unique<TouchEmulatorImpl>(
+        rwh_input_event_router_.get(),
+        rwh_input_event_router_->last_device_scale_factor());
+  }
+
+  return touch_emulator_.get();
+}
+
 void WebContentsImpl::DidNavigateMainFramePreCommit(
     NavigationHandle* navigation_handle,
     bool navigation_is_within_page) {
@@ -6708,7 +6774,7 @@ void WebContentsImpl::DidNavigateMainFramePreCommit(
           GetBackForwardTransitionAnimationManager());
   if (animation_manager) {
     animation_manager->OnDidNavigatePrimaryMainFramePreCommit(
-        *request, frame_tree_node->render_manager()->current_frame_host(),
+        request, frame_tree_node->render_manager()->current_frame_host(),
         request->GetRenderFrameHost());
   }
 #endif
@@ -7384,7 +7450,7 @@ void WebContentsImpl::OnColorChooserFactoryReceiver(
   color_chooser_factory_receivers_.Add(this, std::move(receiver));
 }
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 void WebContentsImpl::OpenColorChooser(
     mojo::PendingReceiver<blink::mojom::ColorChooser> chooser_receiver,
     mojo::PendingRemote<blink::mojom::ColorChooserClient> client,
@@ -7411,7 +7477,7 @@ void WebContentsImpl::OpenColorChooser(
     color_chooser_holder_.reset();
   }
 }
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_APPLE)
+#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_IOS)
 
 #if BUILDFLAG(ENABLE_PPAPI)
 void WebContentsImpl::OnPepperInstanceCreated(RenderFrameHostImpl* source,
@@ -8492,19 +8558,6 @@ void WebContentsImpl::DidStopLoading() {
           manager->DidStopLoading();
         }
       });
-
-  // The spare renderer creation might have been delayed until the page stops
-  // loading. Notify the spare renderer manager about the page loading
-  // completion. This is a no-op if a spare rendere already exists.
-  //
-  // TODO(crbug.com/41490050): replace the implicit treatment of
-  // TimeDelta::Max() with an enum and optional TimeDelta if we decide to launch
-  // deferred spare renderer.
-  bool immediately_warmup_spare_renderer =
-      GetContentClient()->browser()->GetSpareRendererDelayForSiteURL(
-          GetURL()) == base::TimeDelta::Max();
-  RenderProcessHostImpl::NotifySpareManagerAboutRecentlyUsedSiteInstance(
-      GetSiteInstance(), /* ignore_delay */ immediately_warmup_spare_renderer);
 }
 
 void WebContentsImpl::DidChangeLoadProgressForPrimaryMainFrame() {
@@ -8957,6 +9010,34 @@ void WebContentsImpl::SetFocusedFrame(FrameTreeNode* node,
   CloseListenerManager::DidChangeFocusedFrame(this);
 }
 
+FrameTree* WebContentsImpl::GetOwnedPictureInPictureFrameTree() {
+#if !BUILDFLAG(IS_ANDROID)
+  if (has_picture_in_picture_document_) {
+    WebContents* picture_in_picture_web_contents =
+        PictureInPictureWindowController::
+            GetOrCreateDocumentPictureInPictureController(this)
+                ->GetChildWebContents();
+    if (picture_in_picture_web_contents) {
+      return &(static_cast<WebContentsImpl*>(picture_in_picture_web_contents)
+                   ->GetPrimaryFrameTree());
+    }
+  }
+#endif  // !BUILDFLAG(IS_ANDROID)
+
+  return nullptr;
+}
+
+FrameTree* WebContentsImpl::GetPictureInPictureOpenerFrameTree() {
+#if !BUILDFLAG(IS_ANDROID)
+  if (picture_in_picture_opener_) {
+    return &(static_cast<WebContentsImpl*>(picture_in_picture_opener_.get())
+                 ->GetPrimaryFrameTree());
+  }
+#endif  // !BUILDFLAG(IS_ANDROID)
+
+  return nullptr;
+}
+
 void WebContentsImpl::DidCallFocus() {
   OPTIONAL_TRACE_EVENT0("content", "WebContentsImpl::DidCallFocus");
   // Any explicit focusing of another window while this WebContents is in
@@ -9101,7 +9182,17 @@ void WebContentsImpl::FocusOwningWebContents(
   if (focused_widget != render_widget_host &&
       (!focused_widget ||
        focused_widget->delegate() != render_widget_host->delegate())) {
+#if BUILDFLAG(IS_ANDROID)
+    if (&GetPrimaryFrameTree() != GetFocusedFrameTree()) {
+      UMA_HISTOGRAM_BOOLEAN("Android.FocusChanged.FocusOwningWebContents",
+                            true);
+    }
+#endif
     SetAsFocusedWebContentsIfNecessary();
+  } else {
+#if BUILDFLAG(IS_ANDROID)
+    UMA_HISTOGRAM_BOOLEAN("Android.FocusChanged.FocusOwningWebContents", false);
+#endif
   }
 }
 
@@ -9537,7 +9628,7 @@ gfx::Size WebContentsImpl::GetSize() {
   return view_android->bounds().size();
 #elif BUILDFLAG(IS_IOS)
   // TODO(crbug.com/40254930): Implement me.
-  NOTREACHED();
+  NOTREACHED_IN_MIGRATION();
   return gfx::Size();
 #endif
 }
@@ -10244,7 +10335,7 @@ bool WebContentsImpl::IsBackForwardCacheSupported() {
   if (!GetDelegate()) {
     return false;
   }
-  return GetDelegate()->IsBackForwardCacheSupported();
+  return GetDelegate()->IsBackForwardCacheSupported(*this);
 }
 
 FrameTree* WebContentsImpl::LoadingTree() {
@@ -10626,7 +10717,7 @@ void WebContentsImpl::RenderFrameHostStateChanged(
                           dict.Add("new", new_state);
                         });
 
-#if BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_MAC)
+#if BUILDFLAG(IS_ANDROID)
   if (old_state == LifecycleState::kActive && !render_frame_host->GetParent()) {
     // TODO(sreejakshetty): Remove this reset when ColorChooserHolder becomes
     // per-frame.
@@ -10634,7 +10725,7 @@ void WebContentsImpl::RenderFrameHostStateChanged(
     // kActive.
     color_chooser_holder_.reset();
   }
-#endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_MAC)
+#endif  // BUILDFLAG(IS_ANDROID)
 
   observers_.NotifyObservers(&WebContentsObserver::RenderFrameHostStateChanged,
                              render_frame_host, old_state, new_state);
@@ -10696,10 +10787,12 @@ void WebContentsImpl::NotifyPrimaryMainFrameProcessIsAlive() {
 void WebContentsImpl::UpdateBrowserControlsState(
     cc::BrowserControlsState constraints,
     cc::BrowserControlsState current,
-    bool animate) {
+    bool animate,
+    const std::optional<cc::BrowserControlsOffsetTagsInfo>& offset_tags_info) {
   // Browser controls should be synchronised with the scroll state. Therefore,
   // they are controlled from the renderer by the main RenderFrame(Host).
-  GetPrimaryPage().UpdateBrowserControlsState(constraints, current, animate);
+  GetPrimaryPage().UpdateBrowserControlsState(constraints, current, animate,
+                                              offset_tags_info);
 }
 
 void WebContentsImpl::SetV8CompileHints(base::ReadOnlySharedMemoryRegion data) {
@@ -10781,6 +10874,7 @@ std::unique_ptr<PrerenderHandle> WebContentsImpl::StartPrerendering(
       prerendering_url, trigger_type, embedder_histogram_suffix,
       /*target_hint=*/std::nullopt, content::Referrer(),
       /*eagerness=*/std::nullopt,
+      /*no_vary_search_expected=*/std::nullopt,
       /*initiator_origin=*/std::nullopt,
       content::ChildProcessHost::kInvalidUniqueID, GetWeakPtr(),
       /*initiator_frame_token=*/std::nullopt,
@@ -10948,12 +11042,9 @@ void WebContentsImpl::GetMediaCaptureRawDeviceIdsOpened(
     return;
   }
 
-  GetIOThreadTaskRunner({})->PostTask(
-      FROM_HERE,
-      base::BindOnce(&MediaStreamManager::GetRawDeviceIdsOpenedForFrame,
-                     base::Unretained(media_stream_manager),
-                     GetPrimaryMainFrame(), type,
-                     base::BindPostTaskToCurrentDefault(std::move(callback))));
+  media_stream_manager->GetRawDeviceIdsOpenedForFrame(
+      GetPrimaryMainFrame(), type,
+      base::BindPostTaskToCurrentDefault(std::move(callback)));
 }
 
 }  // namespace content

@@ -47,9 +47,9 @@ diff --git a/chrome/browser/segmentation_platform/chrome_browser_main_extra_part
 diff --git a/components/segmentation_platform/public/features.cc b/components/segmentation_platform/public/features.cc
 --- a/components/segmentation_platform/public/features.cc
 +++ b/components/segmentation_platform/public/features.cc
-@@ -162,4 +162,7 @@ BASE_FEATURE(kSegmentationPlatformIosModuleRankerSplitBySurface,
-              base::FEATURE_DISABLED_BY_DEFAULT);
- #endif
+@@ -162,4 +162,7 @@ BASE_FEATURE(kSegmentationPlatformURLVisitResumptionRanker,
+              "SegmentationPlatformURLVisitResumptionRanker",
+              base::FEATURE_ENABLED_BY_DEFAULT);
  
 +SET_CROMITE_FEATURE_DISABLED(kSegmentationPlatformFeature);
 +SET_CROMITE_FEATURE_DISABLED(kSegmentationPlatformFeedSegmentFeature);

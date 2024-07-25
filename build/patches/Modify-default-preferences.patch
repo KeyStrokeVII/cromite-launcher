@@ -19,10 +19,10 @@ License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
  .../core/browser/cookie_settings.cc            |  2 +-
  components/payments/core/payment_prefs.cc      |  2 +-
  .../core/common/safe_browsing_prefs.cc         |  4 ++--
- .../primary_account_manager.cc                 |  4 ++--
+ .../primary_account_manager.cc                 |  2 +-
  .../Modify-default-preferences.inc             |  8 ++++++++
  .../features_cc/Modify-default-preferences.inc |  1 +
- 18 files changed, 67 insertions(+), 17 deletions(-)
+ 18 files changed, 66 insertions(+), 16 deletions(-)
  create mode 100644 components/bookmarks/browser/features.cc
  create mode 100644 components/bookmarks/browser/features.h
  create mode 100755 cromite_flags/chrome/browser/about_flags_cc/Modify-default-preferences.inc
@@ -54,7 +54,7 @@ diff --git a/chrome/browser/background/background_mode_manager.cc b/chrome/brows
 diff --git a/chrome/browser/chrome_content_browser_client.cc b/chrome/browser/chrome_content_browser_client.cc
 --- a/chrome/browser/chrome_content_browser_client.cc
 +++ b/chrome/browser/chrome_content_browser_client.cc
-@@ -1526,7 +1526,7 @@ void ChromeContentBrowserClient::RegisterLocalStatePrefs(
+@@ -1548,7 +1548,7 @@ void ChromeContentBrowserClient::RegisterLocalStatePrefs(
  void ChromeContentBrowserClient::RegisterProfilePrefs(
      user_prefs::PrefRegistrySyncable* registry) {
    registry->RegisterBooleanPref(prefs::kDisable3DAPIs, false);
@@ -78,7 +78,7 @@ diff --git a/chrome/browser/preloading/preloading_prefs.h b/chrome/browser/prelo
 diff --git a/chrome/browser/profiles/profile.cc b/chrome/browser/profiles/profile.cc
 --- a/chrome/browser/profiles/profile.cc
 +++ b/chrome/browser/profiles/profile.cc
-@@ -308,7 +308,7 @@ const char Profile::kProfileKey[] = "__PROFILE__";
+@@ -318,7 +318,7 @@ const char Profile::kProfileKey[] = "__PROFILE__";
  void Profile::RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry) {
    registry->RegisterBooleanPref(
        prefs::kSearchSuggestEnabled,
@@ -230,7 +230,7 @@ diff --git a/components/content_settings/core/browser/content_settings_registry.
 diff --git a/components/content_settings/core/browser/cookie_settings.cc b/components/content_settings/core/browser/cookie_settings.cc
 --- a/components/content_settings/core/browser/cookie_settings.cc
 +++ b/components/content_settings/core/browser/cookie_settings.cc
-@@ -93,7 +93,7 @@ void CookieSettings::RegisterProfilePrefs(
+@@ -94,7 +94,7 @@ void CookieSettings::RegisterProfilePrefs(
      user_prefs::PrefRegistrySyncable* registry) {
    registry->RegisterIntegerPref(
        prefs::kCookieControlsMode,
@@ -254,7 +254,7 @@ diff --git a/components/payments/core/payment_prefs.cc b/components/payments/cor
 diff --git a/components/safe_browsing/core/common/safe_browsing_prefs.cc b/components/safe_browsing/core/common/safe_browsing_prefs.cc
 --- a/components/safe_browsing/core/common/safe_browsing_prefs.cc
 +++ b/components/safe_browsing/core/common/safe_browsing_prefs.cc
-@@ -172,13 +172,13 @@ void RegisterProfilePrefs(PrefRegistrySimple* registry) {
+@@ -168,13 +168,13 @@ void RegisterProfilePrefs(PrefRegistrySimple* registry) {
    registry->RegisterBooleanPref(
        prefs::kSafeBrowsingSawInterstitialScoutReporting, false);
    registry->RegisterBooleanPref(
@@ -273,13 +273,10 @@ diff --git a/components/safe_browsing/core/common/safe_browsing_prefs.cc b/compo
 diff --git a/components/signin/internal/identity_manager/primary_account_manager.cc b/components/signin/internal/identity_manager/primary_account_manager.cc
 --- a/components/signin/internal/identity_manager/primary_account_manager.cc
 +++ b/components/signin/internal/identity_manager/primary_account_manager.cc
-@@ -245,9 +245,9 @@ void PrimaryAccountManager::RegisterProfilePrefs(PrefRegistrySimple* registry) {
+@@ -245,7 +245,7 @@ void PrimaryAccountManager::RegisterProfilePrefs(PrefRegistrySimple* registry) {
        prefs::kGoogleServicesSyncingGaiaIdMigratedToSignedIn, std::string());
    registry->RegisterStringPref(
        prefs::kGoogleServicesSyncingUsernameMigratedToSignedIn, std::string());
--  registry->RegisterBooleanPref(prefs::kAutologinEnabled, true);
-+  registry->RegisterBooleanPref(prefs::kAutologinEnabled, false);
-   registry->RegisterListPref(prefs::kReverseAutologinRejectedEmailList);
 -  registry->RegisterBooleanPref(prefs::kSigninAllowed, true);
 +  registry->RegisterBooleanPref(prefs::kSigninAllowed, false);
    registry->RegisterBooleanPref(prefs::kSignedInWithCredentialProvider, false);

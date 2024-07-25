@@ -18,7 +18,7 @@ License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
 diff --git a/components/external_intents/android/external_intents_features.cc b/components/external_intents/android/external_intents_features.cc
 --- a/components/external_intents/android/external_intents_features.cc
 +++ b/components/external_intents/android/external_intents_features.cc
-@@ -20,7 +20,6 @@ namespace {
+@@ -22,7 +22,6 @@ namespace {
  const base::Feature* kFeaturesExposedToJava[] = {
      &kExternalNavigationDebugLogs, &kBlockFrameRenavigations,
      &kBlockIntentsToSelf, &kTrustedClientGestureBypass};
@@ -26,7 +26,7 @@ diff --git a/components/external_intents/android/external_intents_features.cc b/
  }  // namespace
  
  // Alphabetical:
-@@ -41,7 +40,13 @@ BASE_FEATURE(kTrustedClientGestureBypass,
+@@ -43,7 +42,13 @@ BASE_FEATURE(kTrustedClientGestureBypass,
               "TrustedClientGestureBypass",
               base::FEATURE_ENABLED_BY_DEFAULT);
  

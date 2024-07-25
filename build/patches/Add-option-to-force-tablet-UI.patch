@@ -16,13 +16,12 @@ License: GPL-2.0-or-later - https://spdx.org/licenses/GPL-2.0-or-later.html
  .../chrome/browser/app/ChromeActivity.java    |  4 ++-
  .../overlays/strip/StripLayoutHelper.java     | 10 +++++--
  .../strip/StripLayoutHelperManager.java       |  7 ++++-
- .../browser/tasks/ReturnToChromeUtil.java     |  4 ++-
  .../chrome/browser/ui/RootUiCoordinator.java  |  5 +++-
  chrome/browser/preferences/BUILD.gn           |  1 +
  .../preferences/ChromePreferenceKeys.java     |  1 +
  .../preferences/ChromeSharedPreferences.java  |  8 ++++++
  .../LegacyChromePreferenceKeys.java           |  1 +
- .../SingleTabSwitcherOnNtpMediator.java       |  3 +-
+ .../SingleTabSwitcherOnNtpMediator.java       |  1 +
  .../omnibox/LocationBarCoordinator.java       |  2 +-
  .../strings/android_chrome_strings.grd        |  7 +++++
  .../java/res/layout/control_container.xml     | 12 ++++----
@@ -30,7 +29,6 @@ License: GPL-2.0-or-later - https://spdx.org/licenses/GPL-2.0-or-later.html
  .../java/res/values-sw600dp/dimens.xml        |  5 ++--
  .../toolbar/java/res/values/dimens.xml        |  5 ++--
  .../browser/toolbar/ControlContainer.java     |  2 +-
- .../browser/toolbar/ToolbarFeatures.java      |  4 ++-
  .../top/TabStripTransitionCoordinator.java    |  2 +-
  .../toolbar/top/ToolbarControlContainer.java  | 28 ++++++++++++++++++-
  .../browser/toolbar/top/ToolbarLayout.java    |  5 +++-
@@ -38,12 +36,12 @@ License: GPL-2.0-or-later - https://spdx.org/licenses/GPL-2.0-or-later.html
  .../res/xml/accessibility_preferences.xml     |  5 ++++
  .../AccessibilitySettingsDelegate.java        | 11 ++++++++
  .../chromium/ui/base/DeviceFormFactor.java    |  9 ++++++
- 34 files changed, 174 insertions(+), 35 deletions(-)
+ 32 files changed, 167 insertions(+), 32 deletions(-)
 
 diff --git a/chrome/android/features/start_surface/java/src/org/chromium/chrome/features/start_surface/StartSurfaceMediator.java b/chrome/android/features/start_surface/java/src/org/chromium/chrome/features/start_surface/StartSurfaceMediator.java
 --- a/chrome/android/features/start_surface/java/src/org/chromium/chrome/features/start_surface/StartSurfaceMediator.java
 +++ b/chrome/android/features/start_surface/java/src/org/chromium/chrome/features/start_surface/StartSurfaceMediator.java
-@@ -100,6 +100,7 @@ import org.chromium.components.browser_ui.widget.gesture.BackPressHandler;
+@@ -97,6 +97,7 @@ import org.chromium.components.browser_ui.widget.gesture.BackPressHandler;
  import org.chromium.components.embedder_support.util.UrlUtilities;
  import org.chromium.components.prefs.PrefService;
  import org.chromium.content_public.browser.LoadUrlParams;
@@ -51,7 +49,7 @@ diff --git a/chrome/android/features/start_surface/java/src/org/chromium/chrome/
  import org.chromium.ui.modelutil.PropertyModel;
  import org.chromium.ui.text.EmptyTextWatcher;
  import org.chromium.ui.util.ColorUtils;
-@@ -1130,7 +1131,9 @@ class StartSurfaceMediator
+@@ -1124,7 +1125,9 @@ class StartSurfaceMediator
      int getTopToolbarPlaceholderHeight() {
          // If logo is visible in Start surface instead of in the toolbar, we don't need to show the
          // top margin of the fake search box.
@@ -103,7 +101,7 @@ diff --git a/chrome/android/java/res/values-sw600dp/dimens.xml b/chrome/android/
 diff --git a/chrome/android/java/res/values/dimens.xml b/chrome/android/java/res/values/dimens.xml
 --- a/chrome/android/java/res/values/dimens.xml
 +++ b/chrome/android/java/res/values/dimens.xml
-@@ -123,9 +123,13 @@ found in the LICENSE file.
+@@ -120,9 +120,13 @@ found in the LICENSE file.
      <dimen name="tab_modal_scrim_vertical_margin">16dp</dimen>
  
      <!-- Should match toolbar_height_no_shadow -->
@@ -121,7 +119,7 @@ diff --git a/chrome/android/java/res/values/dimens.xml b/chrome/android/java/res
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -2277,7 +2277,9 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
+@@ -2280,7 +2280,9 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
  
      @Override
      public int getControlContainerHeightResource() {
@@ -135,7 +133,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedAct
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/WarmupManager.java b/chrome/android/java/src/org/chromium/chrome/browser/WarmupManager.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/WarmupManager.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/WarmupManager.java
-@@ -54,6 +54,7 @@ import org.chromium.components.embedder_support.util.UrlConstants;
+@@ -56,6 +56,7 @@ import org.chromium.components.embedder_support.util.UrlConstants;
  import org.chromium.content_public.browser.WebContents;
  import org.chromium.content_public.browser.WebContentsObserver;
  import org.chromium.ui.LayoutInflaterUtils;
@@ -143,7 +141,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/WarmupManager.j
  import org.chromium.ui.base.WindowAndroid;
  import org.chromium.ui.display.DisplayUtil;
  
-@@ -405,7 +406,9 @@ public class WarmupManager {
+@@ -425,7 +426,9 @@ public class WarmupManager {
                      (ControlContainer) mainView.findViewById(R.id.control_container);
  
              if (toolbarId != ActivityUtils.NO_RESOURCE_ID && controlContainer != null) {
@@ -230,7 +228,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/accessibility/s
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActivity.java
-@@ -869,7 +869,9 @@ public abstract class ChromeActivity<C extends ChromeActivityComponent>
+@@ -862,7 +862,9 @@ public abstract class ChromeActivity<C extends ChromeActivityComponent>
              // Inflate the correct toolbar layout for the device.
              int toolbarLayoutId = getToolbarLayoutId();
              if (toolbarLayoutId != ActivityUtils.NO_RESOURCE_ID && controlContainer != null) {
@@ -244,15 +242,15 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActiv
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/compositor/overlays/strip/StripLayoutHelper.java b/chrome/android/java/src/org/chromium/chrome/browser/compositor/overlays/strip/StripLayoutHelper.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/compositor/overlays/strip/StripLayoutHelper.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/compositor/overlays/strip/StripLayoutHelper.java
-@@ -73,6 +73,7 @@ import org.chromium.chrome.browser.tasks.tab_management.TabUiThemeUtil;
- import org.chromium.components.browser_ui.styles.ChromeColors;
- import org.chromium.components.browser_ui.styles.SemanticColorUtils;
+@@ -84,6 +84,7 @@ import org.chromium.components.feature_engagement.Tracker;
+ import org.chromium.components.prefs.PrefService;
  import org.chromium.components.tab_groups.TabGroupColorId;
+ import org.chromium.components.user_prefs.UserPrefs;
 +import org.chromium.ui.base.DeviceFormFactor;
  import org.chromium.ui.base.LocalizationUtils;
  import org.chromium.ui.base.WindowAndroid;
  import org.chromium.ui.interpolators.Interpolators;
-@@ -4883,8 +4884,13 @@ public class StripLayoutHelper implements StripLayoutTabDelegate, StripLayoutGro
+@@ -5059,8 +5060,13 @@ public class StripLayoutHelper implements StripLayoutTabDelegate, StripLayoutGro
          mTabMenu.setAnchorView(tabView);
          // 3. Set the vertical offset to align the tab menu with bottom of the tab strip
          int tabHeight = mManagerHost.getHeight();
@@ -271,7 +269,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/compositor/over
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/compositor/overlays/strip/StripLayoutHelperManager.java b/chrome/android/java/src/org/chromium/chrome/browser/compositor/overlays/strip/StripLayoutHelperManager.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/compositor/overlays/strip/StripLayoutHelperManager.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/compositor/overlays/strip/StripLayoutHelperManager.java
-@@ -78,6 +78,7 @@ import org.chromium.chrome.browser.ui.system.StatusBarColorController;
+@@ -80,6 +80,7 @@ import org.chromium.chrome.browser.ui.system.StatusBarColorController;
  import org.chromium.components.browser_ui.styles.SemanticColorUtils;
  import org.chromium.components.browser_ui.widget.scrim.ScrimProperties;
  import org.chromium.content_public.browser.LoadUrlParams;
@@ -279,7 +277,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/compositor/over
  import org.chromium.ui.base.LocalizationUtils;
  import org.chromium.ui.base.PageTransition;
  import org.chromium.ui.base.WindowAndroid;
-@@ -402,11 +403,15 @@ public class StripLayoutHelperManager
+@@ -405,11 +406,15 @@ public class StripLayoutHelperManager
  
          mIsLayoutOptimizationsEnabled =
                  ToolbarFeatures.isTabStripWindowLayoutOptimizationEnabled(true);
@@ -296,24 +294,10 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/compositor/over
          mTopPadding = mHeight - mScrollableStripHeight;
          mDesktopWindowStateProvider = desktopWindowStateProvider;
  
-diff --git a/chrome/android/java/src/org/chromium/chrome/browser/tasks/ReturnToChromeUtil.java b/chrome/android/java/src/org/chromium/chrome/browser/tasks/ReturnToChromeUtil.java
---- a/chrome/android/java/src/org/chromium/chrome/browser/tasks/ReturnToChromeUtil.java
-+++ b/chrome/android/java/src/org/chromium/chrome/browser/tasks/ReturnToChromeUtil.java
-@@ -929,7 +929,9 @@ public final class ReturnToChromeUtil {
-         // TODO(b/331667743): Clean up the flag for scrollable mvt while cleaning up surface polish
-         // code.
-         boolean isSurfacePolishEnabled = ChromeFeatureList.sSurfacePolish.isEnabled();
--        if (!DeviceFormFactor.isNonMultiDisplayContextOnTablet(context)) {
-+        if (!DeviceFormFactor.isNonMultiDisplayContextOnTablet(context) ||
-+             ChromeSharedPreferences.getInstance().readBoolean(
-+                      ChromePreferenceKeys.FLAGS_FORCE_TABLET_UI_ENABLED, false)) {
-             // On phones, parameter SURFACE_POLISH_SCROLLABLE_MVT is checked when feature flag
-             // surface polish is enabled; otherwise, feature flag
-             // SHOW_SCROLLABLE_MVT_ON_NTP_PHONE_ANDROID is checked.
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ui/RootUiCoordinator.java b/chrome/android/java/src/org/chromium/chrome/browser/ui/RootUiCoordinator.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ui/RootUiCoordinator.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ui/RootUiCoordinator.java
-@@ -97,6 +97,7 @@ import org.chromium.chrome.browser.password_manager.ManagePasswordsReferrer;
+@@ -98,6 +98,7 @@ import org.chromium.chrome.browser.password_manager.ManagePasswordsReferrer;
  import org.chromium.chrome.browser.password_manager.PasswordManagerLauncher;
  import org.chromium.chrome.browser.pdf.PdfPage;
  import org.chromium.chrome.browser.preferences.ChromeSharedPreferences;
@@ -321,7 +305,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ui/RootUiCoordi
  import org.chromium.chrome.browser.price_tracking.CurrentTabPriceTrackingStateSupplier;
  import org.chromium.chrome.browser.price_tracking.PriceTrackingButtonController;
  import org.chromium.chrome.browser.profiles.Profile;
-@@ -1610,7 +1611,9 @@ public class RootUiCoordinator
+@@ -1611,7 +1612,9 @@ public class RootUiCoordinator
          if (!mSupportsFindInPageSupplier.getAsBoolean()) return;
  
          int stubId = R.id.find_toolbar_stub;
@@ -346,7 +330,7 @@ diff --git a/chrome/browser/preferences/BUILD.gn b/chrome/browser/preferences/BU
 diff --git a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
 --- a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
 +++ b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
-@@ -268,6 +268,7 @@ public final class ChromePreferenceKeys {
+@@ -265,6 +265,7 @@ public final class ChromePreferenceKeys {
      /** Whether the app-specific history info text was already seen by users. */
      public static final String HISTORY_APP_SPECIFIC_INFO_SEEN =
              "Chrome.History.AppSpecificInfoSeen";
@@ -401,19 +385,10 @@ diff --git a/chrome/browser/single_tab/android/java/src/org/chromium/chrome/brow
  import org.chromium.ui.modelutil.PropertyModel;
  import org.chromium.url.GURL;
  
-@@ -90,7 +91,7 @@ public class SingleTabSwitcherOnNtpMediator implements ConfigurationChangedObser
-         mSingleTabCardClickedCallback = singleTabCardClickedCallback;
-         mIsSurfacePolishEnabled = tabContentManager != null;
-         mUiConfig = uiConfig;
--        mIsTablet = isTablet;
-+        mIsTablet = isTablet && !DeviceFormFactor.isForceTabletUI();
-         mModuleDelegate = moduleDelegate;
- 
-         mMarginNarrowWindowOnTablet =
 diff --git a/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/LocationBarCoordinator.java b/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/LocationBarCoordinator.java
 --- a/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/LocationBarCoordinator.java
 +++ b/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/LocationBarCoordinator.java
-@@ -774,7 +774,7 @@ public class LocationBarCoordinator
+@@ -778,7 +778,7 @@ public class LocationBarCoordinator
      }
  
      private boolean isTabletWindow() {
@@ -425,7 +400,7 @@ diff --git a/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/brow
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1632,6 +1632,13 @@ Your Google account may have other forms of browsing history like searches and a
+@@ -1664,6 +1664,13 @@ Your Google account may have other forms of browsing history like searches and a
          Hide your IP address
        </message>
  
@@ -547,31 +522,10 @@ diff --git a/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/brow
  
      /**
       * @return The {@link ViewResourceAdapter} that exposes this {@link View} as a CC resource.
-diff --git a/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/ToolbarFeatures.java b/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/ToolbarFeatures.java
---- a/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/ToolbarFeatures.java
-+++ b/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/ToolbarFeatures.java
-@@ -7,6 +7,7 @@ package org.chromium.chrome.browser.toolbar;
- import androidx.annotation.OptIn;
- import androidx.core.os.BuildCompat;
- 
-+import org.chromium.ui.base.DeviceFormFactor;
- import org.chromium.base.ResettersForTesting;
- import org.chromium.base.cached_flags.BooleanCachedFieldTrialParameter;
- import org.chromium.base.cached_flags.IntCachedFieldTrialParameter;
-@@ -71,7 +72,8 @@ public final class ToolbarFeatures {
-      *     is enabled.
-      */
-     public static boolean isDynamicTopChromeEnabled() {
--        return ChromeFeatureList.sDynamicTopChrome.isEnabled();
-+        return ChromeFeatureList.sDynamicTopChrome.isEnabled()
-+                && !DeviceFormFactor.isForceTabletUI();
-     }
- 
-     /** Returns if we are using optimized window layout for tab strip. */
 diff --git a/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/top/TabStripTransitionCoordinator.java b/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/top/TabStripTransitionCoordinator.java
 --- a/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/top/TabStripTransitionCoordinator.java
 +++ b/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/browser/toolbar/top/TabStripTransitionCoordinator.java
-@@ -154,7 +154,7 @@ public class TabStripTransitionCoordinator implements ComponentCallbacks, AppHea
+@@ -155,7 +155,7 @@ public class TabStripTransitionCoordinator implements ComponentCallbacks, AppHea
          mTabStripReservedTopPadding =
                  controlContainerView()
                          .getResources()
@@ -637,7 +591,7 @@ diff --git a/chrome/browser/ui/android/toolbar/java/src/org/chromium/chrome/brow
  import org.chromium.ui.util.TokenHolder;
  import org.chromium.url.GURL;
  
-@@ -595,7 +596,9 @@ public abstract class ToolbarLayout extends FrameLayout
+@@ -596,7 +597,9 @@ public abstract class ToolbarLayout extends FrameLayout
       * not have a tab strip.
       */
      protected int getTabStripHeightFromResource() {
@@ -660,7 +614,7 @@ diff --git a/components/BUILD.gn b/components/BUILD.gn
    disallowed_extension_deps_ = [
      # Components should largely not depend on //extensions. Since // extensions
      # is not a component target and is linked with //chrome, depending on most
-@@ -843,7 +843,7 @@ test("components_unittests") {
+@@ -851,7 +851,7 @@ test("components_unittests") {
    # On other platforms, no components should depend on Chrome.
    # Since //chrome depends on //extensions, we also only assert_no_deps on
    # extensions targets for non-lacros builds.
@@ -669,7 +623,7 @@ diff --git a/components/BUILD.gn b/components/BUILD.gn
      assert_no_deps = [ "//chrome/*" ]
      assert_no_deps += disallowed_extension_deps_
    }
-@@ -1129,7 +1129,7 @@ if (use_blink) {
+@@ -1137,7 +1137,7 @@ if (use_blink) {
      # dependency. On other platforms, no components should depend on Chrome.
      # Since //chrome depends on //extensions, we also only assert_no_deps on
      # extensions targets for non-lacros builds.

@@ -117,9 +117,9 @@ diff --git a/chrome/android/chrome_java_sources.gni b/chrome/android/chrome_java
    "java/src/com/google/android/apps/chrome/appwidget/bookmarks/BookmarkThumbnailWidgetProvider.java",
    "java/src/org/chromium/chrome/browser/ActivityTabProvider.java",
    "java/src/org/chromium/chrome/browser/ActivityUtils.java",
-@@ -974,6 +975,7 @@ chrome_java_sources = [
-   "java/src/org/chromium/chrome/browser/privacy_sandbox/ChromeTrackingProtectionDelegate.java",
-   "java/src/org/chromium/chrome/browser/privacy_sandbox/TrackingProtectionNoticeController.java",
+@@ -967,6 +968,7 @@ chrome_java_sources = [
+   "java/src/org/chromium/chrome/browser/privacy_sandbox/TrackingProtectionOnboardingType.java",
+   "java/src/org/chromium/chrome/browser/privacy_sandbox/TrackingProtectionOnboardingView.java",
    "java/src/org/chromium/chrome/browser/privacy_sandbox/TrackingProtectionSnackbarController.java",
 +  "java/src/org/chromium/chrome/browser/privacy/settings/IncognitoSettings.java",
    "java/src/org/chromium/chrome/browser/provider/BaseColumns.java",
@@ -170,7 +170,7 @@ new file mode 100644
 diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
-@@ -77,6 +77,11 @@ found in the LICENSE file.
+@@ -82,6 +82,11 @@ found in the LICENSE file.
          android:key="secure_dns"
          android:title="@string/settings_secure_dns_title"
          android:fragment="org.chromium.chrome.browser.privacy.secure_dns.SecureDnsSettings" />
@@ -275,7 +275,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedAct
              // Defer initialization of this helper so it triggers after TabModelFilter
              // observers.
              UndoRefocusHelper.initialize(
-@@ -2445,8 +2454,9 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
+@@ -2453,8 +2462,9 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
  
          // We determine the model as soon as possible so every systems get initialized coherently.
          boolean startIncognito =
@@ -298,7 +298,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/app/ChromeActiv
  import org.chromium.chrome.browser.dependency_injection.ChromeActivityComponent;
  import org.chromium.chrome.browser.dependency_injection.ModuleFactoryOverrides;
  import org.chromium.chrome.browser.device.DeviceClassManager;
-@@ -2024,6 +2025,9 @@ public abstract class ChromeActivity<C extends ChromeActivityComponent>
+@@ -2033,6 +2034,9 @@ public abstract class ChromeActivity<C extends ChromeActivityComponent>
              throw new IllegalStateException(
                      "Attempting to access TabCreator before initialization");
          }
@@ -331,7 +331,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/app/appmenu/App
  /**
   * Base implementation of {@link AppMenuPropertiesDelegate} that handles hiding and showing menu
   * items based on activity state.
-@@ -593,6 +599,13 @@ public class AppMenuPropertiesDelegateImpl implements AppMenuPropertiesDelegate
+@@ -594,6 +600,13 @@ public class AppMenuPropertiesDelegateImpl implements AppMenuPropertiesDelegate
      }
  
      private void prepareCommonMenuItems(Menu menu, @MenuGroup int menuGroup, boolean isIncognito) {
@@ -345,7 +345,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/app/appmenu/App
          // We have to iterate all menu items since same menu item ID may be associated with more
          // than one menu items.
          boolean isOverviewModeMenu = menuGroup == MenuGroup.OVERVIEW_MODE_MENU;
-@@ -656,7 +669,15 @@ public class AppMenuPropertiesDelegateImpl implements AppMenuPropertiesDelegate
+@@ -657,7 +670,15 @@ public class AppMenuPropertiesDelegateImpl implements AppMenuPropertiesDelegate
              }
  
              if (item.getItemId() == R.id.recent_tabs_menu_id) {
@@ -362,7 +362,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/app/appmenu/App
              }
              if (item.getItemId() == R.id.menu_select_tabs) {
                  item.setVisible(isMenuSelectTabsVisible);
-@@ -865,8 +886,9 @@ public class AppMenuPropertiesDelegateImpl implements AppMenuPropertiesDelegate
+@@ -866,8 +887,9 @@ public class AppMenuPropertiesDelegateImpl implements AppMenuPropertiesDelegate
                  && !isNativePage
                  && !isFileScheme
                  && !isContentScheme
@@ -477,7 +477,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/Cust
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabIntentDataProvider.java b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabIntentDataProvider.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabIntentDataProvider.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/customtabs/CustomTabIntentDataProvider.java
-@@ -84,6 +84,9 @@ import org.chromium.components.browser_ui.widget.TintedDrawable;
+@@ -88,6 +88,9 @@ import org.chromium.components.browser_ui.widget.TintedDrawable;
  import org.chromium.components.embedder_support.util.UrlConstants;
  import org.chromium.device.mojom.ScreenOrientationLockType;
  
@@ -487,7 +487,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/Cust
  import java.lang.annotation.Retention;
  import java.lang.annotation.RetentionPolicy;
  import java.util.ArrayList;
-@@ -1337,7 +1340,7 @@ public class CustomTabIntentDataProvider extends BrowserServicesIntentDataProvid
+@@ -1390,7 +1393,7 @@ public class CustomTabIntentDataProvider extends BrowserServicesIntentDataProvid
  
      @Override
      public boolean isIncognito() {
@@ -495,7 +495,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/customtabs/Cust
 +        return AlwaysIncognitoLinkInterceptor.isAlwaysIncognito();
      }
  
-     @Nullable
+     @Override
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/download/DownloadUtils.java b/chrome/android/java/src/org/chromium/chrome/browser/download/DownloadUtils.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/download/DownloadUtils.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/download/DownloadUtils.java
@@ -550,7 +550,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/history/History
  
          // Create PrefChangeRegistrar to receive notifications on preference changes.
          mPrefChangeRegistrar = new PrefChangeRegistrar();
-@@ -349,7 +351,8 @@ public class HistoryContentManager implements SignInStateObserver, PrefObserver
+@@ -347,7 +349,8 @@ public class HistoryContentManager implements SignInStateObserver, PrefObserver
          mHistoryAdapter.onDestroyed();
          mLargeIconBridge.destroy();
          mLargeIconBridge = null;
@@ -563,7 +563,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/history/History
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/history/HistoryManager.java b/chrome/android/java/src/org/chromium/chrome/browser/history/HistoryManager.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/history/HistoryManager.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/history/HistoryManager.java
-@@ -54,6 +54,14 @@ import org.chromium.ui.base.Clipboard;
+@@ -56,6 +56,14 @@ import org.chromium.ui.base.Clipboard;
  
  import java.util.List;
  
@@ -578,7 +578,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/history/History
  /** Combines and manages the different UI components of browsing history. */
  public class HistoryManager
          implements OnMenuItemClickListener,
-@@ -166,7 +174,7 @@ public class HistoryManager
+@@ -168,7 +176,7 @@ public class HistoryManager
  
          mUmaRecorder.recordOpenHistory();
          // If incognito placeholder is shown, we don't need to create History UI elements.
@@ -587,7 +587,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/history/History
              mSelectableListLayout = null;
              mRootView = getIncognitoHistoryPlaceholderView();
              return;
-@@ -407,9 +415,22 @@ public class HistoryManager
+@@ -420,9 +428,22 @@ public class HistoryManager
          onBackPressStateChanged();
      }
  
@@ -611,7 +611,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/history/History
              // If Incognito placeholder is shown no need to call any destroy method.
              return;
          }
-@@ -469,7 +490,7 @@ public class HistoryManager
+@@ -482,7 +503,7 @@ public class HistoryManager
       * @return True if manager handles this event, false if it decides to ignore.
       */
      private boolean onBackPressed() {
@@ -664,7 +664,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/native_page/Nat
  import org.chromium.chrome.browser.app.ChromeActivity;
  import org.chromium.chrome.browser.app.download.home.DownloadPage;
  import org.chromium.chrome.browser.bookmarks.BookmarkPage;
-@@ -309,7 +310,8 @@ public class NativePageFactory {
+@@ -310,7 +311,8 @@ public class NativePageFactory {
              String url, NativePage candidatePage, Tab tab, boolean isIncognito, PdfInfo pdfInfo) {
          NativePage page;
  
@@ -677,7 +677,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/native_page/Nat
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ntp/RecentTabsManager.java b/chrome/android/java/src/org/chromium/chrome/browser/ntp/RecentTabsManager.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ntp/RecentTabsManager.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ntp/RecentTabsManager.java
-@@ -38,6 +38,15 @@ import org.chromium.components.signin.metrics.SigninAccessPoint;
+@@ -39,6 +39,15 @@ import org.chromium.components.signin.metrics.SigninAccessPoint;
  import org.chromium.components.sync.SyncService;
  import org.chromium.url.GURL;
  
@@ -693,7 +693,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ntp/RecentTabsM
  import java.util.HashMap;
  import java.util.List;
  import java.util.Map;
-@@ -104,7 +113,8 @@ public class RecentTabsManager
+@@ -105,7 +114,8 @@ public class RecentTabsManager
              Profile profile,
              Context context,
              Runnable showHistoryManager) {
@@ -703,7 +703,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ntp/RecentTabsM
          mActiveTab = tab;
          mTabModelSelector = tabModelSelector;
          mShowHistoryManager = showHistoryManager;
-@@ -270,6 +280,22 @@ public class RecentTabsManager
+@@ -273,6 +283,22 @@ public class RecentTabsManager
       */
      public void openRecentlyClosedTab(RecentlyClosedTab tab, int windowDisposition) {
          if (mIsDestroyed) return;
@@ -895,7 +895,7 @@ new file mode 100644
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/SettingsActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/settings/SettingsActivity.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/settings/SettingsActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/settings/SettingsActivity.java
-@@ -85,6 +85,7 @@ import org.chromium.chrome.browser.sync.settings.AccountManagementFragment;
+@@ -86,6 +86,7 @@ import org.chromium.chrome.browser.sync.settings.AccountManagementFragment;
  import org.chromium.chrome.browser.sync.settings.GoogleServicesSettings;
  import org.chromium.chrome.browser.sync.settings.ManageSyncSettings;
  import org.chromium.chrome.browser.ui.device_lock.MissingDeviceLockLauncher;
@@ -903,20 +903,20 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/Settin
  import org.chromium.chrome.browser.ui.messages.snackbar.SnackbarManager;
  import org.chromium.chrome.browser.ui.messages.snackbar.SnackbarManager.SnackbarManageable;
  import org.chromium.components.browser_ui.bottomsheet.BottomSheetController;
-@@ -372,6 +373,9 @@ public class SettingsActivity extends ChromeBaseAppCompatActivity
+@@ -374,6 +375,9 @@ public class SettingsActivity extends ChromeBaseAppCompatActivity
              ((PrivacySandboxSettingsBaseFragment) fragment)
                      .setSnackbarManager(getSnackbarManager());
          }
 +        if (fragment instanceof INeedSnackbarManager) {
 +            ((INeedSnackbarManager)fragment).setSnackbarManager(mSnackbarManager);
 +        }
-         if (fragment instanceof ClearBrowsingDataFragment) {
-             ((ClearBrowsingDataFragment) fragment).setSnackbarManager(mSnackbarManager);
+         if (fragment instanceof AccountManagementFragment) {
+             ((AccountManagementFragment) fragment).setSnackbarManager(mSnackbarManager);
          }
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/tab/tab_restore/HistoricalTabModelObserver.java b/chrome/android/java/src/org/chromium/chrome/browser/tab/tab_restore/HistoricalTabModelObserver.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/tab/tab_restore/HistoricalTabModelObserver.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/tab/tab_restore/HistoricalTabModelObserver.java
-@@ -24,6 +24,8 @@ import java.util.HashMap;
+@@ -22,6 +22,8 @@ import java.util.HashMap;
  import java.util.List;
  import java.util.Set;
  
@@ -925,7 +925,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/tab/tab_restore
  /** A tab model observer for managing bulk closures. */
  public class HistoricalTabModelObserver implements TabModelObserver {
      private final TabGroupModelFilter mTabGroupModelFilter;
-@@ -55,9 +57,10 @@ public class HistoricalTabModelObserver implements TabModelObserver {
+@@ -53,9 +55,10 @@ public class HistoricalTabModelObserver implements TabModelObserver {
          if (tabs.isEmpty() || !canRestore) return;
  
          if (tabs.size() == 1) {
@@ -1022,8 +1022,8 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/tab/tab_restore
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/tabbed_mode/TabbedRootUiCoordinator.java b/chrome/android/java/src/org/chromium/chrome/browser/tabbed_mode/TabbedRootUiCoordinator.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/tabbed_mode/TabbedRootUiCoordinator.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/tabbed_mode/TabbedRootUiCoordinator.java
-@@ -149,6 +149,8 @@ import org.chromium.components.webapps.bottomsheet.PwaBottomSheetController;
- import org.chromium.components.webapps.bottomsheet.PwaBottomSheetControllerFactory;
+@@ -154,6 +154,8 @@ import org.chromium.components.webapps.bottomsheet.PwaBottomSheetControllerFacto
+ import org.chromium.ui.InsetObserver;
  import org.chromium.ui.base.ActivityWindowAndroid;
  import org.chromium.ui.base.DeviceFormFactor;
 +import org.chromium.base.ContextUtils;
@@ -1031,7 +1031,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/tabbed_mode/Tab
  import org.chromium.ui.base.IntentRequestTracker;
  import org.chromium.ui.dragdrop.DragDropGlobalState;
  import org.chromium.ui.modaldialog.ModalDialogManager;
-@@ -1031,7 +1033,7 @@ public class TabbedRootUiCoordinator extends RootUiCoordinator {
+@@ -1045,7 +1047,7 @@ public class TabbedRootUiCoordinator extends RootUiCoordinator {
                              () -> {
                                  mTabCreatorManagerSupplier
                                          .get()
@@ -1085,7 +1085,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/tabmodel/TabMod
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/tabmodel/TabPersistentStore.java b/chrome/android/java/src/org/chromium/chrome/browser/tabmodel/TabPersistentStore.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/tabmodel/TabPersistentStore.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/tabmodel/TabPersistentStore.java
-@@ -48,6 +48,8 @@ import org.chromium.chrome.features.start_surface.StartSurfaceUserData;
+@@ -49,6 +49,8 @@ import org.chromium.chrome.features.start_surface.StartSurfaceUserData;
  import org.chromium.components.embedder_support.util.UrlUtilities;
  import org.chromium.content_public.browser.LoadUrlParams;
  
@@ -1093,8 +1093,8 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/tabmodel/TabPer
 +
  import java.io.BufferedInputStream;
  import java.io.ByteArrayInputStream;
- import java.io.ByteArrayOutputStream;
-@@ -678,6 +680,13 @@ public class TabPersistentStore {
+ import java.io.DataInputStream;
+@@ -764,6 +766,13 @@ public class TabPersistentStore {
                  }
              }
          }
@@ -1119,7 +1119,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/toolbar/Toolbar
  import org.chromium.chrome.browser.IntentHandler;
  import org.chromium.chrome.browser.app.tab_activity_glue.TabReparentingController;
  import org.chromium.chrome.browser.app.tabmodel.TabWindowManagerSingleton;
-@@ -653,7 +654,7 @@ public class ToolbarManager
+@@ -650,7 +651,7 @@ public class ToolbarManager
                                  TraceEvent.end("isOfflinePage");
                                  return ret;
                              }
@@ -1176,9 +1176,9 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/webapps/WebappI
 diff --git a/chrome/browser/android/historical_tab_saver.cc b/chrome/browser/android/historical_tab_saver.cc
 --- a/chrome/browser/android/historical_tab_saver.cc
 +++ b/chrome/browser/android/historical_tab_saver.cc
-@@ -30,6 +30,11 @@
- #include "components/sessions/core/tab_restore_service.h"
- #include "content/public/browser/web_contents.h"
+@@ -32,6 +32,11 @@
+ // Must come after all headers that specialize FromJniType() / ToJniType().
+ #include "chrome/android/chrome_jni_headers/HistoricalTabSaverImpl_jni.h"
  
 +#include "chrome/common/pref_names.h"
 +#include "components/prefs/pref_registry_simple.h"
@@ -1188,7 +1188,7 @@ diff --git a/chrome/browser/android/historical_tab_saver.cc b/chrome/browser/and
  using base::android::JavaParamRef;
  using base::android::JavaRef;
  using base::android::ScopedJavaLocalRef;
-@@ -104,7 +109,8 @@ std::vector<std::optional<base::Uuid>> StringsToUuids(
+@@ -106,7 +111,8 @@ std::vector<std::optional<base::Uuid>> StringsToUuids(
  
  void CreateHistoricalTab(
      TabAndroid* tab_android,
@@ -1198,7 +1198,7 @@ diff --git a/chrome/browser/android/historical_tab_saver.cc b/chrome/browser/and
    if (!tab_android) {
      return;
    }
-@@ -115,9 +121,14 @@ void CreateHistoricalTab(
+@@ -117,9 +123,14 @@ void CreateHistoricalTab(
      return;
    }
  
@@ -1215,7 +1215,7 @@ diff --git a/chrome/browser/android/historical_tab_saver.cc b/chrome/browser/and
    if (!service) {
      return;
    }
-@@ -183,7 +194,7 @@ void CreateHistoricalBulkClosure(
+@@ -185,7 +196,7 @@ void CreateHistoricalBulkClosure(
      std::vector<int> per_tab_root_id,
      std::vector<raw_ptr<TabAndroid, VectorExperimental>> tabs,
      std::vector<WebContentsStateByteBuffer> web_contents_state) {
@@ -1224,7 +1224,7 @@ diff --git a/chrome/browser/android/historical_tab_saver.cc b/chrome/browser/and
    DCHECK_EQ(root_ids.size(), group_titles.size());
    DCHECK_EQ(root_ids.size(), group_colors.size());
    DCHECK_EQ(root_ids.size(), optional_tab_group_ids.size());
-@@ -316,11 +327,12 @@ static void JNI_HistoricalTabSaverImpl_CreateHistoricalTab(
+@@ -318,11 +329,12 @@ static void JNI_HistoricalTabSaverImpl_CreateHistoricalTab(
      JNIEnv* env,
      const JavaParamRef<jobject>& jtab_android,
      const JavaParamRef<jobject>& state,
@@ -1421,7 +1421,7 @@ diff --git a/chrome/browser/history/history_tab_helper.h b/chrome/browser/histor
 diff --git a/chrome/browser/offline_pages/android/offline_page_bridge.cc b/chrome/browser/offline_pages/android/offline_page_bridge.cc
 --- a/chrome/browser/offline_pages/android/offline_page_bridge.cc
 +++ b/chrome/browser/offline_pages/android/offline_page_bridge.cc
-@@ -47,6 +47,9 @@
+@@ -45,6 +45,9 @@
  #include "content/public/browser/web_contents.h"
  #include "net/base/filename_util.h"
  #include "url/android/gurl_android.h"
@@ -1429,9 +1429,9 @@ diff --git a/chrome/browser/offline_pages/android/offline_page_bridge.cc b/chrom
 +#include "components/prefs/pref_service.h"
 +#include "chrome/common/pref_names.h"
  
- using base::android::ConvertUTF8ToJavaString;
- using base::android::JavaParamRef;
-@@ -757,9 +760,15 @@ void OfflinePageBridge::GetPageByOfflineIdDone(
+ // Must come after all headers that specialize FromJniType() / ToJniType().
+ #include "chrome/android/chrome_jni_headers/OfflinePageBridge_jni.h"
+@@ -758,9 +761,15 @@ void OfflinePageBridge::GetPageByOfflineIdDone(
    }
  
    if (offline_page_model_->IsArchiveInInternalDir(offline_page->file_path)) {
@@ -1716,7 +1716,7 @@ diff --git a/chrome/browser/offline_pages/request_coordinator_factory.h b/chrome
 diff --git a/chrome/browser/prefs/browser_prefs.cc b/chrome/browser/prefs/browser_prefs.cc
 --- a/chrome/browser/prefs/browser_prefs.cc
 +++ b/chrome/browser/prefs/browser_prefs.cc
-@@ -246,6 +246,7 @@
+@@ -248,6 +248,7 @@
  
  #if BUILDFLAG(IS_ANDROID)
  #include "chrome/browser/accessibility/accessibility_prefs/android/accessibility_prefs_controller.h"
@@ -1724,7 +1724,7 @@ diff --git a/chrome/browser/prefs/browser_prefs.cc b/chrome/browser/prefs/browse
  #include "chrome/browser/android/bookmarks/partner_bookmarks_shim.h"
  #include "chrome/browser/android/ntp/recent_tabs_page_prefs.h"
  #include "chrome/browser/android/oom_intervention/oom_intervention_decider.h"
-@@ -2035,6 +2036,10 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
+@@ -2126,6 +2127,10 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
    usage_stats::UsageStatsBridge::RegisterProfilePrefs(registry);
    variations::VariationsService::RegisterProfilePrefs(registry);
    webapps::InstallPromptPrefs::RegisterProfilePrefs(registry);
@@ -1789,7 +1789,7 @@ diff --git a/chrome/browser/profiles/profile_selections.h b/chrome/browser/profi
 diff --git a/chrome/browser/ui/android/native_page/BUILD.gn b/chrome/browser/ui/android/native_page/BUILD.gn
 --- a/chrome/browser/ui/android/native_page/BUILD.gn
 +++ b/chrome/browser/ui/android/native_page/BUILD.gn
-@@ -28,6 +28,8 @@ robolectric_library("junit") {
+@@ -30,6 +30,8 @@ robolectric_library("junit") {
  
    deps = [
      ":java",
@@ -1809,8 +1809,8 @@ diff --git a/chrome/browser/ui/android/native_page/java/src/org/chromium/chrome/
 +
  /** An interface for pages that will be using Android views instead of html/rendered Web content. */
  public interface NativePage {
-     /**
-@@ -130,7 +132,9 @@ public interface NativePage {
+ 
+@@ -157,7 +159,9 @@ public interface NativePage {
       * @return Whether the URL would navigate to a native page.
       */
      static boolean isNativePageUrl(GURL url, boolean isIncognito, boolean isPdf) {
@@ -1821,7 +1821,7 @@ diff --git a/chrome/browser/ui/android/native_page/java/src/org/chromium/chrome/
      }
  
      /**
-@@ -140,7 +144,7 @@ public interface NativePage {
+@@ -167,7 +171,7 @@ public interface NativePage {
       *     not have chrome or chrome-native scheme.
       */
      static boolean isChromePageUrl(GURL url, boolean isIncognito) {
@@ -1830,7 +1830,7 @@ diff --git a/chrome/browser/ui/android/native_page/java/src/org/chromium/chrome/
      }
  
      /**
-@@ -152,11 +156,12 @@ public interface NativePage {
+@@ -179,11 +183,12 @@ public interface NativePage {
       */
      // TODO(crbug.com/40549331) - Convert to using GURL.
      static @NativePageType int nativePageType(
@@ -1845,7 +1845,7 @@ diff --git a/chrome/browser/ui/android/native_page/java/src/org/chromium/chrome/
      }
  
      /**
-@@ -167,9 +172,10 @@ public interface NativePage {
+@@ -194,9 +199,10 @@ public interface NativePage {
       * @return Type of the native page defined in {@link NativePageType}.
       */
      private static @NativePageType int nativePageType(
@@ -1858,7 +1858,7 @@ diff --git a/chrome/browser/ui/android/native_page/java/src/org/chromium/chrome/
          }
  
          if (candidatePage != null && candidatePage.getUrl().equals(url.getSpec())) {
-@@ -187,7 +193,7 @@ public interface NativePage {
+@@ -214,7 +220,7 @@ public interface NativePage {
       *     which do not have chrome or chrome-native scheme.
       */
      private static @NativePageType int chromePageType(
@@ -1867,7 +1867,7 @@ diff --git a/chrome/browser/ui/android/native_page/java/src/org/chromium/chrome/
          String host = url.getHost();
          String scheme = url.getScheme();
          if (!UrlConstants.CHROME_NATIVE_SCHEME.equals(scheme)
-@@ -207,7 +213,8 @@ public interface NativePage {
+@@ -234,7 +240,8 @@ public interface NativePage {
              return NativePageType.DOWNLOADS;
          } else if (UrlConstants.HISTORY_HOST.equals(host)) {
              return NativePageType.HISTORY;
@@ -1880,7 +1880,7 @@ diff --git a/chrome/browser/ui/android/native_page/java/src/org/chromium/chrome/
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1270,6 +1270,37 @@ Your Google account may have other forms of browsing history like searches and a
+@@ -1296,6 +1296,37 @@ Your Google account may have other forms of browsing history like searches and a
        <message name="IDS_CLEAR_BROWSING_HISTORY_SUMMARY_SYNCED_NO_LINK" desc="A text for the basic tab explaining browsing history for users with history sync. This version is shown when the link to MyActivity is displayed separately.">
          Deletes history from all synced devices
        </message>
@@ -1986,7 +1986,7 @@ new file mode 100644
 diff --git a/chrome/common/pref_names.h b/chrome/common/pref_names.h
 --- a/chrome/common/pref_names.h
 +++ b/chrome/common/pref_names.h
-@@ -4035,6 +4035,12 @@ inline constexpr char kOutOfProcessSystemDnsResolutionEnabled[] =
+@@ -4077,6 +4077,12 @@ inline constexpr char kOutOfProcessSystemDnsResolutionEnabled[] =
      "net.out_of_process_system_dns_resolution_enabled";
  #endif  // BUILDFLAG(IS_ANDROID) || BUILDFLAG(IS_LINUX)
  
@@ -2080,7 +2080,7 @@ diff --git a/components/content_settings/core/browser/host_content_settings_map.
 diff --git a/components/content_settings/core/browser/host_content_settings_map.h b/components/content_settings/core/browser/host_content_settings_map.h
 --- a/components/content_settings/core/browser/host_content_settings_map.h
 +++ b/components/content_settings/core/browser/host_content_settings_map.h
-@@ -84,6 +84,7 @@ class HostContentSettingsMap : public content_settings::Observer,
+@@ -83,6 +83,7 @@ class HostContentSettingsMap : public content_settings::Observer,
    // profile or a guest session.
    HostContentSettingsMap(PrefService* prefs,
                           bool is_off_the_record,
@@ -2088,7 +2088,7 @@ diff --git a/components/content_settings/core/browser/host_content_settings_map.
                           bool store_last_modified,
                           bool restore_session,
                           bool should_record_metrics);
-@@ -518,6 +519,8 @@ class HostContentSettingsMap : public content_settings::Observer,
+@@ -507,6 +508,8 @@ class HostContentSettingsMap : public content_settings::Observer,
    // Whether this settings map is for an incognito or guest session.
    bool is_off_the_record_;
  
@@ -2122,7 +2122,7 @@ diff --git a/components/omnibox/browser/autocomplete_provider_client.h b/compone
 diff --git a/components/omnibox/browser/base_search_provider.cc b/components/omnibox/browser/base_search_provider.cc
 --- a/components/omnibox/browser/base_search_provider.cc
 +++ b/components/omnibox/browser/base_search_provider.cc
-@@ -351,7 +351,7 @@ bool BaseSearchProvider::CanSendSuggestRequestWithoutPageURL(
+@@ -376,7 +376,7 @@ bool BaseSearchProvider::CanSendSuggestRequestWithoutPageURL(
    }
  
    // Don't make a suggest request if in incognito mode.

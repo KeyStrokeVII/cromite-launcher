@@ -13,7 +13,7 @@ Real-box is search box in ntp
 diff --git a/chrome/browser/prefs/browser_prefs.cc b/chrome/browser/prefs/browser_prefs.cc
 --- a/chrome/browser/prefs/browser_prefs.cc
 +++ b/chrome/browser/prefs/browser_prefs.cc
-@@ -2254,7 +2254,7 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
+@@ -2350,7 +2350,7 @@ void RegisterProfilePrefs(user_prefs::PrefRegistrySyncable* registry,
    registry->RegisterBooleanPref(
        prefs::kLensRegionSearchEnabled, true,
        user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);

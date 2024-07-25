@@ -67,15 +67,15 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/crash/MinidumpU
 diff --git a/chrome/browser/crash_upload_list/crash_upload_list_android.cc b/chrome/browser/crash_upload_list/crash_upload_list_android.cc
 --- a/chrome/browser/crash_upload_list/crash_upload_list_android.cc
 +++ b/chrome/browser/crash_upload_list/crash_upload_list_android.cc
-@@ -13,6 +13,7 @@
- #include "base/files/file_util.h"
- #include "base/metrics/histogram_macros_local.h"
+@@ -15,6 +15,7 @@
+ 
+ // Must come after all headers that specialize FromJniType() / ToJniType().
  #include "chrome/android/chrome_jni_headers/MinidumpUploadServiceImpl_jni.h"
 +#include "base/strings/string_util.h"
  
  namespace {
  
-@@ -75,16 +76,26 @@ void CrashUploadListAndroid::RequestSingleUpload(const std::string& local_id) {
+@@ -77,16 +78,26 @@ void CrashUploadListAndroid::RequestSingleUpload(const std::string& local_id) {
    Java_MinidumpUploadServiceImpl_tryUploadCrashDumpWithLocalId(env, j_local_id);
  }
  
@@ -102,7 +102,7 @@ diff --git a/chrome/browser/crash_upload_list/crash_upload_list_android.cc b/chr
      if (file.value().find(manually_forced_uploads) != std::string::npos) {
        RecordUnsuccessfulUploadListState(UnsuccessfulUploadListState::FORCED);
        upload_state = UploadList::UploadInfo::State::Pending_UserRequested;
-@@ -116,6 +127,8 @@ void CrashUploadListAndroid::LoadUnsuccessfulUploadList(
+@@ -118,6 +129,8 @@ void CrashUploadListAndroid::LoadUnsuccessfulUploadList(
        continue;
      }
  
@@ -111,7 +111,7 @@ diff --git a/chrome/browser/crash_upload_list/crash_upload_list_android.cc b/chr
      // Crash reports can have multiple extensions (e.g. foo.dmp, foo.dmp.try1,
      // foo.skipped.try0).
      file = file.BaseName();
-@@ -135,7 +148,9 @@ void CrashUploadListAndroid::LoadUnsuccessfulUploadList(
+@@ -137,7 +150,9 @@ void CrashUploadListAndroid::LoadUnsuccessfulUploadList(
      RecordUnsuccessfulUploadListState(
          UnsuccessfulUploadListState::ADDING_AN_UPLOAD_ENTRY);
      id = id.substr(pos + 1);
@@ -154,7 +154,7 @@ diff --git a/chrome/browser/net/chrome_network_delegate.cc b/chrome/browser/net/
 diff --git a/chrome/browser/ui/BUILD.gn b/chrome/browser/ui/BUILD.gn
 --- a/chrome/browser/ui/BUILD.gn
 +++ b/chrome/browser/ui/BUILD.gn
-@@ -706,6 +706,7 @@ static_library("ui") {
+@@ -720,6 +720,7 @@ static_library("ui") {
      "//third_party/re2",
      "//third_party/webrtc_overrides:webrtc_component",
      "//third_party/zlib",
@@ -205,7 +205,7 @@ diff --git a/chrome/browser/ui/webui/crashes_ui.cc b/chrome/browser/ui/webui/cra
  
    CrashesDOMHandler(const CrashesDOMHandler&) = delete;
    CrashesDOMHandler& operator=(const CrashesDOMHandler&) = delete;
-@@ -97,6 +114,8 @@ class CrashesDOMHandler : public WebUIMessageHandler {
+@@ -98,6 +115,8 @@ class CrashesDOMHandler : public WebUIMessageHandler {
    // Asynchronously fetches the list of crashes. Called from JS.
    void HandleRequestCrashes(const base::Value::List& args);
  
@@ -214,7 +214,7 @@ diff --git a/chrome/browser/ui/webui/crashes_ui.cc b/chrome/browser/ui/webui/cra
  #if BUILDFLAG(IS_CHROMEOS_ASH)
    // Asynchronously triggers crash uploading. Called from JS.
    void HandleRequestUploads(const base::Value::List& args);
-@@ -108,14 +127,30 @@ class CrashesDOMHandler : public WebUIMessageHandler {
+@@ -109,14 +128,30 @@ class CrashesDOMHandler : public WebUIMessageHandler {
    // Asynchronously requests a user triggered upload. Called from JS.
    void HandleRequestSingleCrashUpload(const base::Value::List& args);
  
@@ -247,7 +247,7 @@ diff --git a/chrome/browser/ui/webui/crashes_ui.cc b/chrome/browser/ui/webui/cra
  }
  
  CrashesDOMHandler::~CrashesDOMHandler() {
-@@ -141,10 +176,24 @@ void CrashesDOMHandler::RegisterMessages() {
+@@ -142,6 +177,16 @@ void CrashesDOMHandler::RegisterMessages() {
        crash_reporter::kCrashesUIRequestSingleCrashUpload,
        base::BindRepeating(&CrashesDOMHandler::HandleRequestSingleCrashUpload,
                            base::Unretained(this)));
@@ -263,6 +263,9 @@ diff --git a/chrome/browser/ui/webui/crashes_ui.cc b/chrome/browser/ui/webui/cra
 +                          base::Unretained(this)));
  }
  
+ void CrashesDOMHandler::OnJavascriptDisallowed() {
+@@ -150,6 +195,10 @@ void CrashesDOMHandler::OnJavascriptDisallowed() {
+ 
  void CrashesDOMHandler::HandleRequestCrashes(const base::Value::List& args) {
    AllowJavascript();
 +  RequestCrashesList();
@@ -272,7 +275,7 @@ diff --git a/chrome/browser/ui/webui/crashes_ui.cc b/chrome/browser/ui/webui/cra
    if (first_load_) {
      first_load_ = false;
      if (list_available_)
-@@ -176,8 +225,7 @@ void CrashesDOMHandler::OnUploadListAvailable() {
+@@ -181,8 +230,7 @@ void CrashesDOMHandler::OnUploadListAvailable() {
  }
  
  void CrashesDOMHandler::UpdateUI() {
@@ -282,7 +285,7 @@ diff --git a/chrome/browser/ui/webui/crashes_ui.cc b/chrome/browser/ui/webui/cra
  
    bool system_crash_reporter = false;
  #if BUILDFLAG(IS_CHROMEOS)
-@@ -225,14 +273,117 @@ void CrashesDOMHandler::UpdateUI() {
+@@ -230,14 +278,117 @@ void CrashesDOMHandler::UpdateUI() {
  
  void CrashesDOMHandler::HandleRequestSingleCrashUpload(
      const base::Value::List& args) {
@@ -406,7 +409,7 @@ diff --git a/chrome/browser/ui/webui/crashes_ui.cc b/chrome/browser/ui/webui/cra
  }
  
  }  // namespace
-@@ -244,7 +395,8 @@ void CrashesDOMHandler::HandleRequestSingleCrashUpload(
+@@ -249,7 +400,8 @@ void CrashesDOMHandler::HandleRequestSingleCrashUpload(
  ///////////////////////////////////////////////////////////////////////////////
  
  CrashesUI::CrashesUI(content::WebUI* web_ui) : WebUIController(web_ui) {

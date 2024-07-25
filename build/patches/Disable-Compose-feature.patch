@@ -12,7 +12,7 @@ License: GPL-2.0-or-later - https://spdx.org/licenses/GPL-2.0-or-later.html
 diff --git a/chrome/browser/extensions/api/settings_private/prefs_util.cc b/chrome/browser/extensions/api/settings_private/prefs_util.cc
 --- a/chrome/browser/extensions/api/settings_private/prefs_util.cc
 +++ b/chrome/browser/extensions/api/settings_private/prefs_util.cc
-@@ -480,10 +480,12 @@ const PrefsUtil::TypedPrefMap& PrefsUtil::GetAllowlistedKeys() {
+@@ -487,10 +487,12 @@ const PrefsUtil::TypedPrefMap& PrefsUtil::GetAllowlistedKeys() {
    (*s_allowlist)
        [::permissions::prefs::kUnusedSitePermissionsRevocationEnabled] =
            settings_api::PrefType::kBoolean;
@@ -28,7 +28,7 @@ diff --git a/chrome/browser/extensions/api/settings_private/prefs_util.cc b/chro
 diff --git a/components/compose/core/browser/compose_features.cc b/components/compose/core/browser/compose_features.cc
 --- a/components/compose/core/browser/compose_features.cc
 +++ b/components/compose/core/browser/compose_features.cc
-@@ -82,4 +82,6 @@ BASE_FEATURE(kEnableNudgeForUnspecifiedHint,
+@@ -83,4 +83,6 @@ BASE_FEATURE(kEnableNudgeForUnspecifiedHint,
  BASE_FEATURE(kEnableAdditionalTextMetrics,
               "EnableAdditionalTextMetrics",
               base::FEATURE_ENABLED_BY_DEFAULT);

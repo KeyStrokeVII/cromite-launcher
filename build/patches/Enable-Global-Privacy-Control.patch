@@ -72,7 +72,7 @@ diff --git a/chrome/android/chrome_java_resources.gni b/chrome/android/chrome_ja
 diff --git a/chrome/android/chrome_java_sources.gni b/chrome/android/chrome_java_sources.gni
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -976,6 +976,7 @@ chrome_java_sources = [
+@@ -965,6 +965,7 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/settings/AdBlockPreferences.java",
    "java/src/org/chromium/chrome/browser/policy/PolicyAuditor.java",
    "java/src/org/chromium/chrome/browser/policy/PolicyAuditorBridge.java",
@@ -103,7 +103,7 @@ new file mode 100644
 diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
-@@ -55,6 +55,10 @@ found in the LICENSE file.
+@@ -60,6 +60,10 @@ found in the LICENSE file.
          android:key="do_not_track"
          android:title="@string/do_not_track_title"
          android:fragment="org.chromium.chrome.browser.privacy.settings.DoNotTrackSettings" />
@@ -156,7 +156,7 @@ new file mode 100644
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -93,6 +93,7 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
+@@ -90,6 +90,7 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
      private static final String PREF_SECURE_DNS = "secure_dns";
      private static final String PREF_USAGE_STATS = "usage_stats_reporting";
      private static final String PREF_DO_NOT_TRACK = "do_not_track";
@@ -164,7 +164,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/setting
      private static final String PREF_SAFE_BROWSING = "safe_browsing";
      private static final String PREF_SYNC_AND_SERVICES_LINK = "sync_and_services_link";
      private static final String PREF_REFERER_POLICY = "referers_policy";
-@@ -447,6 +448,14 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
+@@ -468,6 +469,14 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
                              : R.string.text_off);
          }
  
@@ -182,7 +182,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/setting
 diff --git a/chrome/app/settings_strings.grdp b/chrome/app/settings_strings.grdp
 --- a/chrome/app/settings_strings.grdp
 +++ b/chrome/app/settings_strings.grdp
-@@ -2285,6 +2285,21 @@
+@@ -2294,6 +2294,21 @@
    <message name="IDS_SETTINGS_ENABLE_DO_NOT_TRACK_DIALOG_LEARN_MORE_ACCESSIBILITY_LABEL" desc="The accessibility label for a link to learn more about Do Not Track">
      Learn more about Do Not Track
    </message>
@@ -207,7 +207,7 @@ diff --git a/chrome/app/settings_strings.grdp b/chrome/app/settings_strings.grdp
 diff --git a/chrome/browser/extensions/api/settings_private/prefs_util.cc b/chrome/browser/extensions/api/settings_private/prefs_util.cc
 --- a/chrome/browser/extensions/api/settings_private/prefs_util.cc
 +++ b/chrome/browser/extensions/api/settings_private/prefs_util.cc
-@@ -368,6 +368,7 @@ const PrefsUtil::TypedPrefMap& PrefsUtil::GetAllowlistedKeys() {
+@@ -371,6 +371,7 @@ const PrefsUtil::TypedPrefMap& PrefsUtil::GetAllowlistedKeys() {
    (*s_allowlist)[::prefs::kTrackingProtectionLevel] =
        settings_api::PrefType::kNumber;
    (*s_allowlist)[::prefs::kEnableDoNotTrack] = settings_api::PrefType::kBoolean;
@@ -242,7 +242,7 @@ diff --git a/chrome/browser/resources/settings/BUILD.gn b/chrome/browser/resourc
 diff --git a/chrome/browser/resources/settings/privacy_page/cookies_page.html b/chrome/browser/resources/settings/privacy_page/cookies_page.html
 --- a/chrome/browser/resources/settings/privacy_page/cookies_page.html
 +++ b/chrome/browser/resources/settings/privacy_page/cookies_page.html
-@@ -263,6 +263,8 @@
+@@ -256,6 +256,8 @@
      </settings-toggle-button>
      <settings-do-not-track-toggle id="doNotTrack" prefs="{{prefs}}">
      </settings-do-not-track-toggle>
@@ -464,7 +464,7 @@ diff --git a/chrome/browser/ui/prefs/pref_watcher.h b/chrome/browser/ui/prefs/pr
 diff --git a/chrome/browser/ui/webui/settings/settings_localized_strings_provider.cc b/chrome/browser/ui/webui/settings/settings_localized_strings_provider.cc
 --- a/chrome/browser/ui/webui/settings/settings_localized_strings_provider.cc
 +++ b/chrome/browser/ui/webui/settings/settings_localized_strings_provider.cc
-@@ -1743,6 +1743,9 @@ void AddPrivacyStrings(content::WebUIDataSource* html_source,
+@@ -1741,6 +1741,9 @@ void AddPrivacyStrings(content::WebUIDataSource* html_source,
        {"doNotTrackDialogMessage", IDS_SETTINGS_ENABLE_DO_NOT_TRACK_DIALOG_TEXT},
        {"doNotTrackDialogLearnMoreA11yLabel",
         IDS_SETTINGS_ENABLE_DO_NOT_TRACK_DIALOG_LEARN_MORE_ACCESSIBILITY_LABEL},
@@ -477,7 +477,7 @@ diff --git a/chrome/browser/ui/webui/settings/settings_localized_strings_provide
 diff --git a/components/privacy_sandbox/tracking_protection_prefs.cc b/components/privacy_sandbox/tracking_protection_prefs.cc
 --- a/components/privacy_sandbox/tracking_protection_prefs.cc
 +++ b/components/privacy_sandbox/tracking_protection_prefs.cc
-@@ -81,6 +81,7 @@ void RegisterProfilePrefs(PrefRegistrySimple* registry) {
+@@ -72,6 +72,7 @@ void RegisterProfilePrefs(PrefRegistrySimple* registry) {
    registry->RegisterBooleanPref(
        prefs::kEnableDoNotTrack, false,
        user_prefs::PrefRegistrySyncable::SYNCABLE_PREF);
@@ -488,7 +488,7 @@ diff --git a/components/privacy_sandbox/tracking_protection_prefs.cc b/component
 diff --git a/components/privacy_sandbox/tracking_protection_prefs.h b/components/privacy_sandbox/tracking_protection_prefs.h
 --- a/components/privacy_sandbox/tracking_protection_prefs.h
 +++ b/components/privacy_sandbox/tracking_protection_prefs.h
-@@ -124,6 +124,8 @@ inline constexpr char kFingerprintingProtectionEnabled[] =
+@@ -110,6 +110,8 @@ inline constexpr char kFingerprintingProtectionEnabled[] =
  // Whether to send the DNT header.
  inline constexpr char kEnableDoNotTrack[] = "enable_do_not_track";
  
@@ -512,8 +512,8 @@ diff --git a/components/privacy_sandbox/tracking_protection_settings.cc b/compon
    pref_change_registrar_.Add(
        prefs::kFingerprintingProtectionEnabled,
        base::BindRepeating(
-@@ -177,6 +182,10 @@ bool TrackingProtectionSettings::HasTrackingProtectionException(
-              ContentSettingsType::TRACKING_PROTECTION) == CONTENT_SETTING_ALLOW;
+@@ -185,6 +190,10 @@ void TrackingProtectionSettings::MaybeInitializeIppPref() {
+   pref_service_->SetBoolean(prefs::kIpProtectionInitializedByDogfood, true);
  }
  
 +bool TrackingProtectionSettings::IsGPCEnabled() const {
@@ -523,7 +523,7 @@ diff --git a/components/privacy_sandbox/tracking_protection_settings.cc b/compon
  void TrackingProtectionSettings::OnEnterpriseControlForPrefsChanged() {
    if (!IsTrackingProtection3pcdEnabled()) {
      return;
-@@ -216,6 +225,12 @@ void TrackingProtectionSettings::OnDoNotTrackEnabledPrefChanged() {
+@@ -223,6 +232,12 @@ void TrackingProtectionSettings::OnDoNotTrackEnabledPrefChanged() {
    }
  }
  
@@ -548,7 +548,7 @@ diff --git a/components/privacy_sandbox/tracking_protection_settings.h b/compone
    // Returns whether tracking protection for 3PCD (prefs + UX) is enabled.
    bool IsTrackingProtection3pcdEnabled() const;
  
-@@ -82,6 +84,7 @@ class TrackingProtectionSettings
+@@ -86,6 +88,7 @@ class TrackingProtectionSettings
  
    // Callbacks for pref observation.
    void OnDoNotTrackEnabledPrefChanged();
@@ -671,7 +671,7 @@ diff --git a/third_party/blink/public/mojom/renderer_preferences.mojom b/third_p
 diff --git a/third_party/blink/renderer/bindings/idl_in_modules.gni b/third_party/blink/renderer/bindings/idl_in_modules.gni
 --- a/third_party/blink/renderer/bindings/idl_in_modules.gni
 +++ b/third_party/blink/renderer/bindings/idl_in_modules.gni
-@@ -1262,6 +1262,11 @@ static_idl_files_in_modules = [
+@@ -1265,6 +1265,11 @@ static_idl_files_in_modules = [
    "//third_party/blink/renderer/modules/xr/xr_webgl_sub_image.idl",
  ]
  
@@ -686,7 +686,7 @@ diff --git a/third_party/blink/renderer/bindings/idl_in_modules.gni b/third_part
 diff --git a/third_party/blink/renderer/core/exported/web_view_impl.cc b/third_party/blink/renderer/core/exported/web_view_impl.cc
 --- a/third_party/blink/renderer/core/exported/web_view_impl.cc
 +++ b/third_party/blink/renderer/core/exported/web_view_impl.cc
-@@ -3510,6 +3510,9 @@ void WebViewImpl::UpdateRendererPreferences(
+@@ -3502,6 +3502,9 @@ void WebViewImpl::UpdateRendererPreferences(
    GetSettings()->SetCaretBrowsingEnabled(
        renderer_preferences_.caret_browsing_enabled);
  
@@ -785,7 +785,7 @@ new file mode 100644
 diff --git a/third_party/blink/renderer/modules/service_worker/web_service_worker_fetch_context_impl.cc b/third_party/blink/renderer/modules/service_worker/web_service_worker_fetch_context_impl.cc
 --- a/third_party/blink/renderer/modules/service_worker/web_service_worker_fetch_context_impl.cc
 +++ b/third_party/blink/renderer/modules/service_worker/web_service_worker_fetch_context_impl.cc
-@@ -148,6 +148,9 @@ void WebServiceWorkerFetchContextImpl::WillSendRequest(WebURLRequest& request) {
+@@ -154,6 +154,9 @@ void WebServiceWorkerFetchContextImpl::WillSendRequest(WebURLRequest& request) {
    if (renderer_preferences_.enable_do_not_track) {
      request.SetHttpHeaderField(WebString::FromUTF8(kDoNotTrackHeader), "1");
    }
@@ -811,7 +811,7 @@ diff --git a/third_party/blink/renderer/platform/loader/fetch/url_loader/dedicat
 diff --git a/third_party/blink/renderer/platform/runtime_enabled_features.json5 b/third_party/blink/renderer/platform/runtime_enabled_features.json5
 --- a/third_party/blink/renderer/platform/runtime_enabled_features.json5
 +++ b/third_party/blink/renderer/platform/runtime_enabled_features.json5
-@@ -1874,6 +1874,11 @@
+@@ -1880,6 +1880,11 @@
        status: "stable",
        base_feature: "none",
      },

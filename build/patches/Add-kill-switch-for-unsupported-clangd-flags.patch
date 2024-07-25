@@ -14,7 +14,7 @@ License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
 diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
 --- a/build/config/compiler/BUILD.gn
 +++ b/build/config/compiler/BUILD.gn
-@@ -1901,7 +1901,6 @@ config("default_warnings") {
+@@ -1920,7 +1920,6 @@ config("default_warnings") {
          # TODO(crbug.com/40284799): Fix and re-enable.
          "-Wno-thread-safety-reference-return",
        ]
@@ -22,9 +22,9 @@ diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
        cflags_cc += [
          # TODO(crbug.com/328490295): Fix and re-enable for C flags.
          "-Wenum-compare-conditional",
-@@ -1913,6 +1912,15 @@ config("default_warnings") {
-           "-Wno-c++11-narrowing-const-reference",
-         ]
+@@ -1937,6 +1936,15 @@ config("default_warnings") {
+           cflags_cc += [ "-Wno-missing-template-arg-list-after-template-kw" ]
+         }
        }
 +      if (skip_clangd_unsupported_options) {
 +        cflags -= [
@@ -41,7 +41,7 @@ diff --git a/build/config/compiler/BUILD.gn b/build/config/compiler/BUILD.gn
 diff --git a/build_overrides/build.gni b/build_overrides/build.gni
 --- a/build_overrides/build.gni
 +++ b/build_overrides/build.gni
-@@ -58,6 +58,9 @@ declare_args() {
+@@ -54,6 +54,9 @@ declare_args() {
    # to lack of toolchain support.
    gtest_enable_absl_printers = !is_nacl
  

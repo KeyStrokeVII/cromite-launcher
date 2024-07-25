@@ -12,6 +12,7 @@ License: GPL-2.0-or-later - https://spdx.org/licenses/GPL-2.0-or-later.html
  chrome/app/settings_strings.grdp              |   3 +
  chrome/app/settings_strings_android.grdp      | 260 ++++++++++++++++++
  chrome/browser/BUILD.gn                       |   3 +
+ .../chrome_browser_interface_binders.cc       |  12 +
  chrome/browser/resources/BUILD.gn             |   6 +
  chrome/browser/resources/settings/BUILD.gn    |   2 +-
  .../resources/settings/page_visibility.ts     |  30 +-
@@ -24,7 +25,8 @@ License: GPL-2.0-or-later - https://spdx.org/licenses/GPL-2.0-or-later.html
  .../browser/resources/settings/settings.html  |   8 +-
  .../settings/settings_ui/settings_ui.html     |   6 +
  .../resources/settings_shared/BUILD.gn        |   2 +-
- .../browser/search_engines/android/BUILD.gn   |   1 +
+ chrome/browser/search/background/BUILD.gn     |   4 +-
+ .../browser/search_engines/android/BUILD.gn   |   2 +
  .../java/res/layout/search_engine_layout.xml  |  25 ++
  .../settings/SearchEngineSettings.java        |  19 ++
  chrome/browser/ui/BUILD.gn                    |  12 +
@@ -43,14 +45,15 @@ License: GPL-2.0-or-later - https://spdx.org/licenses/GPL-2.0-or-later.html
  ...ings_localized_strings_provider_android.cc | 198 +++++++++++++
  ...tings_localized_strings_provider_android.h |  19 ++
  .../ui/webui/settings/settings_ui_android.cc  | 134 +++++++++
- .../ui/webui/settings/settings_ui_android.h   | 127 +++++++++
+ .../ui/webui/settings/settings_ui_android.h   | 119 ++++++++
  chrome/chrome_paks.gni                        |  11 +
  .../browser_ui/settings/SettingsLauncher.java |   2 +
  .../search_engine_desktop_ui.grdp             |   6 +
  .../android/template_url_service_android.cc   |   2 +-
+ .../search_engines/search_engines_switches.cc |   1 +
  .../search_engines/template_url_service.cc    |   8 +-
  .../search_engines/template_url_service.h     |   6 +-
- content/browser/webui/web_ui_impl.cc          |  16 +-
+ content/browser/webui/web_ui_impl.cc          |  14 +-
  content/browser/webui/web_ui_impl.h           |   3 +
  content/public/browser/web_ui.h               |   1 +
  ui/base/template_expressions.cc               |  21 +-
@@ -67,7 +70,7 @@ License: GPL-2.0-or-later - https://spdx.org/licenses/GPL-2.0-or-later.html
  ui/webui/resources/include_polymer.gni        |   2 +-
  ui/webui/resources/js/BUILD.gn                |   2 +-
  ui/webui/resources/js/load_time_data.ts       |  17 +-
- 60 files changed, 1098 insertions(+), 62 deletions(-)
+ 63 files changed, 1106 insertions(+), 62 deletions(-)
  create mode 100644 chrome/app/settings_strings_android.grdp
  create mode 100644 chrome/browser/search_engines/android/java/res/layout/search_engine_layout.xml
  create mode 100644 chrome/browser/ui/webui/settings/settings_localized_strings_provider_android.cc
@@ -89,7 +92,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/settings/Settin
  import org.chromium.base.IntentUtils;
  import org.chromium.chrome.browser.accessibility.settings.AccessibilitySettings;
  import org.chromium.chrome.browser.autofill.settings.AutofillPaymentMethodsFragment;
-@@ -33,6 +36,13 @@ public class SettingsLauncherImpl implements SettingsLauncher {
+@@ -36,6 +39,13 @@ public class SettingsLauncherImpl implements SettingsLauncher {
  
      public SettingsLauncherImpl() {}
  
@@ -118,7 +121,7 @@ diff --git a/chrome/app/generated_resources.grd b/chrome/app/generated_resources
        <!-- Support Tool strings -->
        <if expr="not is_android">
          <part file="support_tool_strings.grdp" />
-@@ -496,7 +501,7 @@ are declared in tools/grit/grit_rule.gni.
+@@ -500,7 +505,7 @@ are declared in tools/grit/grit_rule.gni.
          Disable
        </message>
        <!-- Search strings are only used in webui, so no mobile. -->
@@ -130,7 +133,7 @@ diff --git a/chrome/app/generated_resources.grd b/chrome/app/generated_resources
 diff --git a/chrome/app/settings_strings.grdp b/chrome/app/settings_strings.grdp
 --- a/chrome/app/settings_strings.grdp
 +++ b/chrome/app/settings_strings.grdp
-@@ -2585,6 +2585,9 @@
+@@ -2594,6 +2594,9 @@
    <message name="IDS_SETTINGS_SEARCH_ENGINES_QUERY_URL_EXPLANATION" desc="Label for explaining the format of the URL that should be entered by the user in the add/edit search engine dialog.">
      URL with <ph name="SPECIAL_SYMBOL">%s</ph> in place of query
    </message>
@@ -408,7 +411,7 @@ new file mode 100644
 diff --git a/chrome/browser/BUILD.gn b/chrome/browser/BUILD.gn
 --- a/chrome/browser/BUILD.gn
 +++ b/chrome/browser/BUILD.gn
-@@ -3782,6 +3782,9 @@ static_library("browser") {
+@@ -3764,6 +3764,9 @@ static_library("browser") {
          "//components/user_scripts/android",
        ]
      }
@@ -418,6 +421,35 @@ diff --git a/chrome/browser/BUILD.gn b/chrome/browser/BUILD.gn
    } else {
      #!is_android
      sources += [
+diff --git a/chrome/browser/chrome_browser_interface_binders.cc b/chrome/browser/chrome_browser_interface_binders.cc
+--- a/chrome/browser/chrome_browser_interface_binders.cc
++++ b/chrome/browser/chrome_browser_interface_binders.cc
+@@ -145,6 +145,9 @@
+ #endif
+ 
+ #if BUILDFLAG(IS_ANDROID)
++#include "ui/webui/resources/cr_components/help_bubble/help_bubble.mojom.h"
++#include "ui/webui/resources/cr_components/customize_color_scheme_mode/customize_color_scheme_mode.mojom.h"
++#include "chrome/browser/ui/webui/settings/settings_ui_android.h"
+ #include "chrome/browser/android/dom_distiller/distiller_ui_handle_android.h"
+ #include "chrome/browser/offline_pages/android/offline_page_auto_fetcher.h"
+ #include "chrome/browser/ui/webui/feed_internals/feed_internals.mojom.h"
+@@ -1168,6 +1171,15 @@ void PopulateChromeWebUIFrameBinders(
+       app_management::mojom::PageHandlerFactory, WebAppSettingsUI>(map);
+ #endif
+ 
++#if BUILDFLAG(IS_ANDROID)
++  RegisterWebUIControllerInterfaceBinder<
++      help_bubble::mojom::HelpBubbleHandlerFactory, settings::SettingsUI>(map);
++
++  RegisterWebUIControllerInterfaceBinder<
++      customize_color_scheme_mode::mojom::
++          CustomizeColorSchemeModeHandlerFactory, settings::SettingsUI>(map);
++#endif
++
+ #if !BUILDFLAG(IS_ANDROID)
+   if (search_engines::IsChoiceScreenFlagEnabled(
+           search_engines::ChoicePromo::kAny)) {
 diff --git a/chrome/browser/resources/BUILD.gn b/chrome/browser/resources/BUILD.gn
 --- a/chrome/browser/resources/BUILD.gn
 +++ b/chrome/browser/resources/BUILD.gn
@@ -449,11 +481,10 @@ diff --git a/chrome/browser/resources/settings/BUILD.gn b/chrome/browser/resourc
 diff --git a/chrome/browser/resources/settings/page_visibility.ts b/chrome/browser/resources/settings/page_visibility.ts
 --- a/chrome/browser/resources/settings/page_visibility.ts
 +++ b/chrome/browser/resources/settings/page_visibility.ts
-@@ -47,7 +47,35 @@ export interface PrivacyPageVisibility {
-  */
- export let pageVisibility: PageVisibility;
+@@ -42,8 +42,36 @@ export interface PrivacyPageVisibility {
+   searchPrediction: boolean;
+ }
  
--if (loadTimeData.getBoolean('isGuest')) {
 +const isAndroid = (loadTimeData.getString('chromeAndroid') !== "");
 +if (isAndroid) {
 +  // @ts-expect-error
@@ -482,10 +513,12 @@ diff --git a/chrome/browser/resources/settings/page_visibility.ts b/chrome/brows
 +  chrome.settingsPrivate = chrome.settingsPrivate_;
 +}
 +
-+if (loadTimeData.getBoolean('isGuest') || isAndroid) {
-   // "if not chromeos" and "if chromeos" in two completely separate blocks
-   // to work around closure compiler.
-   // <if expr="not is_chromeos">
+ function createPageVisibility(): PageVisibility|undefined {
+-  if (!loadTimeData.getBoolean('isGuest')) {
++  if (!loadTimeData.getBoolean('isGuest') || isAndroid) {
+     return undefined;
+   }
+ 
 diff --git a/chrome/browser/resources/settings/search_engines_page/search_engine_edit_dialog.html b/chrome/browser/resources/settings/search_engines_page/search_engine_edit_dialog.html
 --- a/chrome/browser/resources/settings/search_engines_page/search_engine_edit_dialog.html
 +++ b/chrome/browser/resources/settings/search_engines_page/search_engine_edit_dialog.html
@@ -704,6 +737,30 @@ diff --git a/chrome/browser/resources/settings_shared/BUILD.gn b/chrome/browser/
  
  build_webui("build") {
    grd_prefix = "settings_shared"
+diff --git a/chrome/browser/search/background/BUILD.gn b/chrome/browser/search/background/BUILD.gn
+--- a/chrome/browser/search/background/BUILD.gn
++++ b/chrome/browser/search/background/BUILD.gn
+@@ -2,10 +2,11 @@
+ # Use of this source code is governed by a BSD-style license that can be
+ # found in the LICENSE file.
+ 
+-assert(is_win || is_mac || is_linux || is_chromeos)
++# assert(is_win || is_mac || is_linux || is_chromeos)
+ 
+ import("//third_party/protobuf/proto_library.gni")
+ 
++if (!is_android) {
+ source_set("background") {
+   public = [
+     "ntp_background_data.h",
+@@ -61,6 +62,7 @@ source_set("background") {
+     "//ui/gfx/codec",
+   ]
+ }
++}
+ 
+ proto_library("ntp_background_proto") {
+   sources = [ "ntp_background.proto" ]
 diff --git a/chrome/browser/search_engines/android/BUILD.gn b/chrome/browser/search_engines/android/BUILD.gn
 --- a/chrome/browser/search_engines/android/BUILD.gn
 +++ b/chrome/browser/search_engines/android/BUILD.gn
@@ -715,6 +772,14 @@ diff --git a/chrome/browser/search_engines/android/BUILD.gn b/chrome/browser/sea
      "java/res/layout/search_engine_choice_item.xml",
      "java/res/layout/search_engine_choice_view.xml",
      "java/res/layout/search_engine_recent_title.xml",
+@@ -86,6 +87,7 @@ android_resources("java_resources") {
+     "java/res/values/ids.xml",
+   ]
+   deps = [
++    "//chrome/browser/search/background:ntp_background_proto",
+     "//chrome/browser/ui/android/strings:ui_strings_grd",
+     "//components/browser_ui/styles/android:java_resources",
+     "//components/browser_ui/widget/android:java_resources",
 diff --git a/chrome/browser/search_engines/android/java/res/layout/search_engine_layout.xml b/chrome/browser/search_engines/android/java/res/layout/search_engine_layout.xml
 new file mode 100644
 --- /dev/null
@@ -798,7 +863,7 @@ diff --git a/chrome/browser/search_engines/android/java/src/org/chromium/chrome/
 diff --git a/chrome/browser/ui/BUILD.gn b/chrome/browser/ui/BUILD.gn
 --- a/chrome/browser/ui/BUILD.gn
 +++ b/chrome/browser/ui/BUILD.gn
-@@ -1076,6 +1076,18 @@ static_library("ui") {
+@@ -1098,6 +1098,18 @@ static_library("ui") {
  
      # TODO(b/335257259): Resolve circular deps.
      allow_circular_includes_from += [ "//chrome/browser/facilitated_payments" ]
@@ -1000,16 +1065,16 @@ diff --git a/chrome/browser/ui/search_engines/template_url_table_model.h b/chrom
 diff --git a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc b/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
 --- a/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
 +++ b/chrome/browser/ui/webui/chrome_web_ui_controller_factory.cc
-@@ -123,6 +123,8 @@
+@@ -122,6 +122,8 @@
  #include "chrome/browser/ui/webui/webapks/webapks_ui.h"
  #include "components/feed/buildflags.h"
  #include "components/feed/feed_feature_list.h"
-+#include "chrome/browser/ui/webui/settings/settings_ui.h"
++#include "chrome/browser/ui/webui/settings/settings_ui_android.h"
 +#include "chrome/browser/ui/webui/settings/settings_utils.h"
  #else  // BUILDFLAG(IS_ANDROID)
  #include "chrome/browser/media/router/discovery/access_code/access_code_cast_feature.h"
  #include "chrome/browser/media/router/media_router_feature.h"
-@@ -579,6 +581,10 @@ WebUIFactoryFunction GetWebUIFactoryFunction(WebUI* web_ui,
+@@ -588,6 +590,10 @@ WebUIFactoryFunction GetWebUIFactoryFunction(WebUI* web_ui,
      return &NewWebUI<WebAppInternalsUI>;
    }
  #endif  // !BUILDFLAG(IS_ANDROID)
@@ -1215,7 +1280,7 @@ diff --git a/chrome/browser/ui/webui/settings/search_engines_handler.cc b/chrome
 +  else if (field_name.compare(kSuggestionUrlField) == 0)
 +    is_valid = field_value.empty() || edit_controller_->IsURLValid(field_value);
    else
-     NOTREACHED();
+     NOTREACHED_IN_MIGRATION();
  
 @@ -415,18 +427,20 @@ void SearchEnginesHandler::HandleSearchEngineEditCompleted(
    if (!edit_controller_.get())
@@ -1257,7 +1322,7 @@ diff --git a/chrome/browser/ui/webui/settings/search_engines_handler.h b/chrome/
 diff --git a/chrome/browser/ui/webui/settings/settings_localized_strings_provider.cc b/chrome/browser/ui/webui/settings/settings_localized_strings_provider.cc
 --- a/chrome/browser/ui/webui/settings/settings_localized_strings_provider.cc
 +++ b/chrome/browser/ui/webui/settings/settings_localized_strings_provider.cc
-@@ -2390,6 +2390,8 @@ void AddSearchEnginesStrings(content::WebUIDataSource* html_source) {
+@@ -2407,6 +2407,8 @@ void AddSearchEnginesStrings(content::WebUIDataSource* html_source) {
        {"searchEnginesQueryURL", IDS_SETTINGS_SEARCH_ENGINES_QUERY_URL},
        {"searchEnginesQueryURLExplanation",
         IDS_SETTINGS_SEARCH_ENGINES_QUERY_URL_EXPLANATION},
@@ -1266,7 +1331,7 @@ diff --git a/chrome/browser/ui/webui/settings/settings_localized_strings_provide
        {"searchEnginesMakeDefault", IDS_SETTINGS_SEARCH_ENGINES_MAKE_DEFAULT},
        {"searchEnginesActivate", IDS_SETTINGS_SEARCH_ENGINES_ACTIVATE},
        {"searchEnginesDeactivate", IDS_SETTINGS_SEARCH_ENGINES_DEACTIVATE},
-@@ -3677,6 +3679,12 @@ void AddLocalizedStrings(content::WebUIDataSource* html_source,
+@@ -3711,6 +3713,12 @@ void AddLocalizedStrings(content::WebUIDataSource* html_source,
    AddSystemStrings(html_source);
  #endif
  
@@ -1515,7 +1580,7 @@ new file mode 100644
 +// Use of this source code is governed by a BSD-style license that can be
 +// found in the LICENSE file.
 +
-+#include "chrome/browser/ui/webui/settings/settings_ui.h"
++#include "chrome/browser/ui/webui/settings/settings_ui_android.h"
 +
 +#include <stddef.h>
 +
@@ -1633,14 +1698,14 @@ new file mode 100644
 +    mojo::PendingReceiver<help_bubble::mojom::HelpBubbleHandler> handler) {
 +}
 +
-+void SettingsUI::CreateCustomizeColorSchemeModeHandler(
-+    mojo::PendingRemote<
-+        customize_color_scheme_mode::mojom::CustomizeColorSchemeModeClient>
-+        client,
-+    mojo::PendingReceiver<
-+        customize_color_scheme_mode::mojom::CustomizeColorSchemeModeHandler>
-+        handler) {
-+}
++void SettingsUI::BindInterface(
++    mojo::PendingReceiver<help_bubble::mojom::HelpBubbleHandlerFactory>
++        pending_receiver) {}
++
++void SettingsUI::BindInterface(
++    mojo::PendingReceiver<customize_color_scheme_mode::mojom::
++                            CustomizeColorSchemeModeHandlerFactory>
++        pending_receiver) {}
 +
 +WEB_UI_CONTROLLER_TYPE_IMPL(SettingsUI)
 +
@@ -1649,7 +1714,7 @@ diff --git a/chrome/browser/ui/webui/settings/settings_ui_android.h b/chrome/bro
 new file mode 100644
 --- /dev/null
 +++ b/chrome/browser/ui/webui/settings/settings_ui_android.h
-@@ -0,0 +1,127 @@
+@@ -0,0 +1,119 @@
 +#ifndef CHROME_BROWSER_UI_WEBUI_SETTINGS_SETTINGS_UI_ANDROID_H_
 +#define CHROME_BROWSER_UI_WEBUI_SETTINGS_SETTINGS_UI_ANDROID_H_
 +
@@ -1763,14 +1828,6 @@ new file mode 100644
 +      mojo::PendingReceiver<help_bubble::mojom::HelpBubbleHandler> handler)
 +      override;
 +
-+  void CreateCustomizeColorSchemeModeHandler(
-+      mojo::PendingRemote<
-+          customize_color_scheme_mode::mojom::CustomizeColorSchemeModeClient>
-+          client,
-+      mojo::PendingReceiver<
-+          customize_color_scheme_mode::mojom::CustomizeColorSchemeModeHandler>
-+          handler) override;
-+
 +  WEB_UI_CONTROLLER_TYPE_DECL();
 +};
 +
@@ -1780,7 +1837,7 @@ new file mode 100644
 diff --git a/chrome/chrome_paks.gni b/chrome/chrome_paks.gni
 --- a/chrome/chrome_paks.gni
 +++ b/chrome/chrome_paks.gni
-@@ -149,6 +149,17 @@ template("chrome_extra_paks") {
+@@ -156,6 +156,17 @@ template("chrome_extra_paks") {
        sources += invoker.additional_paks
      }
  
@@ -1801,8 +1858,8 @@ diff --git a/chrome/chrome_paks.gni b/chrome/chrome_paks.gni
 diff --git a/components/browser_ui/settings/android/java/src/org/chromium/components/browser_ui/settings/SettingsLauncher.java b/components/browser_ui/settings/android/java/src/org/chromium/components/browser_ui/settings/SettingsLauncher.java
 --- a/components/browser_ui/settings/android/java/src/org/chromium/components/browser_ui/settings/SettingsLauncher.java
 +++ b/components/browser_ui/settings/android/java/src/org/chromium/components/browser_ui/settings/SettingsLauncher.java
-@@ -44,6 +44,8 @@ public interface SettingsLauncher {
-         int ACCESSIBILITY = 6;
+@@ -53,6 +53,8 @@ public interface SettingsLauncher {
+         int MANAGE_SYNC = 9;
      }
  
 +    void launchUrlInCustomTab(Context context, String url);
@@ -1824,7 +1881,7 @@ new file mode 100644
 diff --git a/components/search_engines/android/template_url_service_android.cc b/components/search_engines/android/template_url_service_android.cc
 --- a/components/search_engines/android/template_url_service_android.cc
 +++ b/components/search_engines/android/template_url_service_android.cc
-@@ -417,7 +417,7 @@ jboolean TemplateUrlServiceAndroid::SetPlayAPISearchEngine(
+@@ -419,7 +419,7 @@ jboolean TemplateUrlServiceAndroid::SetPlayAPISearchEngine(
      if (existing_play_api_turl->safe_for_autoreplace()) {
        template_url_service_->ResetTemplateURL(
            existing_play_api_turl, existing_play_api_turl->short_name(),
@@ -1833,10 +1890,21 @@ diff --git a/components/search_engines/android/template_url_service_android.cc b
      }
  
      // Only one search engine can be marked as coming from Play at a time.
+diff --git a/components/search_engines/search_engines_switches.cc b/components/search_engines/search_engines_switches.cc
+--- a/components/search_engines/search_engines_switches.cc
++++ b/components/search_engines/search_engines_switches.cc
+@@ -36,6 +36,7 @@ COMPONENT_EXPORT(SEARCH_ENGINES_SWITCHES)
+ BASE_FEATURE(kSearchEngineChoiceTrigger,
+              "SearchEngineChoiceTrigger",
+              base::FEATURE_ENABLED_BY_DEFAULT);
++SET_CROMITE_FEATURE_DISABLED(kSearchEngineChoiceTrigger);
+ 
+ COMPONENT_EXPORT(SEARCH_ENGINES_SWITCHES)
+ BASE_FEATURE(kSearchEngineChoiceAttribution,
 diff --git a/components/search_engines/template_url_service.cc b/components/search_engines/template_url_service.cc
 --- a/components/search_engines/template_url_service.cc
 +++ b/components/search_engines/template_url_service.cc
-@@ -707,13 +707,15 @@ TemplateURL* TemplateURLService::AddWithOverrides(
+@@ -708,13 +708,15 @@ TemplateURL* TemplateURLService::AddWithOverrides(
      std::unique_ptr<TemplateURL> template_url,
      const std::u16string& short_name,
      const std::u16string& keyword,
@@ -1853,7 +1921,7 @@ diff --git a/components/search_engines/template_url_service.cc b/components/sear
    return Add(std::move(template_url));
  }
  
-@@ -909,7 +911,8 @@ void TemplateURLService::IncrementUsageCount(TemplateURL* url) {
+@@ -918,7 +920,8 @@ void TemplateURLService::IncrementUsageCount(TemplateURL* url) {
  void TemplateURLService::ResetTemplateURL(TemplateURL* url,
                                            const std::u16string& title,
                                            const std::u16string& keyword,
@@ -1863,7 +1931,7 @@ diff --git a/components/search_engines/template_url_service.cc b/components/sear
    DCHECK(!IsCreatedByExtension(url));
    DCHECK(!keyword.empty());
    DCHECK(!search_url.empty());
-@@ -921,6 +924,7 @@ void TemplateURLService::ResetTemplateURL(TemplateURL* url,
+@@ -930,6 +933,7 @@ void TemplateURLService::ResetTemplateURL(TemplateURL* url,
      // The urls have changed, reset the favicon url.
      data.favicon_url = GURL();
    }
@@ -1884,7 +1952,7 @@ diff --git a/components/search_engines/template_url_service.h b/components/searc
  
    // Removes the keyword from the model. This deletes the supplied TemplateURL.
    // This fails if the supplied template_url is the default search provider.
-@@ -316,7 +317,8 @@ class TemplateURLService final : public WebDataServiceConsumer,
+@@ -319,7 +320,8 @@ class TemplateURLService final : public WebDataServiceConsumer,
    void ResetTemplateURL(TemplateURL* url,
                          const std::u16string& title,
                          const std::u16string& keyword,
@@ -1897,7 +1965,7 @@ diff --git a/components/search_engines/template_url_service.h b/components/searc
 diff --git a/content/browser/webui/web_ui_impl.cc b/content/browser/webui/web_ui_impl.cc
 --- a/content/browser/webui/web_ui_impl.cc
 +++ b/content/browser/webui/web_ui_impl.cc
-@@ -255,6 +255,10 @@ void WebUIImpl::RegisterMessageCallback(std::string_view message,
+@@ -246,6 +246,10 @@ void WebUIImpl::RegisterMessageCallback(std::string_view message,
    message_callbacks_.emplace(message, std::move(callback));
  }
  
@@ -1908,17 +1976,15 @@ diff --git a/content/browser/webui/web_ui_impl.cc b/content/browser/webui/web_ui
  void WebUIImpl::ProcessWebUIMessage(const GURL& source_url,
                                      const std::string& message,
                                      base::Value::List args) {
-@@ -268,9 +272,15 @@ void WebUIImpl::ProcessWebUIMessage(const GURL& source_url,
+@@ -259,8 +263,14 @@ void WebUIImpl::ProcessWebUIMessage(const GURL& source_url,
      return;
    }
  
--  DUMP_WILL_BE_NOTREACHED_NORETURN()
--      << "Unhandled chrome.send(\"" << message << "\", " << args << "); from "
--      << source_url;
+-  DUMP_WILL_BE_NOTREACHED() << "Unhandled chrome.send(\"" << message << "\", "
+-                            << args << "); from " << source_url;
 +  if (!do_not_crash_on_unhandled_message_) {
-+    DUMP_WILL_BE_NOTREACHED_NORETURN()
-+        << "Unhandled chrome.send(\"" << message << "\", " << args << "); from "
-+        << source_url;
++    DUMP_WILL_BE_NOTREACHED() << "Unhandled chrome.send(\"" << message << "\", "
++                              << args << "); from " << source_url;
 +  } else {
 +    DLOG(INFO)
 +        << "---Unhandled chrome.send(\"" << message << "\", " << args << "); from "
@@ -1930,7 +1996,7 @@ diff --git a/content/browser/webui/web_ui_impl.cc b/content/browser/webui/web_ui
 diff --git a/content/browser/webui/web_ui_impl.h b/content/browser/webui/web_ui_impl.h
 --- a/content/browser/webui/web_ui_impl.h
 +++ b/content/browser/webui/web_ui_impl.h
-@@ -83,6 +83,7 @@ class CONTENT_EXPORT WebUIImpl : public WebUI, public mojom::WebUIHost {
+@@ -80,6 +80,7 @@ class CONTENT_EXPORT WebUIImpl : public WebUI, public mojom::WebUIHost {
    void ProcessWebUIMessage(const GURL& source_url,
                             const std::string& message,
                             base::Value::List args) override;
@@ -1938,7 +2004,7 @@ diff --git a/content/browser/webui/web_ui_impl.h b/content/browser/webui/web_ui_
    bool CanCallJavascript() override;
    void CallJavascriptFunctionUnsafe(std::string_view function_name) override;
    void CallJavascriptFunctionUnsafe(
-@@ -154,6 +155,8 @@ class CONTENT_EXPORT WebUIImpl : public WebUI, public mojom::WebUIHost {
+@@ -151,6 +152,8 @@ class CONTENT_EXPORT WebUIImpl : public WebUI, public mojom::WebUIHost {
  
    std::unique_ptr<WebUIController> controller_;
  
@@ -2099,7 +2165,7 @@ diff --git a/ui/webui/resources/cr_elements/cr_dialog/cr_dialog.css b/ui/webui/r
 diff --git a/ui/webui/resources/cr_elements/cr_shared_vars.css b/ui/webui/resources/cr_elements/cr_shared_vars.css
 --- a/ui/webui/resources/cr_elements/cr_shared_vars.css
 +++ b/ui/webui/resources/cr_elements/cr_shared_vars.css
-@@ -226,6 +226,10 @@ html {
+@@ -228,6 +228,10 @@ html {
    --cr-form-field-label-line-height: 1;
  }
  

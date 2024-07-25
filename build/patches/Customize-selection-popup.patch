@@ -112,7 +112,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/compositor/layo
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/tab/TabContextMenuItemDelegate.java b/chrome/android/java/src/org/chromium/chrome/browser/tab/TabContextMenuItemDelegate.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/tab/TabContextMenuItemDelegate.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/tab/TabContextMenuItemDelegate.java
-@@ -285,8 +285,13 @@ public class TabContextMenuItemDelegate implements ContextMenuItemDelegate {
+@@ -309,8 +309,13 @@ public class TabContextMenuItemDelegate implements ContextMenuItemDelegate {
      public void onOpenImageInNewTab(GURL url, Referrer referrer) {
          LoadUrlParams loadUrlParams = new LoadUrlParams(url.getSpec());
          loadUrlParams.setReferrer(referrer);
@@ -138,7 +138,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ui/RootUiCoordi
  import org.chromium.base.TraceEvent;
  import org.chromium.base.metrics.RecordUserAction;
  import org.chromium.base.supplier.ObservableSupplier;
-@@ -823,11 +824,16 @@ public class RootUiCoordinator
+@@ -822,11 +823,16 @@ public class RootUiCoordinator
                              TrackerFactory.getTrackerForProfile(tab.getProfile())
                                      .notifyEvent(EventConstants.WEB_SEARCH_PERFORMED);
  

@@ -14,7 +14,7 @@ License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
 diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
-@@ -77,6 +77,19 @@ found in the LICENSE file.
+@@ -82,6 +82,19 @@ found in the LICENSE file.
          android:key="secure_dns"
          android:title="@string/settings_secure_dns_title"
          android:fragment="org.chromium.chrome.browser.privacy.secure_dns.SecureDnsSettings" />
@@ -37,7 +37,7 @@ diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/androi
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -55,6 +55,14 @@ import org.chromium.components.user_prefs.UserPrefs;
+@@ -51,6 +51,14 @@ import org.chromium.components.user_prefs.UserPrefs;
  import org.chromium.ui.text.NoUnderlineClickableSpan;
  import org.chromium.ui.text.SpanApplier;
  
@@ -51,8 +51,8 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/setting
 +
  /** Fragment to keep track of the all the privacy related preferences. */
  public class PrivacySettings extends ChromeBaseSettingsFragment
-         implements Preference.OnPreferenceChangeListener {
-@@ -71,6 +79,16 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
+         implements Preference.OnPreferenceChangeListener, FragmentSettingsLauncher {
+@@ -67,6 +75,16 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
      private static final String PREF_INCOGNITO_LOCK = "incognito_lock";
      private static final String PREF_THIRD_PARTY_COOKIES = "third_party_cookies";
      private static final String PREF_TRACKING_PROTECTION = "tracking_protection";
@@ -66,10 +66,10 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/setting
 +            ChromeSharedPreferences.getInstance();
 +
 +    private ManagedPreferenceDelegate mManagedPreferenceDelegate;
-     private static final String PREF_IP_PROTECTION = "ip_protection";
+     @VisibleForTesting static final String PREF_FP_PROTECTION = "fp_protection";
+     @VisibleForTesting static final String PREF_IP_PROTECTION = "ip_protection";
      @VisibleForTesting static final String PREF_CLEAR_BROWSING_DATA = "clear_browsing_data";
- 
-@@ -158,6 +176,16 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
+@@ -159,6 +177,16 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
  
          setHasOptionsMenu(true);
  
@@ -86,7 +86,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/setting
          ChromeSwitchPreference canMakePaymentPref =
                  (ChromeSwitchPreference) findPreference(PREF_CAN_MAKE_PAYMENT);
          canMakePaymentPref.setOnPreferenceChangeListener(this);
-@@ -274,6 +302,9 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
+@@ -294,6 +322,9 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
          } else if (PREF_HTTPS_FIRST_MODE.equals(key)) {
              UserPrefs.get(getProfile())
                      .setBoolean(Pref.HTTPS_ONLY_MODE_ENABLED, (boolean) newValue);
@@ -96,7 +96,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/setting
          }
          return true;
      }
-@@ -286,6 +317,9 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
+@@ -306,6 +337,9 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
  
      /** Updates the preferences. */
      public void updatePreferences() {
@@ -109,7 +109,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/setting
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -459,6 +459,10 @@ CHAR_LIMIT guidelines:
+@@ -450,6 +450,10 @@ For more settings that use data to improve your Chrome experience, go to <ph nam
          Automatically sends usage statistics and crash reports to Google
        </message>
  

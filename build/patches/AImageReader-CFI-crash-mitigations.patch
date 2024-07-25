@@ -90,7 +90,7 @@ diff --git a/base/android/android_image_reader_compat.h b/base/android/android_i
 diff --git a/chrome/browser/flag-metadata.json b/chrome/browser/flag-metadata.json
 --- a/chrome/browser/flag-metadata.json
 +++ b/chrome/browser/flag-metadata.json
-@@ -3218,9 +3218,9 @@
+@@ -3286,9 +3286,9 @@
      "expiry_milestone": 135
    },
    {
@@ -121,7 +121,7 @@ new file mode 100644
 diff --git a/gpu/config/gpu_driver_bug_list.json b/gpu/config/gpu_driver_bug_list.json
 --- a/gpu/config/gpu_driver_bug_list.json
 +++ b/gpu/config/gpu_driver_bug_list.json
-@@ -2694,6 +2694,22 @@
+@@ -2696,6 +2696,22 @@
          "no_downscaled_overlay_promotion"
        ]
      },
@@ -168,8 +168,8 @@ diff --git a/gpu/config/gpu_finch_features.h b/gpu/config/gpu_finch_features.h
  #if BUILDFLAG(IS_ANDROID)
 +GPU_EXPORT BASE_DECLARE_FEATURE(kAImageReaderMediaPlayer);
  GPU_EXPORT BASE_DECLARE_FEATURE(kAndroidSurfaceControl);
+ GPU_EXPORT BASE_DECLARE_FEATURE(kEnableGpuMemoryBufferImplAHB);
  GPU_EXPORT BASE_DECLARE_FEATURE(kWebViewSurfaceControl);
- GPU_EXPORT BASE_DECLARE_FEATURE(kWebViewSurfaceControlForTV);
 diff --git a/gpu/config/gpu_util.cc b/gpu/config/gpu_util.cc
 --- a/gpu/config/gpu_util.cc
 +++ b/gpu/config/gpu_util.cc
@@ -217,7 +217,7 @@ diff --git a/gpu/ipc/service/gpu_init.cc b/gpu/ipc/service/gpu_init.cc
  #endif
  
  #if BUILDFLAG(ENABLE_VULKAN)
-@@ -723,6 +724,13 @@ bool GpuInit::InitializeAndStartSandbox(base::CommandLine* command_line,
+@@ -721,6 +722,13 @@ bool GpuInit::InitializeAndStartSandbox(base::CommandLine* command_line,
    }
  #endif  // BUILDFLAG(IS_WIN)
  

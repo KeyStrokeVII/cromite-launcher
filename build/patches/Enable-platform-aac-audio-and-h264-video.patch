@@ -54,9 +54,9 @@ diff --git a/media/base/android/media_codec_util.cc b/media/base/android/media_c
  #include "base/strings/string_util.h"
 +#include "media/media_buildflags.h"
  #include "media/base/android/media_codec_bridge.h"
- #include "media/base/android/media_jni_headers/CodecProfileLevelList_jni.h"
- #include "media/base/android/media_jni_headers/MediaCodecUtil_jni.h"
-@@ -113,6 +114,9 @@ std::string MediaCodecUtil::CodecToAndroidMimeType(AudioCodec codec) {
+ #include "media/base/video_codecs.h"
+ #include "third_party/re2/src/re2/re2.h"
+@@ -115,6 +116,9 @@ std::string MediaCodecUtil::CodecToAndroidMimeType(AudioCodec codec) {
  // static
  std::string MediaCodecUtil::CodecToAndroidMimeType(AudioCodec codec,
                                                     SampleFormat sample_format) {
@@ -112,7 +112,7 @@ diff --git a/media/filters/ffmpeg_audio_decoder.cc b/media/filters/ffmpeg_audio_
 diff --git a/media/filters/ffmpeg_demuxer.cc b/media/filters/ffmpeg_demuxer.cc
 --- a/media/filters/ffmpeg_demuxer.cc
 +++ b/media/filters/ffmpeg_demuxer.cc
-@@ -793,6 +793,7 @@ void FFmpegDemuxerStream::InitBitstreamConverter() {
+@@ -794,6 +794,7 @@ void FFmpegDemuxerStream::InitBitstreamConverter() {
        // FFmpeg doesn't understand xHE-AAC profiles yet, which can't be put in
        // ADTS anyways, so skip bitstream conversion when the profile is
        // unknown.
@@ -131,10 +131,10 @@ diff --git a/media/filters/ffmpeg_video_decoder.cc b/media/filters/ffmpeg_video_
  #include "media/base/decoder_buffer.h"
  #include "media/base/limits.h"
  #include "media/base/media_log.h"
-@@ -129,6 +130,16 @@ bool FFmpegVideoDecoder::IsCodecSupported(VideoCodec codec) {
-     return false;
-   }
- #endif
+@@ -123,6 +124,16 @@ static void ReleaseVideoBufferImpl(void* opaque, uint8_t* data) {
+ 
+ // static
+ bool FFmpegVideoDecoder::IsCodecSupported(VideoCodec codec) {
 +#if BUILDFLAG(ENABLE_PLATFORM_H264_VIDEO)
 +  if (codec == VideoCodec::kH264) {
 +    return false;
@@ -145,13 +145,13 @@ diff --git a/media/filters/ffmpeg_video_decoder.cc b/media/filters/ffmpeg_video_
 +    return false;
 +  }
 +#endif
- 
    return avcodec_find_decoder(VideoCodecToCodecID(codec)) != nullptr;
  }
+ 
 diff --git a/media/filters/win/media_foundation_audio_decoder.cc b/media/filters/win/media_foundation_audio_decoder.cc
 --- a/media/filters/win/media_foundation_audio_decoder.cc
 +++ b/media/filters/win/media_foundation_audio_decoder.cc
-@@ -96,11 +96,15 @@ std::optional<MFT_REGISTER_TYPE_INFO> GetTypeInfo(
+@@ -99,11 +99,15 @@ std::optional<MFT_REGISTER_TYPE_INFO> GetTypeInfo(
  #endif
  #if BUILDFLAG(USE_PROPRIETARY_CODECS)
      case AudioCodec::kAAC:
@@ -167,7 +167,7 @@ diff --git a/media/filters/win/media_foundation_audio_decoder.cc b/media/filters
  #endif
  #if BUILDFLAG(ENABLE_PLATFORM_AC4_AUDIO)
      case AudioCodec::kAC4:
-@@ -314,8 +318,13 @@ void MediaFoundationAudioDecoder::Reset(base::OnceClosure reset_cb) {
+@@ -317,8 +321,13 @@ void MediaFoundationAudioDecoder::Reset(base::OnceClosure reset_cb) {
  }
  
  bool MediaFoundationAudioDecoder::NeedsBitstreamConversion() const {

@@ -84,7 +84,7 @@ Enabled by default
 diff --git a/DEPS b/DEPS
 --- a/DEPS
 +++ b/DEPS
-@@ -491,6 +491,10 @@ vars = {
+@@ -494,6 +494,10 @@ vars = {
    # Three lines of non-changing comments so that
    # the commit queue can handle CLs rolling feed
    # and whatever else without interference from each other.
@@ -92,10 +92,10 @@ diff --git a/DEPS b/DEPS
 +  # Three lines of non-changing comments so that
 +  # the commit queue can handle CLs rolling feed
 +  # and whatever else without interference from each other.
-   'highway_revision': '8f20644eca693cfb74aa795b0006b6779c370e7a',
+   'highway_revision': '8295336dd70f1201d42c22ab5b0861de38cf8fbf',
    # Three lines of non-changing comments so that
    # the commit queue can handle CLs rolling ffmpeg
-@@ -1354,6 +1358,9 @@ deps = {
+@@ -1604,6 +1608,9 @@ deps = {
    'src/third_party/dawn':
      Var('dawn_git') + '/dawn.git' + '@' +  Var('dawn_revision'),
  
@@ -147,14 +147,14 @@ new file mode 100644
 diff --git a/build/linux/unbundle/replace_gn_files.py b/build/linux/unbundle/replace_gn_files.py
 --- a/build/linux/unbundle/replace_gn_files.py
 +++ b/build/linux/unbundle/replace_gn_files.py
-@@ -56,6 +56,7 @@ REPLACEMENTS = {
-   'libdrm': 'third_party/libdrm/BUILD.gn',
-   'libevent': 'third_party/libevent/BUILD.gn',
-   'libjpeg': 'third_party/libjpeg.gni',
-+  'libjxl' : 'third_party/libjxl/BUILD.gn',
-   'libpng': 'third_party/libpng/BUILD.gn',
-   'libsecret' : 'third_party/libsecret/BUILD.gn',
-   'libusb': 'third_party/libusb/BUILD.gn',
+@@ -57,6 +57,7 @@ REPLACEMENTS = {
+     'libdrm': 'third_party/libdrm/BUILD.gn',
+     'libevent': 'third_party/libevent/BUILD.gn',
+     'libjpeg': 'third_party/libjpeg.gni',
++    'libjxl' : 'third_party/libjxl/BUILD.gn',
+     'libpng': 'third_party/libpng/BUILD.gn',
+     'libsecret': 'third_party/libsecret/BUILD.gn',
+     'libusb': 'third_party/libusb/BUILD.gn',
 diff --git a/cc/base/devtools_instrumentation.cc b/cc/base/devtools_instrumentation.cc
 --- a/cc/base/devtools_instrumentation.cc
 +++ b/cc/base/devtools_instrumentation.cc
@@ -329,7 +329,7 @@ diff --git a/media/media_options.gni b/media/media_options.gni
 diff --git a/net/base/mime_util.cc b/net/base/mime_util.cc
 --- a/net/base/mime_util.cc
 +++ b/net/base/mime_util.cc
-@@ -164,6 +164,7 @@ static const MimeInfo kPrimaryMappings[] = {
+@@ -169,6 +169,7 @@ static const MimeInfo kPrimaryMappings[] = {
      {"image/avif", "avif"},
      {"image/gif", "gif"},
      {"image/jpeg", "jpeg,jpg"},
@@ -337,7 +337,7 @@ diff --git a/net/base/mime_util.cc b/net/base/mime_util.cc
      {"image/png", "png"},
      {"image/apng", "png,apng"},
      {"image/svg+xml", "svg,svgz"},
-@@ -667,6 +668,7 @@ static const char* const kStandardImageTypes[] = {"image/avif",
+@@ -672,6 +673,7 @@ static const char* const kStandardImageTypes[] = {"image/avif",
                                                    "image/gif",
                                                    "image/ief",
                                                    "image/jpeg",
@@ -348,7 +348,7 @@ diff --git a/net/base/mime_util.cc b/net/base/mime_util.cc
 diff --git a/net/base/mime_util_unittest.cc b/net/base/mime_util_unittest.cc
 --- a/net/base/mime_util_unittest.cc
 +++ b/net/base/mime_util_unittest.cc
-@@ -39,6 +39,7 @@ TEST(MimeUtilTest, GetWellKnownMimeTypeFromExtension) {
+@@ -44,6 +44,7 @@ TEST(MimeUtilTest, GetWellKnownMimeTypeFromExtension) {
        {FILE_PATH_LITERAL("webm"), "video/webm"},
        {FILE_PATH_LITERAL("weba"), "audio/webm"},
        {FILE_PATH_LITERAL("avif"), "image/avif"},
@@ -356,7 +356,7 @@ diff --git a/net/base/mime_util_unittest.cc b/net/base/mime_util_unittest.cc
        {FILE_PATH_LITERAL("epub"), "application/epub+zip"},
        {FILE_PATH_LITERAL("apk"), "application/vnd.android.package-archive"},
        {FILE_PATH_LITERAL("cer"), "application/x-x509-ca-cert"},
-@@ -80,6 +81,7 @@ TEST(MimeUtilTest, ExtensionTest) {
+@@ -85,6 +86,7 @@ TEST(MimeUtilTest, ExtensionTest) {
      {FILE_PATH_LITERAL("webm"), {"video/webm"}},
      {FILE_PATH_LITERAL("weba"), {"audio/webm"}},
      {FILE_PATH_LITERAL("avif"), {"image/avif"}},
@@ -364,7 +364,7 @@ diff --git a/net/base/mime_util_unittest.cc b/net/base/mime_util_unittest.cc
  #if BUILDFLAG(IS_CHROMEOS_ASH)
      // These are test cases for testing platform mime types on ChromeOS.
      {FILE_PATH_LITERAL("epub"), {"application/epub+zip"}},
-@@ -496,6 +498,7 @@ TEST(MimeUtilTest, TestGetExtensionsForMimeType) {
+@@ -501,6 +503,7 @@ TEST(MimeUtilTest, TestGetExtensionsForMimeType) {
        {"MeSsAge/*", 1, "eml"},
        {"message/", 0, nullptr, true},
        {"image/avif", 1, "avif"},
@@ -467,7 +467,7 @@ diff --git a/third_party/blink/common/mime_util/mime_util_unittest.cc b/third_pa
 diff --git a/third_party/blink/public/devtools_protocol/browser_protocol.pdl b/third_party/blink/public/devtools_protocol/browser_protocol.pdl
 --- a/third_party/blink/public/devtools_protocol/browser_protocol.pdl
 +++ b/third_party/blink/public/devtools_protocol/browser_protocol.pdl
-@@ -4412,6 +4412,7 @@ domain Emulation
+@@ -4431,6 +4431,7 @@ domain Emulation
    experimental type DisabledImageType extends string
      enum
        avif
@@ -608,7 +608,7 @@ diff --git a/third_party/blink/renderer/modules/webcodecs/image_decoder_fuzzer.c
 diff --git a/third_party/blink/renderer/platform/BUILD.gn b/third_party/blink/renderer/platform/BUILD.gn
 --- a/third_party/blink/renderer/platform/BUILD.gn
 +++ b/third_party/blink/renderer/platform/BUILD.gn
-@@ -2340,6 +2340,10 @@ source_set("blink_platform_unittests_sources") {
+@@ -2351,6 +2351,10 @@ source_set("blink_platform_unittests_sources") {
      sources += [ "text/locale_icu_test.cc" ]
    }
  
@@ -619,7 +619,7 @@ diff --git a/third_party/blink/renderer/platform/BUILD.gn b/third_party/blink/re
    sources += [ "testing/run_all_tests.cc" ]
  
    configs += [
-@@ -2385,6 +2389,7 @@ source_set("blink_platform_unittests_sources") {
+@@ -2396,6 +2400,7 @@ source_set("blink_platform_unittests_sources") {
      "//third_party/blink/renderer/platform/wtf",
      "//third_party/dawn/src/dawn/native",
      "//third_party/dawn/src/dawn/wire",
@@ -677,7 +677,7 @@ diff --git a/third_party/blink/renderer/platform/graphics/bitmap_image_metrics.h
 diff --git a/third_party/blink/renderer/platform/image-decoders/BUILD.gn b/third_party/blink/renderer/platform/image-decoders/BUILD.gn
 --- a/third_party/blink/renderer/platform/image-decoders/BUILD.gn
 +++ b/third_party/blink/renderer/platform/image-decoders/BUILD.gn
-@@ -72,6 +72,15 @@ component("image_decoders") {
+@@ -70,6 +70,15 @@ component("image_decoders") {
      "//third_party/libyuv",
    ]
  
@@ -704,25 +704,18 @@ diff --git a/third_party/blink/renderer/platform/image-decoders/image_decoder.cc
  #include "base/numerics/byte_conversions.h"
  #include "base/numerics/safe_conversions.h"
  #include "base/trace_event/trace_event.h"
-@@ -31,6 +32,7 @@
- #include "media/media_buildflags.h"
- #include "skia/ext/cicp.h"
- #include "third_party/blink/public/common/buildflags.h"
-+#include "third_party/blink/public/common/features.h"
- #include "third_party/blink/public/platform/platform.h"
- #include "third_party/blink/renderer/platform/image-decoders/bmp/bmp_image_decoder.h"
- #include "third_party/blink/renderer/platform/image-decoders/exif_reader.h"
-@@ -48,6 +50,9 @@
- #include "third_party/blink/renderer/platform/image-decoders/avif/avif_image_decoder.h"
+@@ -50,6 +51,10 @@
+ #include "third_party/blink/renderer/platform/image-decoders/avif/crabbyavif_image_decoder.h"
  #endif
  
 +#if BUILDFLAG(ENABLE_JXL_DECODER)
 +#include "third_party/blink/renderer/platform/image-decoders/jxl/jxl_image_decoder.h"
 +#endif
++
  namespace blink {
  
  namespace {
-@@ -75,6 +80,11 @@ cc::ImageType FileExtensionToImageType(String image_extension) {
+@@ -77,6 +82,11 @@ cc::ImageType FileExtensionToImageType(String image_extension) {
    if (image_extension == "avif") {
      return cc::ImageType::kAVIF;
    }
@@ -734,7 +727,7 @@ diff --git a/third_party/blink/renderer/platform/image-decoders/image_decoder.cc
  #endif
    return cc::ImageType::kInvalid;
  }
-@@ -192,6 +202,12 @@ String SniffMimeTypeInternal(scoped_refptr<SegmentReader> reader) {
+@@ -198,6 +208,12 @@ String SniffMimeTypeInternal(scoped_refptr<SegmentReader> reader) {
      return "image/avif";
    }
  #endif
@@ -747,10 +740,10 @@ diff --git a/third_party/blink/renderer/platform/image-decoders/image_decoder.cc
  
    return String();
  }
-@@ -297,6 +313,13 @@ std::unique_ptr<ImageDecoder> ImageDecoder::CreateByMimeType(
-     decoder = std::make_unique<AVIFImageDecoder>(
-         alpha_option, high_bit_depth_decoding_option, color_behavior,
-         max_decoded_bytes, animation_option);
+@@ -309,6 +325,13 @@ std::unique_ptr<ImageDecoder> ImageDecoder::CreateByMimeType(
+           alpha_option, high_bit_depth_decoding_option, color_behavior,
+           max_decoded_bytes, animation_option);
+     }
 +#endif
 +#if BUILDFLAG(ENABLE_JXL_DECODER)
 +  } else if (base::FeatureList::IsEnabled(blink::features::kJXL) &&
@@ -2224,7 +2217,7 @@ diff --git a/third_party/blink/tools/commit_stats/git-dirs.txt b/third_party/bli
 diff --git a/third_party/blink/web_tests/TestExpectations b/third_party/blink/web_tests/TestExpectations
 --- a/third_party/blink/web_tests/TestExpectations
 +++ b/third_party/blink/web_tests/TestExpectations
-@@ -4611,6 +4611,12 @@ crbug.com/1199522 http/tests/devtools/layers/layers-3d-view-hit-testing.js [ Fai
+@@ -4730,6 +4730,12 @@ crbug.com/1199522 http/tests/devtools/layers/layers-3d-view-hit-testing.js [ Fai
  # Started failing after rolling new version of check-layout-th.js
  css3/flexbox/perpendicular-writing-modes-inside-flex-item.html [ Failure ]
  
@@ -2240,9 +2233,9 @@ diff --git a/third_party/blink/web_tests/TestExpectations b/third_party/blink/we
 diff --git a/third_party/blink/web_tests/VirtualTestSuites b/third_party/blink/web_tests/VirtualTestSuites
 --- a/third_party/blink/web_tests/VirtualTestSuites
 +++ b/third_party/blink/web_tests/VirtualTestSuites
-@@ -435,6 +435,15 @@
+@@ -444,6 +444,15 @@
               "--disable-threaded-compositing", "--disable-threaded-animation"],
-     "expires": "Jul 1, 2023"
+     "expires": "Jun 1, 2025"
    },
 +  {
 +    "prefix": "jxl-enabled",
@@ -2254,7 +2247,7 @@ diff --git a/third_party/blink/web_tests/VirtualTestSuites b/third_party/blink/w
 +    "expires": "Jul 1, 2023"
 +  },
    {
-     "prefix": "compute-pressure",
+     "prefix": "highdpi-threaded",
      "platforms": ["Linux", "Mac", "Win"],
 diff --git a/third_party/blink/web_tests/http/tests/inspector-protocol/emulation/emulation-set-disabled-image-types-jxl-expected.txt b/third_party/blink/web_tests/http/tests/inspector-protocol/emulation/emulation-set-disabled-image-types-jxl-expected.txt
 new file mode 100644
@@ -2655,7 +2648,7 @@ new file mode 100644
 diff --git a/tools/metrics/histograms/enums.xml b/tools/metrics/histograms/enums.xml
 --- a/tools/metrics/histograms/enums.xml
 +++ b/tools/metrics/histograms/enums.xml
-@@ -21685,6 +21685,7 @@ from previous Chrome versions.
+@@ -20875,6 +20875,7 @@ from previous Chrome versions.
    <int value="188610022" label="NewMessageListView:enabled"/>
    <int value="189728101" label="FasterLocationReload:disabled"/>
    <int value="189777537" label="DisableInitialMostVisitedFadeIn:enabled"/>

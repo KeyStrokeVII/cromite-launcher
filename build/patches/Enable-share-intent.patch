@@ -45,7 +45,7 @@ diff --git a/chrome/android/chrome_java_resources.gni b/chrome/android/chrome_ja
 diff --git a/chrome/android/chrome_java_sources.gni b/chrome/android/chrome_java_sources.gni
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -1040,6 +1040,7 @@ chrome_java_sources = [
+@@ -1035,6 +1035,7 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/signin/SyncConsentActivity.java",
    "java/src/org/chromium/chrome/browser/signin/SyncConsentActivityLauncherImpl.java",
    "java/src/org/chromium/chrome/browser/signin/SyncConsentFragment.java",
@@ -211,7 +211,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.j
      /** A hash code for the URL to verify intent data hasn't been modified. */
      public static final String EXTRA_DATA_HASH_CODE = "org.chromium.chrome.browser.data_hash";
  
-@@ -1303,6 +1306,17 @@ public class IntentHandler {
+@@ -1306,6 +1309,17 @@ public class IntentHandler {
          return IntentUtils.safeGetSerializableExtra(intent, EXTRA_TAB_LAUNCH_TYPE);
      }
  
@@ -229,7 +229,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/IntentHandler.j
      /**
       * Creates an Intent that will launch a ChromeTabbedActivity on the new tab page. The Intent
       * will be trusted and therefore able to launch Incognito tabs.
-@@ -1432,7 +1446,7 @@ public class IntentHandler {
+@@ -1435,7 +1449,7 @@ public class IntentHandler {
          String headers = getExtraHeadersFromIntent(intent);
          headers = maybeAddAdditionalContentHeaders(intent, url, headers);
  
@@ -285,22 +285,22 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/LaunchIntentDis
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/init/ProcessInitializationHandler.java b/chrome/android/java/src/org/chromium/chrome/browser/init/ProcessInitializationHandler.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/init/ProcessInitializationHandler.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/init/ProcessInitializationHandler.java
-@@ -85,6 +85,7 @@ import org.chromium.chrome.browser.tabmodel.TabPersistentStore;
+@@ -99,6 +99,7 @@ import org.chromium.chrome.browser.tabmodel.TabPersistentStore;
  import org.chromium.chrome.browser.ui.cars.DrivingRestrictionsManager;
  import org.chromium.chrome.browser.ui.hats.SurveyClientFactory;
  import org.chromium.chrome.browser.ui.searchactivityutils.SearchActivityPreferencesManager;
 +import org.chromium.chrome.browser.sharing.shared_intent.SharedIntentShareActivity;
  import org.chromium.chrome.browser.usb.UsbNotificationManager;
  import org.chromium.chrome.browser.util.AfterStartupTaskUtils;
- import org.chromium.chrome.browser.webapps.WebApkUninstallTracker;
-@@ -480,6 +481,7 @@ public class ProcessInitializationHandler {
+ import org.chromium.chrome.browser.webapps.ChromeWebApkHost;
+@@ -683,6 +684,7 @@ public class ProcessInitializationHandler {
                          ::makeDeferredRecordings);
          tasks.add(WebApkUninstallTracker::runDeferredTasks);
  
 +        tasks.add(SharedIntentShareActivity::updateComponentEnabledState);
-         tasks.add(IncognitoTabLauncher::updateComponentEnabledState);
          tasks.add(OfflineContentAvailabilityStatusProvider::getInstance);
          tasks.add(() -> EnterpriseInfo.getInstance().logDeviceEnterpriseInfo());
+         tasks.add(TosDialogBehaviorSharedPrefInvalidator::refreshSharedPreferenceIfTosSkipped);
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/sharing/shared_intent/SharedIntentShareActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/sharing/shared_intent/SharedIntentShareActivity.java
 new file mode 100644
 --- /dev/null
@@ -468,7 +468,7 @@ new file mode 100644
 diff --git a/chrome/browser/flags/android/chrome_feature_list.cc b/chrome/browser/flags/android/chrome_feature_list.cc
 --- a/chrome/browser/flags/android/chrome_feature_list.cc
 +++ b/chrome/browser/flags/android/chrome_feature_list.cc
-@@ -261,6 +261,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
+@@ -275,6 +275,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
      &kReengagementNotification,
      &kSearchReadyOmniboxFeature,
      &kRelatedSearchesAllLanguage,
@@ -479,10 +479,10 @@ diff --git a/chrome/browser/flags/android/chrome_feature_list.cc b/chrome/browse
 diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
 --- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
 +++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
-@@ -408,6 +408,7 @@ public abstract class ChromeFeatureList {
-     public static final String READALOUD_IPH_MENU_BUTTON_HIGHLIGHT_CCT =
-             "ReadAloudIPHMenuButtonHighlightCCT";
+@@ -421,6 +421,7 @@ public abstract class ChromeFeatureList {
      public static final String READER_MODE_IN_CCT = "ReaderModeInCCT";
+     public static final String READING_LIST_ENABLE_SYNC_TRANSPORT_MODE_UPON_SIGNIN =
+             "ReadingListEnableSyncTransportModeUponSignIn";
 +    public static final String SHARED_INTENT_UI = "SharedIntentUI";
      public static final String RECORD_SUPPRESSION_METRICS = "RecordSuppressionMetrics";
      public static final String REDIRECT_EXPLICIT_CTA_INTENTS_TO_EXISTING_ACTIVITY =
@@ -490,7 +490,7 @@ diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/f
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -5366,6 +5366,19 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the Chrome d
+@@ -5519,6 +5519,19 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the Chrome d
          Make sure a phone app is enabled on this device
        </message>
  

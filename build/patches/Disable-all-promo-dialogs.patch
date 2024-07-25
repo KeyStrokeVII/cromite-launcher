@@ -17,7 +17,7 @@ License: GPL-2.0-or-later - https://spdx.org/licenses/GPL-2.0-or-later.html
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/tabbed_mode/TabbedRootUiCoordinator.java b/chrome/android/java/src/org/chromium/chrome/browser/tabbed_mode/TabbedRootUiCoordinator.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/tabbed_mode/TabbedRootUiCoordinator.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/tabbed_mode/TabbedRootUiCoordinator.java
-@@ -1309,6 +1309,7 @@ public class TabbedRootUiCoordinator extends RootUiCoordinator {
+@@ -1312,6 +1312,7 @@ public class TabbedRootUiCoordinator extends RootUiCoordinator {
      }
  
      private boolean maybeShowPromo(Profile profile) {
@@ -62,7 +62,7 @@ diff --git a/chrome/browser/user_education/java/src/org/chromium/chrome/browser/
 diff --git a/components/user_education/common/feature_promo_controller.cc b/components/user_education/common/feature_promo_controller.cc
 --- a/components/user_education/common/feature_promo_controller.cc
 +++ b/components/user_education/common/feature_promo_controller.cc
-@@ -668,6 +668,7 @@ FeaturePromoResult FeaturePromoControllerCommon::CanShowPromoCommon(
+@@ -669,6 +669,7 @@ FeaturePromoResult FeaturePromoControllerCommon::CanShowPromoCommon(
      const FeaturePromoSpecification** display_spec_out,
      std::unique_ptr<FeaturePromoLifecycle>* lifecycle_out,
      ui::TrackedElement** anchor_element_out) const {

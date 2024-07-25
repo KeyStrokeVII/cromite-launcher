@@ -42,7 +42,7 @@ new file mode 100644
 diff --git a/third_party/blink/renderer/core/dom/document.cc b/third_party/blink/renderer/core/dom/document.cc
 --- a/third_party/blink/renderer/core/dom/document.cc
 +++ b/third_party/blink/renderer/core/dom/document.cc
-@@ -4694,6 +4694,14 @@ void Document::ProcessBaseElement() {
+@@ -4704,6 +4704,14 @@ void Document::ProcessBaseElement() {
    KURL base_element_url;
    if (href) {
      String stripped_href = StripLeadingAndTrailingHTMLSpaces(*href);
@@ -57,7 +57,7 @@ diff --git a/third_party/blink/renderer/core/dom/document.cc b/third_party/blink
      if (!stripped_href.empty())
        base_element_url = KURL(FallbackBaseURL(), stripped_href);
    }
-@@ -4711,6 +4719,14 @@ void Document::ProcessBaseElement() {
+@@ -4721,6 +4729,14 @@ void Document::ProcessBaseElement() {
          !GetExecutionContext()->GetSecurityOrigin()->CanRequest(
              base_element_url)) {
        UseCounter::Count(*this, WebFeature::kBaseWithCrossOriginHref);
@@ -72,7 +72,7 @@ diff --git a/third_party/blink/renderer/core/dom/document.cc b/third_party/blink
      }
    }
  
-@@ -4730,6 +4746,8 @@ void Document::ProcessBaseElement() {
+@@ -4740,6 +4756,8 @@ void Document::ProcessBaseElement() {
      if (target->Contains('<'))
        UseCounter::Count(*this, WebFeature::kBaseWithOpenBracketInTarget);
      base_target_ = *target;
@@ -84,7 +84,7 @@ diff --git a/third_party/blink/renderer/core/dom/document.cc b/third_party/blink
 diff --git a/third_party/blink/renderer/core/dom/element.cc b/third_party/blink/renderer/core/dom/element.cc
 --- a/third_party/blink/renderer/core/dom/element.cc
 +++ b/third_party/blink/renderer/core/dom/element.cc
-@@ -2884,8 +2884,26 @@ void Element::StripScriptingAttributes(
+@@ -2877,8 +2877,26 @@ void Element::StripScriptingAttributes(
    attribute_vector.Shrink(destination);
  }
  
@@ -115,7 +115,7 @@ diff --git a/third_party/blink/renderer/core/dom/element.cc b/third_party/blink/
 diff --git a/third_party/blink/renderer/core/dom/element.h b/third_party/blink/renderer/core/dom/element.h
 --- a/third_party/blink/renderer/core/dom/element.h
 +++ b/third_party/blink/renderer/core/dom/element.h
-@@ -654,7 +654,8 @@ class CORE_EXPORT Element : public ContainerNode, public Animatable {
+@@ -669,7 +669,8 @@ class CORE_EXPORT Element : public ContainerNode, public Animatable {
    virtual bool HasLegalLinkAttribute(const QualifiedName&) const;
  
    // Only called by the parser immediately after element construction.
@@ -331,7 +331,7 @@ diff --git a/third_party/blink/renderer/core/page/frame_tree.cc b/third_party/bl
 diff --git a/third_party/blink/renderer/platform/runtime_enabled_features.json5 b/third_party/blink/renderer/platform/runtime_enabled_features.json5
 --- a/third_party/blink/renderer/platform/runtime_enabled_features.json5
 +++ b/third_party/blink/renderer/platform/runtime_enabled_features.json5
-@@ -1443,8 +1443,8 @@
+@@ -1457,8 +1457,8 @@
        // Experiment with preventing some instances of mutation XSS
        // by escaping "<" and ">" in attribute values.
        // See: crbug.com/1175016
@@ -342,7 +342,7 @@ diff --git a/third_party/blink/renderer/platform/runtime_enabled_features.json5 
      },
      {
        name: "EventTimingInteractionCount",
-@@ -2328,6 +2328,12 @@
+@@ -2364,6 +2364,12 @@
        name: "MacFontsDeprecateFontTraitsWorkaround",
        status: "stable",
      },

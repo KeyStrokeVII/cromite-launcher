@@ -190,7 +190,7 @@ diff --git a/chrome/browser/extensions/api/webstore_private/webstore_private_api
    switch (status) {
      case kCanRequest:
        return api::webstore_private::ExtensionInstallStatus::kCanRequest;
-@@ -1155,7 +1162,8 @@ ExtensionFunction::ResponseAction
+@@ -1165,7 +1172,8 @@ ExtensionFunction::ResponseAction
  WebstorePrivateIsInIncognitoModeFunction::Run() {
    Profile* profile = Profile::FromBrowserContext(browser_context());
    return RespondNow(ArgumentList(IsInIncognitoMode::Results::Create(
@@ -200,7 +200,7 @@ diff --git a/chrome/browser/extensions/api/webstore_private/webstore_private_api
  }
  
  WebstorePrivateIsPendingCustodianApprovalFunction::
-@@ -1250,11 +1258,14 @@ WebstorePrivateGetReferrerChainFunction::Run() {
+@@ -1260,11 +1268,14 @@ WebstorePrivateGetReferrerChainFunction::Run() {
    request.mutable_referrer_chain_options()->set_recent_navigations_to_collect(
        recent_navigations_to_collect);
  
@@ -750,9 +750,9 @@ diff --git a/extensions/browser/api/management/management_api.cc b/extensions/br
  #include "extensions/common/error_utils.h"
  #include "extensions/common/extension.h"
 +#include "extensions/common/extension_features.h"
- #include "extensions/common/extension_icon_set.h"
  #include "extensions/common/extension_id.h"
  #include "extensions/common/extension_urls.h"
+ #include "extensions/common/icons/extension_icon_set.h"
 @@ -90,6 +94,27 @@ std::vector<std::string> CreateWarningsList(const Extension* extension) {
    return warnings_list;
  }
@@ -831,7 +831,7 @@ diff --git a/extensions/browser/api/management/management_api.cc b/extensions/br
    if (!target_extension || !ShouldExposeViaManagementAPI(*target_extension)) {
      return RespondNow(Error(keys::kNoExtensionError, extension_id_));
    }
-@@ -642,8 +666,7 @@ ExtensionFunction::ResponseAction ManagementUninstallFunctionBase::Uninstall(
+@@ -644,8 +668,7 @@ ExtensionFunction::ResponseAction ManagementUninstallFunctionBase::Uninstall(
                                                ->GetDelegate();
    target_extension_id_ = target_extension_id;
    const Extension* target_extension =
@@ -841,7 +841,7 @@ diff --git a/extensions/browser/api/management/management_api.cc b/extensions/br
                               ExtensionRegistry::EVERYTHING);
    if (!target_extension || !ShouldExposeViaManagementAPI(*target_extension)) {
      return RespondNow(Error(keys::kNoExtensionError, target_extension_id_));
-@@ -707,8 +730,7 @@ void ManagementUninstallFunctionBase::UninstallExtension() {
+@@ -709,8 +732,7 @@ void ManagementUninstallFunctionBase::UninstallExtension() {
    // The extension can be uninstalled in another window while the UI was
    // showing. Do nothing in that case.
    const Extension* target_extension =
@@ -851,7 +851,7 @@ diff --git a/extensions/browser/api/management/management_api.cc b/extensions/br
                               ExtensionRegistry::EVERYTHING);
    std::string error;
    bool success = false;
-@@ -789,8 +811,7 @@ ExtensionFunction::ResponseAction ManagementCreateAppShortcutFunction::Run() {
+@@ -791,8 +813,7 @@ ExtensionFunction::ResponseAction ManagementCreateAppShortcutFunction::Run() {
        management::CreateAppShortcut::Params::Create(args());
    EXTENSION_FUNCTION_VALIDATE(params);
    const Extension* extension =
@@ -861,7 +861,7 @@ diff --git a/extensions/browser/api/management/management_api.cc b/extensions/br
    if (!extension) {
      return RespondNow(Error(
          ErrorUtils::FormatErrorMessage(keys::kNoExtensionError, params->id)));
-@@ -840,8 +861,7 @@ ExtensionFunction::ResponseAction ManagementSetLaunchTypeFunction::Run() {
+@@ -842,8 +863,7 @@ ExtensionFunction::ResponseAction ManagementSetLaunchTypeFunction::Run() {
        management::SetLaunchType::Params::Create(args());
    EXTENSION_FUNCTION_VALIDATE(params);
    const Extension* extension =
@@ -1110,8 +1110,8 @@ diff --git a/extensions/browser/updater/safe_manifest_parser.cc b/extensions/bro
 diff --git a/extensions/common/extension_features.cc b/extensions/common/extension_features.cc
 --- a/extensions/common/extension_features.cc
 +++ b/extensions/common/extension_features.cc
-@@ -163,4 +163,19 @@ BASE_FEATURE(kUseItemSnippetsAPI,
-              "UseItemSnippetsAPI",
+@@ -179,4 +179,19 @@ BASE_FEATURE(kUseNewServiceWorkerTaskQueue,
+              "UseNewServiceWorkerTaskQueue",
               base::FEATURE_DISABLED_BY_DEFAULT);
  
 +// Activates the auto update of extensions.
@@ -1133,9 +1133,9 @@ diff --git a/extensions/common/extension_features.cc b/extensions/common/extensi
 diff --git a/extensions/common/extension_features.h b/extensions/common/extension_features.h
 --- a/extensions/common/extension_features.h
 +++ b/extensions/common/extension_features.h
-@@ -196,6 +196,10 @@ BASE_DECLARE_FEATURE(kDeclarativeNetRequestResponseHeaderMatching);
- // If enabled, use the new CWS itemSnippets API to fetch extension info.
- BASE_DECLARE_FEATURE(kUseItemSnippetsAPI);
+@@ -211,6 +211,10 @@ BASE_DECLARE_FEATURE(kUseItemSnippetsAPI);
+ // If enabled, use the new simpler, more efficient service worker task queue.
+ BASE_DECLARE_FEATURE(kUseNewServiceWorkerTaskQueue);
  
 +BASE_DECLARE_FEATURE(kEnableExtensionAutoupdate);
 +

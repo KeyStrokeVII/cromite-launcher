@@ -29,7 +29,7 @@ License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
 diff --git a/chrome/android/chrome_java_resources.gni b/chrome/android/chrome_java_resources.gni
 --- a/chrome/android/chrome_java_resources.gni
 +++ b/chrome/android/chrome_java_resources.gni
-@@ -497,6 +497,7 @@ chrome_java_resources = [
+@@ -500,6 +500,7 @@ chrome_java_resources = [
    "java/res/layout/find_in_page.xml",
    "java/res/layout/find_toolbar.xml",
    "java/res/layout/fre_tos_privacy_disclaimer.xml",
@@ -40,7 +40,7 @@ diff --git a/chrome/android/chrome_java_resources.gni b/chrome/android/chrome_ja
 diff --git a/chrome/android/chrome_java_sources.gni b/chrome/android/chrome_java_sources.gni
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -651,6 +651,8 @@ chrome_java_sources = [
+@@ -650,6 +650,8 @@ chrome_java_sources = [
    "java/src/org/chromium/chrome/browser/firstrun/SyncConsentFirstRunFragment.java",
    "java/src/org/chromium/chrome/browser/firstrun/TabbedModeFirstRunActivity.java",
    "java/src/org/chromium/chrome/browser/firstrun/TosDialogBehaviorSharedPrefInvalidator.java",
@@ -217,7 +217,7 @@ new file mode 100644
 diff --git a/chrome/android/java/res/values/dimens.xml b/chrome/android/java/res/values/dimens.xml
 --- a/chrome/android/java/res/values/dimens.xml
 +++ b/chrome/android/java/res/values/dimens.xml
-@@ -112,6 +112,16 @@ found in the LICENSE file.
+@@ -109,6 +109,16 @@ found in the LICENSE file.
      <dimen name="fre_loading_spinner_size">48dp</dimen>
      <dimen name="fre_policy_privacy_disclaimer_icon_size">18dp</dimen>
      <dimen name="fre_policy_privacy_disclaimer_icon_padding">8dp</dimen>
@@ -237,7 +237,7 @@ diff --git a/chrome/android/java/res/values/dimens.xml b/chrome/android/java/res
 diff --git a/chrome/android/java/res/values/styles.xml b/chrome/android/java/res/values/styles.xml
 --- a/chrome/android/java/res/values/styles.xml
 +++ b/chrome/android/java/res/values/styles.xml
-@@ -272,6 +272,30 @@ found in the LICENSE file.
+@@ -278,6 +278,30 @@ found in the LICENSE file.
          <item name="android:layout_weight">1</item>
      </style>
  
@@ -374,7 +374,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstR
          if (mPagerAdapter != null) {
              mPagerAdapter.notifyDataSetChanged();
          }
-@@ -531,11 +509,6 @@ public class FirstRunActivity extends FirstRunActivityBase implements FirstRunPa
+@@ -537,11 +515,6 @@ public class FirstRunActivity extends FirstRunActivityBase implements FirstRunPa
      public void acceptTermsOfService(boolean allowMetricsAndCrashUploading) {
          assert mNativeInitializationPromise.isFulfilled();
  
@@ -389,7 +389,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstR
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivityBase.java b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivityBase.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivityBase.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstRunActivityBase.java
-@@ -38,8 +38,6 @@ import org.chromium.chrome.browser.profiles.ProfileProvider;
+@@ -37,8 +37,6 @@ import org.chromium.chrome.browser.profiles.ProfileProvider;
  import org.chromium.chrome.browser.ui.system.StatusBarColorController;
  import org.chromium.components.browser_ui.widget.gesture.BackPressHandler;
  import org.chromium.components.policy.PolicyService;
@@ -398,7 +398,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/firstrun/FirstR
  
  /** Base class for First Run Experience. */
  // TODO(b/41493788): Consider renaming it now that it is also the base for the upgrade promo.
-@@ -113,9 +111,7 @@ public abstract class FirstRunActivityBase extends AsyncInitializationActivity
+@@ -115,9 +113,7 @@ public abstract class FirstRunActivityBase extends AsyncInitializationActivity
      @Override
      @CallSuper
      public void triggerLayoutInflation() {
@@ -1252,7 +1252,7 @@ diff --git a/chrome/browser/locale/java/src/org/chromium/chrome/browser/locale/L
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -3351,7 +3351,29 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the Chrome d
+@@ -3464,7 +3464,29 @@ To change this setting, <ph name="BEGIN_LINK">BEGIN_LINK</ph>delete the Chrome d
          <ph name="APP_NAME">%1$s<ex>Google Maps</ex></ph> will open in Chrome. By continuing, you agree to the <ph name="BEGIN_LINK1">&lt;LINK1&gt;</ph>Google Terms of Service<ph name="END_LINK1">&lt;/LINK1&gt;</ph>, and the <ph name="BEGIN_LINK2">&lt;LINK2&gt;</ph>Google Chrome and ChromeOS Additional Terms of Service<ph name="END_LINK2">&lt;/LINK2&gt;</ph>. The <ph name="BEGIN_LINK3">&lt;LINK3&gt;</ph>Privacy Policy<ph name="END_LINK3">&lt;/LINK3&gt;</ph> also applies.
        </message>
        <message name="IDS_FRE_ACCEPT_CONTINUE" desc="Text for first page accept and continue button [CHAR_LIMIT=20]">

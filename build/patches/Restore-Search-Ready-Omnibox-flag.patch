@@ -23,7 +23,7 @@ License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
 diff --git a/chrome/browser/flags/android/chrome_feature_list.cc b/chrome/browser/flags/android/chrome_feature_list.cc
 --- a/chrome/browser/flags/android/chrome_feature_list.cc
 +++ b/chrome/browser/flags/android/chrome_feature_list.cc
-@@ -254,6 +254,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
+@@ -268,6 +268,7 @@ const base::Feature* const kFeaturesExposedToJava[] = {
      &kReaderModeInCCT,
      &kRecordSuppressionMetrics,
      &kReengagementNotification,
@@ -34,9 +34,9 @@ diff --git a/chrome/browser/flags/android/chrome_feature_list.cc b/chrome/browse
 diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
 --- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
 +++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
-@@ -338,6 +338,7 @@ public abstract class ChromeFeatureList {
-             "LookalikeUrlNavigationSuggestionsUI";
-     public static final String MAGIC_STACK_ANDROID = "MagicStackAndroid";
+@@ -347,6 +347,7 @@ public abstract class ChromeFeatureList {
+     public static final String MAYLAUNCHURL_USES_SEPARATE_STORAGE_PARTITION =
+             "MayLaunchUrlUsesSeparateStoragePartition";
      public static final String MESSAGES_FOR_ANDROID_ADS_BLOCKED = "MessagesForAndroidAdsBlocked";
 +    public static final String SEARCH_READY_OMNIBOX = "SearchReadyOmnibox";
      public static final String MIGRATE_ACCOUNT_MANAGEMENT_SETTINGS_TO_CAPABILITIES =
@@ -45,23 +45,23 @@ diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/f
 diff --git a/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/suggestions/DropdownItemViewInfoListBuilder.java b/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/suggestions/DropdownItemViewInfoListBuilder.java
 --- a/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/suggestions/DropdownItemViewInfoListBuilder.java
 +++ b/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/browser/omnibox/suggestions/DropdownItemViewInfoListBuilder.java
-@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
- import androidx.annotation.Px;
+@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
+ import androidx.annotation.Nullable;
  import androidx.annotation.VisibleForTesting;
  
 +import org.chromium.chrome.browser.flags.ChromeFeatureList;
  import org.chromium.base.supplier.Supplier;
  import org.chromium.chrome.browser.omnibox.UrlBarEditingTextStateProvider;
  import org.chromium.chrome.browser.omnibox.styles.OmniboxImageSupplier;
-@@ -53,6 +54,7 @@ class DropdownItemViewInfoListBuilder {
+@@ -49,6 +50,7 @@ class DropdownItemViewInfoListBuilder {
+     private @Nullable Supplier<ShareDelegate> mShareDelegateSupplier;
      private @NonNull Optional<OmniboxImageSupplier> mImageSupplier;
      private @NonNull BookmarkState mBookmarkState;
-     private @Px int mDropdownHeight;
 +    private EditUrlSuggestionProcessor mEditUrlSuggestionProcessor;
  
      DropdownItemViewInfoListBuilder(
              @NonNull Supplier<Tab> tabSupplier, @NonNull BookmarkState bookmarkState) {
-@@ -86,9 +88,11 @@ class DropdownItemViewInfoListBuilder {
+@@ -81,9 +83,11 @@ class DropdownItemViewInfoListBuilder {
  
          mGroupSeparatorProcessor = new GroupSeparatorProcessor(context);
          mHeaderProcessor = new HeaderProcessor(context);
@@ -75,7 +75,7 @@ diff --git a/chrome/browser/ui/android/omnibox/java/src/org/chromium/chrome/brow
          registerSuggestionProcessor(
                  new AnswerSuggestionProcessor(context, host, textProvider, mImageSupplier));
          registerSuggestionProcessor(
-@@ -195,6 +199,9 @@ class DropdownItemViewInfoListBuilder {
+@@ -170,6 +174,9 @@ class DropdownItemViewInfoListBuilder {
          mHeaderProcessor.onNativeInitialized();
          mImageSupplier.ifPresent(s -> s.onNativeInitialized());
  

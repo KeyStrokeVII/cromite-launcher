@@ -235,7 +235,7 @@ diff --git a/ui/base/ui_base_features.cc b/ui/base/ui_base_features.cc
 diff --git a/ui/base/ui_base_features.h b/ui/base/ui_base_features.h
 --- a/ui/base/ui_base_features.h
 +++ b/ui/base/ui_base_features.h
-@@ -30,6 +30,8 @@ BASE_DECLARE_FEATURE(kWindowsScrollingPersonality);
+@@ -28,6 +28,8 @@ BASE_DECLARE_FEATURE(kWindowsScrollingPersonality);
  COMPONENT_EXPORT(UI_BASE_FEATURES) bool IsPercentBasedScrollingEnabled();
  COMPONENT_EXPORT(UI_BASE_FEATURES) BASE_DECLARE_FEATURE(kSystemCaptionStyle);
  COMPONENT_EXPORT(UI_BASE_FEATURES) BASE_DECLARE_FEATURE(kSystemKeyboardLock);

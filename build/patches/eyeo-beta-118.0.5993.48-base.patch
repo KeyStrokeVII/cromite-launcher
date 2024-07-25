@@ -222,8 +222,8 @@ Based on Chromium 118.0.5993.48
  tools/eyeo/generate_interdiffs.sh             |  150 ++
  tools/eyeo/generate_modules.sh                |  209 +++
  tools/eyeo/snippets_deps.py                   |   61 +
- tools/gritsettings/resource_ids.spec          |    8 +
- 219 files changed, 22054 insertions(+), 3 deletions(-)
+ tools/gritsettings/resource_ids.spec          |    9 +
+ 219 files changed, 22055 insertions(+), 3 deletions(-)
  create mode 100644 components/adblock/CHANGELOG.md
  create mode 100644 components/adblock/LICENSE
  create mode 100644 components/adblock/README.md
@@ -435,8 +435,8 @@ diff --git a/DEPS b/DEPS
    # By default, do not check out WebKit for iOS, as it is not needed unless
    # running against ToT WebKit rather than system WebKit. This can be overridden
    # e.g. with custom_vars.
-@@ -290,6 +294,8 @@ vars = {
-   'download_libaom_testdata': False,
+@@ -293,6 +297,8 @@ vars = {
+   'download_libvpx_testdata': False,
  
    'android_git': 'https://android.googlesource.com',
 +  'eyeo_distpartners_gitlab': 'https://gitlab.com/eyeo/distpartners',
@@ -444,7 +444,7 @@ diff --git a/DEPS b/DEPS
    'aomedia_git': 'https://aomedia.googlesource.com',
    'boringssl_git': 'https://boringssl.googlesource.com',
    'chrome_git': 'https://chrome-internal.googlesource.com',
-@@ -505,6 +511,11 @@ vars = {
+@@ -508,6 +514,11 @@ vars = {
    # and whatever else without interference from each other.
    'betocore_revision': '8bd72cfb219344308ee857bcbe65a27fe91acfe8',
  
@@ -455,8 +455,8 @@ diff --git a/DEPS b/DEPS
 +
    # If you change this, also update the libc++ revision in
    # //buildtools/deps_revisions.gni.
-   'libcxx_revision':       'e3b94d0e5b86883fd77696bf10dc33ba250ba99b',
-@@ -1012,6 +1023,10 @@ deps = {
+   'libcxx_revision':       '852bc6746f45add53fec19f3a29280e69e358d44',
+@@ -1262,6 +1273,10 @@ deps = {
      'condition': 'checkout_android and checkout_src_internal',
    },
  
@@ -465,9 +465,9 @@ diff --git a/DEPS b/DEPS
 +  },
 +
    'src/docs/website': {
-     'url': Var('chromium_git') + '/website.git' + '@' + 'b623150ede7e61bf949bd203b400f28012298274',
+     'url': Var('chromium_git') + '/website.git' + '@' + 'cbeef22a59f72b8b5b4ac426d2eaa547fd2888b8',
    },
-@@ -1141,6 +1156,13 @@ deps = {
+@@ -1391,6 +1406,13 @@ deps = {
        'dep_type': 'cipd',
    },
  
@@ -525,7 +525,7 @@ diff --git a/README.md b/README.md
 diff --git a/base/trace_event/builtin_categories.h b/base/trace_event/builtin_categories.h
 --- a/base/trace_event/builtin_categories.h
 +++ b/base/trace_event/builtin_categories.h
-@@ -92,6 +92,7 @@
+@@ -93,6 +93,7 @@
    X("exo")                                                               \
    X("extensions")                                                        \
    X("explore_sites")                                                     \
@@ -551,7 +551,7 @@ diff --git a/build/install-build-deps.py b/build/install-build-deps.py
  import argparse
  import functools
  import os
-@@ -569,7 +577,7 @@ def backwards_compatible_list(options):
+@@ -571,7 +579,7 @@ def backwards_compatible_list(options):
        "msttcorefonts",
        "python-dev",
        "python-setuptools",
@@ -588,7 +588,7 @@ diff --git a/components/BUILD.gn b/components/BUILD.gn
      "//components/affiliations/core/browser:unit_tests",
      "//components/aggregation_service:unit_tests",
      "//components/apdu:unit_tests",
-@@ -414,6 +425,7 @@ test("components_unittests") {
+@@ -417,6 +428,7 @@ test("components_unittests") {
  
    if (use_blink) {
      deps += [
@@ -52303,7 +52303,7 @@ diff --git a/content/browser/loader/navigation_url_loader_impl.cc b/content/brow
  #include "content/browser/loader/navigation_url_loader_impl.h"
  
  #include <map>
-@@ -1102,7 +1106,7 @@ void NavigationURLLoaderImpl::OnReceiveRedirect(
+@@ -1110,7 +1114,7 @@ void NavigationURLLoaderImpl::OnReceiveRedirect(
    LogQueueTimeHistogram("Navigation.QueueTime.OnReceiveRedirect",
                          resource_request_->is_outermost_main_frame);
    net::Error error = net::OK;
@@ -52326,7 +52326,7 @@ diff --git a/content/browser/renderer_host/render_frame_host_impl.cc b/content/b
  
  #include "content/browser/renderer_host/render_frame_host_impl.h"
  
-@@ -2758,6 +2762,12 @@ void RenderFrameHostImpl::ExecuteJavaScriptMethod(
+@@ -2752,6 +2756,12 @@ void RenderFrameHostImpl::ExecuteJavaScriptMethod(
        std::move(callback));
  }
  
@@ -52353,7 +52353,7 @@ diff --git a/content/browser/renderer_host/render_frame_host_impl.h b/content/br
  
  #ifndef CONTENT_BROWSER_RENDERER_HOST_RENDER_FRAME_HOST_IMPL_H_
  #define CONTENT_BROWSER_RENDERER_HOST_RENDER_FRAME_HOST_IMPL_H_
-@@ -462,6 +466,10 @@ class CONTENT_EXPORT RenderFrameHostImpl
+@@ -465,6 +469,10 @@ class CONTENT_EXPORT RenderFrameHostImpl
                                 const std::u16string& method_name,
                                 base::Value::List arguments,
                                 JavaScriptResultCallback callback) override;
@@ -52378,7 +52378,7 @@ diff --git a/content/public/browser/render_frame_host.h b/content/public/browser
  
  #ifndef CONTENT_PUBLIC_BROWSER_RENDER_FRAME_HOST_H_
  #define CONTENT_PUBLIC_BROWSER_RENDER_FRAME_HOST_H_
-@@ -536,6 +540,9 @@ class CONTENT_EXPORT RenderFrameHost : public IPC::Listener,
+@@ -537,6 +541,9 @@ class CONTENT_EXPORT RenderFrameHost : public IPC::Listener,
    virtual void AddMessageToConsole(blink::mojom::ConsoleMessageLevel level,
                                     const std::string& message) = 0;
  
@@ -52496,7 +52496,7 @@ diff --git a/third_party/blink/public/mojom/frame/frame.mojom b/third_party/blin
  
  module blink.mojom;
  
-@@ -936,6 +940,10 @@ interface LocalFrame {
+@@ -944,6 +948,10 @@ interface LocalFrame {
    // the given point in the view coordinate space.
    PluginActionAt(gfx.mojom.Point location, blink.mojom.PluginActionType action);
  
@@ -52619,7 +52619,7 @@ diff --git a/third_party/blink/renderer/core/frame/local_frame_mojo_handler.cc b
  
  #include "third_party/blink/renderer/core/frame/local_frame_mojo_handler.h"
  
-@@ -356,6 +360,14 @@ LocalFrameMojoHandler::LocalFrameMojoHandler(blink::LocalFrame& frame)
+@@ -357,6 +361,14 @@ LocalFrameMojoHandler::LocalFrameMojoHandler(blink::LocalFrame& frame)
        WrapWeakPersistent(this)));
  }
  
@@ -52648,7 +52648,7 @@ diff --git a/third_party/blink/renderer/core/frame/local_frame_mojo_handler.h b/
  
  #ifndef THIRD_PARTY_BLINK_RENDERER_CORE_FRAME_LOCAL_FRAME_MOJO_HANDLER_H_
  #define THIRD_PARTY_BLINK_RENDERER_CORE_FRAME_LOCAL_FRAME_MOJO_HANDLER_H_
-@@ -109,6 +113,7 @@ class LocalFrameMojoHandler
+@@ -110,6 +114,7 @@ class LocalFrameMojoHandler
    void AddMessageToConsole(mojom::blink::ConsoleMessageLevel level,
                             const WTF::String& message,
                             bool discard_duplicates) final;
@@ -53128,15 +53128,16 @@ diff --git a/tools/gritsettings/resource_ids.spec b/tools/gritsettings/resource_
  # This file is used to assign starting resource ids for resources and strings
  # used by Chromium.  This is done to ensure that resource ids are unique
  # across all the grd files.  If you are adding a new grd file, please add
-@@ -731,6 +735,10 @@
-    "META": {"sizes": {"includes": [10]}},
-     "includes": [5460],
+@@ -1344,6 +1348,11 @@
+     "includes": [8460],
    },
+ 
 +  "<(SHARED_INTERMEDIATE_DIR)/chrome/browser/resources/adblock_internals/resources.grd": {
 +    "META": {"sizes": {"includes": [10]}},
-+    "includes": [5480],
++    "includes": [8480],
 +  },
-   # END chrome/ WebUI resources section
++
+   # END "everything else" section.
+   # Everything but chrome/, components/, content/, and ios/
  
-   # START chrome/ miscellaneous section.
 --

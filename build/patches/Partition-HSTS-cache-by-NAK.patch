@@ -10,8 +10,8 @@ License: GPL-2.0-or-later - https://spdx.org/licenses/GPL-2.0-or-later.html
  .../web_package/signed_exchange_handler.cc    |   7 +-
  .../web_package/signed_exchange_handler.h     |   2 +
  .../web_package/signed_exchange_loader.cc     |   2 +-
- net/http/transport_security_state.cc          | 106 ++++++++++++------
- net/http/transport_security_state.h           |  38 ++++---
+ net/http/transport_security_state.cc          | 109 ++++++++++++------
+ net/http/transport_security_state.h           |  39 ++++---
  net/quic/crypto/proof_verifier_chromium.cc    |   5 +-
  net/quic/quic_chromium_client_session.cc      |   2 +-
  net/socket/ssl_client_socket_impl.cc          |   5 +-
@@ -22,12 +22,12 @@ License: GPL-2.0-or-later - https://spdx.org/licenses/GPL-2.0-or-later.html
  services/network/network_context.cc           |  31 +++--
  services/network/network_context.h            |  13 ++-
  .../public/mojom/network_context.mojom        |   9 +-
- 18 files changed, 170 insertions(+), 101 deletions(-)
+ 18 files changed, 173 insertions(+), 102 deletions(-)
 
 diff --git a/chrome/browser/ssl/https_upgrades_interceptor.cc b/chrome/browser/ssl/https_upgrades_interceptor.cc
 --- a/chrome/browser/ssl/https_upgrades_interceptor.cc
 +++ b/chrome/browser/ssl/https_upgrades_interceptor.cc
-@@ -362,6 +362,7 @@ void HttpsUpgradesInterceptor::MaybeCreateLoader(
+@@ -359,6 +359,7 @@ void HttpsUpgradesInterceptor::MaybeCreateLoader(
    network::mojom::NetworkContext* network_context =
        profile->GetDefaultStoragePartition()->GetNetworkContext();
    network_context->IsHSTSActiveForHost(
@@ -78,7 +78,7 @@ diff --git a/chrome/browser/ui/webui/net_internals/net_internals_ui.cc b/chrome/
 diff --git a/components/password_manager/core/browser/hsts_query.cc b/components/password_manager/core/browser/hsts_query.cc
 --- a/components/password_manager/core/browser/hsts_query.cc
 +++ b/components/password_manager/core/browser/hsts_query.cc
-@@ -58,6 +58,7 @@ void PostHSTSQueryForHostAndNetworkContext(
+@@ -59,6 +59,7 @@ void PostHSTSQueryForHostAndNetworkContext(
    scoped_refptr<HSTSCallbackHelper> callback_helper =
        base::MakeRefCounted<HSTSCallbackHelper>(std::move(callback));
    network_context->IsHSTSActiveForHost(
@@ -89,7 +89,7 @@ diff --git a/components/password_manager/core/browser/hsts_query.cc b/components
 diff --git a/content/browser/web_package/signed_exchange_handler.cc b/content/browser/web_package/signed_exchange_handler.cc
 --- a/content/browser/web_package/signed_exchange_handler.cc
 +++ b/content/browser/web_package/signed_exchange_handler.cc
-@@ -89,6 +89,7 @@ using VerifyCallback =
+@@ -94,6 +94,7 @@ using VerifyCallback =
  
  void VerifyCert(const scoped_refptr<net::X509Certificate>& certificate,
                  const GURL& url,
@@ -97,7 +97,7 @@ diff --git a/content/browser/web_package/signed_exchange_handler.cc b/content/br
                  const std::string& ocsp_result,
                  const std::string& sct_list,
                  int frame_tree_node_id,
-@@ -110,7 +111,7 @@ void VerifyCert(const scoped_refptr<net::X509Certificate>& certificate,
+@@ -115,7 +116,7 @@ void VerifyCert(const scoped_refptr<net::X509Certificate>& certificate,
    }
  
    network_context->VerifyCertForSignedExchange(
@@ -106,7 +106,7 @@ diff --git a/content/browser/web_package/signed_exchange_handler.cc b/content/br
  }
  
  std::string OCSPErrorToString(const bssl::OCSPVerifyResult& ocsp_result) {
-@@ -173,6 +174,7 @@ SignedExchangeHandler::SignedExchangeHandler(
+@@ -178,6 +179,7 @@ SignedExchangeHandler::SignedExchangeHandler(
      std::unique_ptr<net::SourceStream> body,
      ExchangeHeadersCallback headers_callback,
      std::unique_ptr<SignedExchangeCertFetcherFactory> cert_fetcher_factory,
@@ -114,7 +114,7 @@ diff --git a/content/browser/web_package/signed_exchange_handler.cc b/content/br
      const std::optional<net::IsolationInfo> outer_request_isolation_info,
      int load_flags,
      const net::IPEndPoint& remote_endpoint,
-@@ -186,6 +188,7 @@ SignedExchangeHandler::SignedExchangeHandler(
+@@ -191,6 +193,7 @@ SignedExchangeHandler::SignedExchangeHandler(
        source_(std::move(body)),
        cert_fetcher_factory_(std::move(cert_fetcher_factory)),
        devtools_proxy_(std::move(devtools_proxy)),
@@ -122,7 +122,7 @@ diff --git a/content/browser/web_package/signed_exchange_handler.cc b/content/br
        outer_request_isolation_info_(std::move(outer_request_isolation_info)),
        load_flags_(load_flags),
        remote_endpoint_(remote_endpoint),
-@@ -529,7 +532,7 @@ void SignedExchangeHandler::OnCertReceived(
+@@ -534,7 +537,7 @@ void SignedExchangeHandler::OnCertReceived(
    //   property, or
    const std::string& stapled_ocsp_response = unverified_cert_chain_->ocsp();
  
@@ -165,7 +165,7 @@ diff --git a/content/browser/web_package/signed_exchange_loader.cc b/content/bro
 diff --git a/net/http/transport_security_state.cc b/net/http/transport_security_state.cc
 --- a/net/http/transport_security_state.cc
 +++ b/net/http/transport_security_state.cc
-@@ -82,7 +82,7 @@ bool AddHash(const char* sha256_hash, HashValueVector* out) {
+@@ -87,7 +87,7 @@ bool AddHash(const char* sha256_hash, HashValueVector* out) {
  // Converts |hostname| from dotted form ("www.google.com") to the form
  // used in DNS: "\x03www\x06google\x03com", lowercases that, and returns
  // the result.
@@ -174,7 +174,7 @@ diff --git a/net/http/transport_security_state.cc b/net/http/transport_security_
    // We cannot perform the operations as detailed in the spec here as `host`
    // has already undergone IDN processing before it reached us. Thus, we
    // lowercase the input (probably redudnant since most input here has been
-@@ -103,6 +103,29 @@ std::vector<uint8_t> CanonicalizeHost(const std::string& host) {
+@@ -108,6 +108,29 @@ std::vector<uint8_t> CanonicalizeHost(const std::string& host) {
    return new_host.value();
  }
  
@@ -204,7 +204,7 @@ diff --git a/net/http/transport_security_state.cc b/net/http/transport_security_
  // PreloadResult is the result of resolving a specific name in the preloaded
  // data.
  struct PreloadResult {
-@@ -194,7 +217,7 @@ bool DecodeHSTSPreload(const std::string& search_hostname, PreloadResult* out) {
+@@ -199,7 +222,7 @@ bool DecodeHSTSPreload(const std::string& search_hostname, PreloadResult* out) {
  
    // Ensure that |search_hostname| is a valid hostname before
    // processing.
@@ -213,7 +213,7 @@ diff --git a/net/http/transport_security_state.cc b/net/http/transport_security_
      return false;
    }
    // Normalize any trailing '.' used for DNS suffix searches.
-@@ -255,18 +278,19 @@ TransportSecurityState::TransportSecurityState(
+@@ -260,18 +283,19 @@ TransportSecurityState::TransportSecurityState(
  
  // Both HSTS and HPKP cause fatal SSL errors, so return true if a
  // host has either.
@@ -236,20 +236,32 @@ diff --git a/net/http/transport_security_state.cc b/net/http/transport_security_
    dict.Set("should_upgrade_to_ssl", sts_state.ShouldUpgradeToSSL());
    dict.Set("host_found_in_hsts_bypass_list",
             hsts_host_bypass_list_.find(host) != hsts_host_bypass_list_.end());
-@@ -274,31 +298,33 @@ base::Value::Dict TransportSecurityState::NetLogUpgradeToSSLParam(
+@@ -279,13 +303,14 @@ base::Value::Dict TransportSecurityState::NetLogUpgradeToSSLParam(
+ }
+ 
+ SSLUpgradeDecision TransportSecurityState::GetSSLUpgradeDecision(
++    const NetworkAnonymizationKey& nak,
+     const std::string& host,
+     const NetLogWithSource& net_log) {
+   net_log.AddEvent(
+       NetLogEventType::TRANSPORT_SECURITY_STATE_SHOULD_UPGRADE_TO_SSL,
+-      [&] { return NetLogUpgradeToSSLParam(host); });
++      [&] { return NetLogUpgradeToSSLParam(nak, host); });
+   STSState sts_state;
+-  if (GetDynamicSTSState(host, &sts_state)) {
++  if (GetDynamicSTSState(nak, host, &sts_state)) {
+     if (sts_state.ShouldUpgradeToSSL()) {
+       // If the static state also requires an upgrade, the dynamic state didn't
+       // need to be used in the decision.
+@@ -305,27 +330,29 @@ SSLUpgradeDecision TransportSecurityState::GetSSLUpgradeDecision(
  }
  
  bool TransportSecurityState::ShouldUpgradeToSSL(
 +    const NetworkAnonymizationKey& nak,
      const std::string& host,
      const NetLogWithSource& net_log) {
-   STSState sts_state;
-   net_log.AddEvent(
-       NetLogEventType::TRANSPORT_SECURITY_STATE_SHOULD_UPGRADE_TO_SSL,
--      [&] { return NetLogUpgradeToSSLParam(host); });
--  return GetSTSState(host, &sts_state) && sts_state.ShouldUpgradeToSSL();
-+      [&] { return NetLogUpgradeToSSLParam(nak, host); });
-+  return GetSTSState(nak, host, &sts_state) && sts_state.ShouldUpgradeToSSL();
+-  return GetSSLUpgradeDecision(host, net_log) != SSLUpgradeDecision::kNoUpgrade;
++  return GetSSLUpgradeDecision(nak, host, net_log) != SSLUpgradeDecision::kNoUpgrade;
  }
  
  TransportSecurityState::PKPStatus TransportSecurityState::CheckPublicKeyPins(
@@ -277,7 +289,7 @@ diff --git a/net/http/transport_security_state.cc b/net/http/transport_security_
  }
  
  TransportSecurityState::CTRequirementsStatus
-@@ -379,12 +405,13 @@ void TransportSecurityState::UpdatePinList(
+@@ -406,12 +433,13 @@ void TransportSecurityState::UpdatePinList(
  }
  
  void TransportSecurityState::AddHSTSInternal(
@@ -292,7 +304,7 @@ diff --git a/net/http/transport_security_state.cc b/net/http/transport_security_
    if (canonicalized_host.empty())
      return;
  
-@@ -408,13 +435,14 @@ void TransportSecurityState::AddHSTSInternal(
+@@ -435,13 +463,14 @@ void TransportSecurityState::AddHSTSInternal(
    DirtyNotify();
  }
  
@@ -309,7 +321,7 @@ diff --git a/net/http/transport_security_state.cc b/net/http/transport_security_
    if (canonicalized_host.empty())
      return;
  
-@@ -459,10 +487,12 @@ TransportSecurityState::PKPStatus TransportSecurityState::CheckPins(
+@@ -486,10 +515,12 @@ TransportSecurityState::PKPStatus TransportSecurityState::CheckPins(
    return PKPStatus::VIOLATED;
  }
  
@@ -324,7 +336,7 @@ diff --git a/net/http/transport_security_state.cc b/net/http/transport_security_
    if (canonicalized_host.empty())
      return false;
  
-@@ -539,7 +569,8 @@ void TransportSecurityState::DirtyNotify() {
+@@ -566,7 +597,8 @@ void TransportSecurityState::DirtyNotify() {
      delegate_->StateIsDirty(this);
  }
  
@@ -334,7 +346,7 @@ diff --git a/net/http/transport_security_state.cc b/net/http/transport_security_
                                             const std::string& value) {
    DCHECK_CALLED_ON_VALID_THREAD(thread_checker_);
  
-@@ -558,23 +589,25 @@ bool TransportSecurityState::AddHSTSHeader(const std::string& host,
+@@ -585,23 +617,25 @@ bool TransportSecurityState::AddHSTSHeader(const std::string& host,
      upgrade_mode = STSState::MODE_FORCE_HTTPS;
    }
  
@@ -365,7 +377,7 @@ diff --git a/net/http/transport_security_state.cc b/net/http/transport_security_
  }
  
  size_t TransportSecurityState::num_sts_entries() const {
-@@ -592,9 +625,10 @@ TransportSecurityState::PKPStatus
+@@ -619,9 +653,10 @@ TransportSecurityState::PKPStatus
  TransportSecurityState::CheckPublicKeyPinsImpl(
      const HostPortPair& host_port_pair,
      bool is_issued_by_known_root,
@@ -378,7 +390,7 @@ diff --git a/net/http/transport_security_state.cc b/net/http/transport_security_
  
    // HasPublicKeyPins should have returned true in order for this method to have
    // been called.
-@@ -635,7 +669,7 @@ bool TransportSecurityState::GetStaticPKPState(const std::string& host,
+@@ -662,7 +697,7 @@ bool TransportSecurityState::GetStaticPKPState(const std::string& host,
    PreloadResult result;
    if (host_pins_.has_value()) {
      // Ensure that |host| is a valid hostname before processing.
@@ -387,7 +399,7 @@ diff --git a/net/http/transport_security_state.cc b/net/http/transport_security_
        return false;
      }
      // Normalize any trailing '.' used for DNS suffix searches.
-@@ -718,21 +752,24 @@ bool TransportSecurityState::GetStaticPKPState(const std::string& host,
+@@ -745,21 +780,24 @@ bool TransportSecurityState::GetStaticPKPState(const std::string& host,
    return false;
  }
  
@@ -418,7 +430,7 @@ diff --git a/net/http/transport_security_state.cc b/net/http/transport_security_
    if (canonicalized_host.empty())
      return false;
  
-@@ -769,11 +806,12 @@ bool TransportSecurityState::GetDynamicSTSState(const std::string& host,
+@@ -796,11 +834,12 @@ bool TransportSecurityState::GetDynamicSTSState(const std::string& host,
    return false;
  }
  
@@ -436,7 +448,15 @@ diff --git a/net/http/transport_security_state.cc b/net/http/transport_security_
 diff --git a/net/http/transport_security_state.h b/net/http/transport_security_state.h
 --- a/net/http/transport_security_state.h
 +++ b/net/http/transport_security_state.h
-@@ -280,13 +280,14 @@ class NET_EXPORT TransportSecurityState {
+@@ -289,6 +289,7 @@ class NET_EXPORT TransportSecurityState {
+   // As ShouldUpgradeToSSL(), but also returns whether the decision came from
+   // static or dynamic state, for metrics.
+   SSLUpgradeDecision GetSSLUpgradeDecision(
++      const NetworkAnonymizationKey& nak,
+       const std::string& host,
+       const NetLogWithSource& net_log = NetLogWithSource());
+ 
+@@ -297,13 +298,14 @@ class NET_EXPORT TransportSecurityState {
    // primary public interface; direct access to STS and PKP states is best
    // left to tests. The caller needs to handle the optional pinning override
    // when is_issued_by_known_root is false.
@@ -455,7 +475,7 @@ diff --git a/net/http/transport_security_state.h b/net/http/transport_security_s
  
    // Returns CT_REQUIREMENTS_NOT_MET if a connection violates CT policy
    // requirements: that is, if a connection to |host|, using the validated
-@@ -370,7 +371,7 @@ class NET_EXPORT TransportSecurityState {
+@@ -387,7 +389,7 @@ class NET_EXPORT TransportSecurityState {
    //
    // If an entry is deleted, the new state will be persisted through
    // the Delegate (if any).
@@ -464,7 +484,7 @@ diff --git a/net/http/transport_security_state.h b/net/http/transport_security_s
  
    // Returns true and updates |*result| if |host| has dynamic or static
    // HSTS/HPKP (respectively) state. If multiple entries match |host|, dynamic
-@@ -380,8 +381,8 @@ class NET_EXPORT TransportSecurityState {
+@@ -397,8 +399,8 @@ class NET_EXPORT TransportSecurityState {
    //
    // Note that these methods are not const because they opportunistically remove
    // entries that have expired.
@@ -475,7 +495,7 @@ diff --git a/net/http/transport_security_state.h b/net/http/transport_security_s
  
    // Returns true and updates |*result| iff |host| has static HSTS/HPKP
    // (respectively) state. If multiple entries match |host|, the most specific
-@@ -395,22 +396,24 @@ class NET_EXPORT TransportSecurityState {
+@@ -412,22 +414,24 @@ class NET_EXPORT TransportSecurityState {
    //
    // Note that these methods are not const because they opportunistically remove
    // entries that have expired.
@@ -505,7 +525,7 @@ diff --git a/net/http/transport_security_state.h b/net/http/transport_security_s
                 const base::Time& expiry,
                 bool include_subdomains,
                 const HashValueVector& hashes);
-@@ -448,7 +451,7 @@ class NET_EXPORT TransportSecurityState {
+@@ -465,7 +469,7 @@ class NET_EXPORT TransportSecurityState {
    typedef std::map<HashedHost, STSState> STSStateMap;
    typedef std::map<HashedHost, PKPState> PKPStateMap;
  
@@ -514,7 +534,7 @@ diff --git a/net/http/transport_security_state.h b/net/http/transport_security_s
  
    // IsBuildTimely returns true if the current build is new enough ensure that
    // built in security information (i.e. HSTS preloading and pinning
-@@ -458,7 +461,8 @@ class NET_EXPORT TransportSecurityState {
+@@ -475,7 +479,8 @@ class NET_EXPORT TransportSecurityState {
    // Helper method for actually checking pins.
    PKPStatus CheckPublicKeyPinsImpl(const HostPortPair& host_port_pair,
                                     bool is_issued_by_known_root,
@@ -524,7 +544,7 @@ diff --git a/net/http/transport_security_state.h b/net/http/transport_security_s
  
    // If a Delegate is present, notify it that the internal state has
    // changed.
-@@ -468,11 +472,13 @@ class NET_EXPORT TransportSecurityState {
+@@ -485,11 +490,13 @@ class NET_EXPORT TransportSecurityState {
    // any previous state for the |host|, including static entries.
    //
    // The new state for |host| is persisted using the Delegate (if any).
@@ -543,7 +563,7 @@ diff --git a/net/http/transport_security_state.h b/net/http/transport_security_s
 diff --git a/net/quic/crypto/proof_verifier_chromium.cc b/net/quic/crypto/proof_verifier_chromium.cc
 --- a/net/quic/crypto/proof_verifier_chromium.cc
 +++ b/net/quic/crypto/proof_verifier_chromium.cc
-@@ -403,7 +403,8 @@ int ProofVerifierChromium::Job::DoVerifyCertComplete(int result) {
+@@ -412,7 +412,8 @@ int ProofVerifierChromium::Job::DoVerifyCertComplete(int result) {
          transport_security_state_->CheckPublicKeyPins(
              HostPortPair(hostname_, port_),
              cert_verify_result.is_issued_by_known_root,
@@ -553,7 +573,7 @@ diff --git a/net/quic/crypto/proof_verifier_chromium.cc b/net/quic/crypto/proof_
      switch (pin_validity) {
        case TransportSecurityState::PKPStatus::VIOLATED:
          result = ERR_SSL_PINNED_KEY_NOT_IN_CERT_CHAIN;
-@@ -430,7 +431,7 @@ int ProofVerifierChromium::Job::DoVerifyCertComplete(int result) {
+@@ -439,7 +440,7 @@ int ProofVerifierChromium::Job::DoVerifyCertComplete(int result) {
    verify_details_->is_fatal_cert_error =
        IsCertStatusError(cert_status) &&
        result != ERR_CERT_KNOWN_INTERCEPTION_BLOCKED &&
@@ -565,7 +585,7 @@ diff --git a/net/quic/crypto/proof_verifier_chromium.cc b/net/quic/crypto/proof_
 diff --git a/net/quic/quic_chromium_client_session.cc b/net/quic/quic_chromium_client_session.cc
 --- a/net/quic/quic_chromium_client_session.cc
 +++ b/net/quic/quic_chromium_client_session.cc
-@@ -1444,7 +1444,7 @@ bool QuicChromiumClientSession::CanPool(
+@@ -1450,7 +1450,7 @@ bool QuicChromiumClientSession::CanPool(
  
    return SpdySession::CanPool(transport_security_state_, ssl_info,
                                *ssl_config_service_, session_key_.host(),
@@ -577,7 +597,7 @@ diff --git a/net/quic/quic_chromium_client_session.cc b/net/quic/quic_chromium_c
 diff --git a/net/socket/ssl_client_socket_impl.cc b/net/socket/ssl_client_socket_impl.cc
 --- a/net/socket/ssl_client_socket_impl.cc
 +++ b/net/socket/ssl_client_socket_impl.cc
-@@ -1188,7 +1188,8 @@ ssl_verify_result_t SSLClientSocketImpl::HandleVerifyResult() {
+@@ -1193,7 +1193,8 @@ ssl_verify_result_t SSLClientSocketImpl::HandleVerifyResult() {
      TransportSecurityState::PKPStatus pin_validity =
          context_->transport_security_state()->CheckPublicKeyPins(
              host_and_port_, server_cert_verify_result_.is_issued_by_known_root,
@@ -587,7 +607,7 @@ diff --git a/net/socket/ssl_client_socket_impl.cc b/net/socket/ssl_client_socket
      switch (pin_validity) {
        case TransportSecurityState::PKPStatus::VIOLATED:
          server_cert_verify_result_.cert_status |=
-@@ -1210,7 +1211,7 @@ ssl_verify_result_t SSLClientSocketImpl::HandleVerifyResult() {
+@@ -1215,7 +1216,7 @@ ssl_verify_result_t SSLClientSocketImpl::HandleVerifyResult() {
        IsCertStatusError(server_cert_verify_result_.cert_status) &&
        result != ERR_CERT_KNOWN_INTERCEPTION_BLOCKED &&
        context_->transport_security_state()->ShouldSSLErrorsBeFatal(
@@ -599,7 +619,7 @@ diff --git a/net/socket/ssl_client_socket_impl.cc b/net/socket/ssl_client_socket
 diff --git a/net/spdy/spdy_session.cc b/net/spdy/spdy_session.cc
 --- a/net/spdy/spdy_session.cc
 +++ b/net/spdy/spdy_session.cc
-@@ -733,7 +733,8 @@ bool SpdySession::CanPool(TransportSecurityState* transport_security_state,
+@@ -738,7 +738,8 @@ bool SpdySession::CanPool(TransportSecurityState* transport_security_state,
                            const SSLInfo& ssl_info,
                            const SSLConfigService& ssl_config_service,
                            std::string_view old_hostname,
@@ -609,7 +629,7 @@ diff --git a/net/spdy/spdy_session.cc b/net/spdy/spdy_session.cc
    // Pooling is prohibited if the server cert is not valid for the new domain,
    // and for connections on which client certs were sent. It is also prohibited
    // when channel ID was sent if the hosts are from different eTLDs+1.
-@@ -752,7 +753,7 @@ bool SpdySession::CanPool(TransportSecurityState* transport_security_state,
+@@ -757,7 +758,7 @@ bool SpdySession::CanPool(TransportSecurityState* transport_security_state,
    // Port is left at 0 as it is never used.
    if (transport_security_state->CheckPublicKeyPins(
            HostPortPair(new_hostname, 0), ssl_info.is_issued_by_known_root,
@@ -618,7 +638,7 @@ diff --git a/net/spdy/spdy_session.cc b/net/spdy/spdy_session.cc
        TransportSecurityState::PKPStatus::VIOLATED) {
      return false;
    }
-@@ -973,7 +974,8 @@ bool SpdySession::VerifyDomainAuthentication(std::string_view domain) const {
+@@ -978,7 +979,8 @@ bool SpdySession::VerifyDomainAuthentication(std::string_view domain) const {
      return true;  // This is not a secure session, so all domains are okay.
  
    return CanPool(transport_security_state_, ssl_info, *ssl_config_service_,
@@ -628,7 +648,7 @@ diff --git a/net/spdy/spdy_session.cc b/net/spdy/spdy_session.cc
  }
  
  void SpdySession::EnqueueStreamWrite(
-@@ -3009,7 +3011,8 @@ void SpdySession::OnAltSvc(
+@@ -3014,7 +3016,8 @@ void SpdySession::OnAltSvc(
        return;
      }
      if (!CanPool(transport_security_state_, ssl_info, *ssl_config_service_,
@@ -678,17 +698,17 @@ diff --git a/net/url_request/url_request_context_builder.cc b/net/url_request/ur
 diff --git a/net/url_request/url_request_http_job.cc b/net/url_request/url_request_http_job.cc
 --- a/net/url_request/url_request_http_job.cc
 +++ b/net/url_request/url_request_http_job.cc
-@@ -280,7 +280,8 @@ std::unique_ptr<URLRequestJob> URLRequestHttpJob::Create(URLRequest* request) {
- 
-   TransportSecurityState* hsts = request->context()->transport_security_state();
-   bool should_upgrade_to_ssl =
--      hsts && hsts->ShouldUpgradeToSSL(url.host(), request->net_log());
-+      hsts && hsts->ShouldUpgradeToSSL(request->isolation_info().network_anonymization_key(),
+@@ -333,7 +333,8 @@ std::unique_ptr<URLRequestJob> URLRequestHttpJob::Create(URLRequest* request) {
+   if (TransportSecurityState* hsts =
+           request->context()->transport_security_state()) {
+     upgrade_decision =
+-        hsts->GetSSLUpgradeDecision(url.host(), request->net_log());
++        hsts->GetSSLUpgradeDecision(request->isolation_info().network_anonymization_key(),
 +                                       url.host(), request->net_log());
+   }
  
    // Check for reasons not to return a URLRequestHttpJob. These don't apply to
-   // https and wss requests.
-@@ -1106,7 +1107,7 @@ void URLRequestHttpJob::ProcessStrictTransportSecurityHeader() {
+@@ -1151,7 +1152,7 @@ void URLRequestHttpJob::ProcessStrictTransportSecurityHeader() {
    HttpResponseHeaders* headers = GetResponseHeaders();
    std::string value;
    if (headers->EnumerateHeader(nullptr, "Strict-Transport-Security", &value))
@@ -697,7 +717,7 @@ diff --git a/net/url_request/url_request_http_job.cc b/net/url_request/url_reque
  }
  
  void URLRequestHttpJob::OnStartCompleted(int result) {
-@@ -1176,7 +1177,7 @@ void URLRequestHttpJob::OnStartCompleted(int result) {
+@@ -1221,7 +1222,7 @@ void URLRequestHttpJob::OnStartCompleted(int result) {
      TransportSecurityState* state = context->transport_security_state();
      NotifySSLCertificateError(
          result, transaction_->GetResponseInfo()->ssl_info,
@@ -709,7 +729,7 @@ diff --git a/net/url_request/url_request_http_job.cc b/net/url_request/url_reque
 diff --git a/services/network/network_context.cc b/services/network/network_context.cc
 --- a/services/network/network_context.cc
 +++ b/services/network/network_context.cc
-@@ -1822,6 +1822,7 @@ void NetworkContext::CreateHostResolver(
+@@ -1883,6 +1883,7 @@ void NetworkContext::CreateHostResolver(
  void NetworkContext::VerifyCertForSignedExchange(
      const scoped_refptr<net::X509Certificate>& certificate,
      const GURL& url,
@@ -717,7 +737,7 @@ diff --git a/services/network/network_context.cc b/services/network/network_cont
      const std::string& ocsp_result,
      const std::string& sct_list,
      VerifyCertForSignedExchangeCallback callback) {
-@@ -1832,6 +1833,7 @@ void NetworkContext::VerifyCertForSignedExchange(
+@@ -1893,6 +1894,7 @@ void NetworkContext::VerifyCertForSignedExchange(
    pending_cert_verify->result = std::make_unique<net::CertVerifyResult>();
    pending_cert_verify->certificate = certificate;
    pending_cert_verify->url = url;
@@ -725,7 +745,7 @@ diff --git a/services/network/network_context.cc b/services/network/network_cont
    pending_cert_verify->ocsp_result = ocsp_result;
    pending_cert_verify->sct_list = sct_list;
    net::CertVerifier* cert_verifier =
-@@ -1876,17 +1878,19 @@ void NetworkContext::SetCorsOriginAccessListsForOrigin(
+@@ -1937,17 +1939,19 @@ void NetworkContext::SetCorsOriginAccessListsForOrigin(
    std::move(callback).Run();
  }
  
@@ -748,7 +768,7 @@ diff --git a/services/network/network_context.cc b/services/network/network_cont
                                           IsHSTSActiveForHostCallback callback) {
    net::TransportSecurityState* security_state =
        url_request_context_->transport_security_state();
-@@ -1896,10 +1900,10 @@ void NetworkContext::IsHSTSActiveForHost(const std::string& host,
+@@ -1957,10 +1961,10 @@ void NetworkContext::IsHSTSActiveForHost(const std::string& host,
      return;
    }
  
@@ -761,7 +781,7 @@ diff --git a/services/network/network_context.cc b/services/network/network_cont
                                    GetHSTSStateCallback callback) {
    base::Value::Dict result;
  
-@@ -1937,10 +1941,10 @@ void NetworkContext::GetHSTSState(const std::string& domain,
+@@ -1998,10 +2002,10 @@ void NetworkContext::GetHSTSState(const std::string& domain,
        net::TransportSecurityState::STSState dynamic_sts_state;
        net::TransportSecurityState::PKPState dynamic_pkp_state;
        bool found_sts_dynamic = transport_security_state->GetDynamicSTSState(
@@ -774,7 +794,7 @@ diff --git a/services/network/network_context.cc b/services/network/network_cont
        if (found_sts_dynamic) {
          result.Set("dynamic_upgrade_mode",
                     static_cast<int>(dynamic_sts_state.upgrade_mode));
-@@ -1978,6 +1982,7 @@ void NetworkContext::GetHSTSState(const std::string& domain,
+@@ -2039,6 +2043,7 @@ void NetworkContext::GetHSTSState(const std::string& domain,
  }
  
  void NetworkContext::DeleteDynamicDataForHost(
@@ -782,7 +802,7 @@ diff --git a/services/network/network_context.cc b/services/network/network_cont
      const std::string& host,
      DeleteDynamicDataForHostCallback callback) {
    net::TransportSecurityState* transport_security_state =
-@@ -1988,7 +1993,7 @@ void NetworkContext::DeleteDynamicDataForHost(
+@@ -2049,7 +2054,7 @@ void NetworkContext::DeleteDynamicDataForHost(
    }
  
    std::move(callback).Run(
@@ -791,7 +811,7 @@ diff --git a/services/network/network_context.cc b/services/network/network_cont
  }
  
  void NetworkContext::EnableStaticKeyPinningForTesting(
-@@ -2029,7 +2034,7 @@ void NetworkContext::PreconnectSockets(
+@@ -2090,7 +2095,7 @@ void NetworkContext::PreconnectSockets(
    DCHECK(!require_network_anonymization_key_ ||
           !network_anonymization_key.IsEmpty());
  
@@ -800,7 +820,7 @@ diff --git a/services/network/network_context.cc b/services/network/network_cont
  
    // |PreconnectSockets| may receive arguments from the renderer, which is not
    // guaranteed to validate them.
-@@ -2848,12 +2853,15 @@ void NetworkContext::OnConnectionError() {
+@@ -2907,12 +2912,15 @@ void NetworkContext::OnConnectionError() {
      std::move(on_connection_close_callback_).Run(this);
  }
  
@@ -817,7 +837,7 @@ diff --git a/services/network/network_context.cc b/services/network/network_cont
            original_url.host())) {
      return original_url;
    }
-@@ -2901,7 +2909,8 @@ void NetworkContext::OnVerifyCertForSignedExchangeComplete(
+@@ -2960,7 +2968,8 @@ void NetworkContext::OnVerifyCertForSignedExchangeComplete(
          url_request_context_->transport_security_state()->CheckPublicKeyPins(
              net::HostPortPair::FromURL(pending_cert_verify->url),
              pending_cert_verify->result->is_issued_by_known_root,
@@ -830,7 +850,7 @@ diff --git a/services/network/network_context.cc b/services/network/network_cont
 diff --git a/services/network/network_context.h b/services/network/network_context.h
 --- a/services/network/network_context.h
 +++ b/services/network/network_context.h
-@@ -407,18 +407,21 @@ class COMPONENT_EXPORT(NETWORK_SERVICE) NetworkContext
+@@ -410,18 +410,21 @@ class COMPONENT_EXPORT(NETWORK_SERVICE) NetworkContext
    void VerifyCertForSignedExchange(
        const scoped_refptr<net::X509Certificate>& certificate,
        const GURL& url,
@@ -855,7 +875,7 @@ diff --git a/services/network/network_context.h b/services/network/network_conte
        const std::string& host,
        DeleteDynamicDataForHostCallback callback) override;
    void SetCorsOriginAccessListsForOrigin(
-@@ -727,7 +730,8 @@ class COMPONENT_EXPORT(NETWORK_SERVICE) NetworkContext
+@@ -735,7 +738,8 @@ class COMPONENT_EXPORT(NETWORK_SERVICE) NetworkContext
        mojo::PendingRemote<mojom::CookieAccessObserver> cookie_observer,
        net::FirstPartySetMetadata first_party_set_metadata);
  
@@ -865,7 +885,7 @@ diff --git a/services/network/network_context.h b/services/network/network_conte
  
  #if BUILDFLAG(IS_P2P_ENABLED)
    void DestroySocketManager(P2PSocketManager* socket_manager);
-@@ -919,6 +923,7 @@ class COMPONENT_EXPORT(NETWORK_SERVICE) NetworkContext
+@@ -924,6 +928,7 @@ class COMPONENT_EXPORT(NETWORK_SERVICE) NetworkContext
      VerifyCertForSignedExchangeCallback callback;
      scoped_refptr<net::X509Certificate> certificate;
      GURL url;

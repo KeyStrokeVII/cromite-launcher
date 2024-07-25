@@ -12,7 +12,7 @@ License: GPL-2.0-or-later - https://spdx.org/licenses/GPL-2.0-or-later.html
 diff --git a/third_party/blink/renderer/modules/document_picture_in_picture/picture_in_picture_controller_impl.cc b/third_party/blink/renderer/modules/document_picture_in_picture/picture_in_picture_controller_impl.cc
 --- a/third_party/blink/renderer/modules/document_picture_in_picture/picture_in_picture_controller_impl.cc
 +++ b/third_party/blink/renderer/modules/document_picture_in_picture/picture_in_picture_controller_impl.cc
-@@ -368,6 +368,13 @@ void PictureInPictureControllerImpl::CreateDocumentPictureInPictureWindow(
+@@ -383,6 +383,13 @@ void PictureInPictureControllerImpl::CreateDocumentPictureInPictureWindow(
      return;
    }
  

@@ -31,7 +31,7 @@ new file mode 100644
 diff --git a/third_party/blink/renderer/core/permissions_policy/permissions_policy_features.json5 b/third_party/blink/renderer/core/permissions_policy/permissions_policy_features.json5
 --- a/third_party/blink/renderer/core/permissions_policy/permissions_policy_features.json5
 +++ b/third_party/blink/renderer/core/permissions_policy/permissions_policy_features.json5
-@@ -280,6 +280,7 @@
+@@ -297,6 +297,7 @@
      {
        name: "IdleDetection",
        permissions_policy_name: "idle-detection",
@@ -55,8 +55,8 @@ diff --git a/third_party/blink/renderer/modules/idle/idle_detector.idl b/third_p
 diff --git a/third_party/blink/renderer/platform/runtime_enabled_features.json5 b/third_party/blink/renderer/platform/runtime_enabled_features.json5
 --- a/third_party/blink/renderer/platform/runtime_enabled_features.json5
 +++ b/third_party/blink/renderer/platform/runtime_enabled_features.json5
-@@ -2072,6 +2072,11 @@
-       name: "HTMLUnsafeMethods",
+@@ -2088,6 +2088,11 @@
+       name: "IgnoresCSSTextTransformsForPlainTextCopy",
        status: "stable",
      },
 +    {

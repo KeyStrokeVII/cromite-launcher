@@ -15,11 +15,11 @@ License: GPL-2.0-or-later - https://spdx.org/licenses/GPL-2.0-or-later.html
  .../chrome/browser/tasks/ReturnToChromeUtil.java    | 12 +++++++++++-
  .../browser/preferences/ChromePreferenceKeys.java   |  2 ++
  .../preferences/LegacyChromePreferenceKeys.java     |  1 +
- .../java/res/layout/single_tab_view_layout.xml      | 11 +++++++++--
- .../single_tab/SingleTabSwitcherOnNtpMediator.java  | 10 ++++------
+ .../single_tab/SingleTabSwitcherCoordinator.java    |  2 +-
+ .../single_tab/SingleTabSwitcherOnNtpMediator.java  |  6 ++----
  .../show-ntp-at-startup.grdp                        |  9 +++++++++
  .../chrome_feature_list_cc/show-ntp-at-startup.inc  |  2 ++
- 11 files changed, 61 insertions(+), 10 deletions(-)
+ 11 files changed, 51 insertions(+), 7 deletions(-)
  create mode 100644 chrome/browser/ui/android/strings/cromite_android_chrome_strings_grd/show-ntp-at-startup.grdp
  create mode 100644 cromite_flags/chrome/browser/flags/android/chrome_feature_list_cc/show-ntp-at-startup.inc
 
@@ -83,7 +83,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeInactivit
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedActivity.java
-@@ -1672,7 +1672,7 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
+@@ -1680,7 +1680,7 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
                  Callback<String> onStandardActiveIndexRead = null;
                  shouldShowNtpAsHomeSurfaceAtStartup = shouldShowNtpHomeSurfaceOnStartup();
                  boolean skipSavingNonActiveNtps = skipSavingNonActiveNtps();
@@ -92,15 +92,15 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/ChromeTabbedAct
                      mHomeSurfaceTracker = new HomeSurfaceTracker();
                  }
                  if (shouldShowNtpAsHomeSurfaceAtStartup) {
-@@ -2389,6 +2389,8 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
+@@ -2392,6 +2392,8 @@ public class ChromeTabbedActivity extends ChromeActivity<ChromeActivityComponent
          mInactivityTracker =
                  new ChromeInactivityTracker(
                          ChromePreferenceKeys.TABBED_ACTIVITY_LAST_BACKGROUNDED_TIME_MS_PREF);
 +        mInactivityTracker.setIsStartup(
 +            !CipherFactory.getInstance().restoreFromBundle(getSavedInstanceState()));
          TabUsageTracker.initialize(this.getLifecycleDispatcher(), tabModelSelector);
- 
-         assert getActivityTabStartupMetricsTracker() != null;
+         TabGroupUsageTracker.initialize(
+                 this.getLifecycleDispatcher(), tabModelSelector, this::isWarmOnResume);
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/tasks/ReturnToChromeUtil.java b/chrome/android/java/src/org/chromium/chrome/browser/tasks/ReturnToChromeUtil.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/tasks/ReturnToChromeUtil.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/tasks/ReturnToChromeUtil.java
@@ -128,7 +128,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/tasks/ReturnToC
          // Checks whether to show the Start surface due to feature flag TAB_SWITCHER_ON_RETURN_MS.
          long lastVisibleTimeMs = inactivityTracker.getLastVisibleTimeMs();
          long lastBackgroundTimeMs = inactivityTracker.getLastBackgroundedTimeMs();
-@@ -778,7 +788,7 @@ public final class ReturnToChromeUtil {
+@@ -802,7 +812,7 @@ public final class ReturnToChromeUtil {
              TabModel currentTabModel,
              TabCreator tabCreator,
              HomeSurfaceTracker homeSurfaceTracker) {
@@ -140,7 +140,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/tasks/ReturnToC
 diff --git a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
 --- a/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
 +++ b/chrome/browser/preferences/android/java/src/org/chromium/chrome/browser/preferences/ChromePreferenceKeys.java
-@@ -791,6 +791,8 @@ public final class ChromePreferenceKeys {
+@@ -792,6 +792,8 @@ public final class ChromePreferenceKeys {
  
      public static final String TABBED_ACTIVITY_LAST_BACKGROUNDED_TIME_MS_PREF =
              "ChromeTabbedActivity.BackgroundTimeMs";
@@ -160,65 +160,40 @@ diff --git a/chrome/browser/preferences/android/java/src/org/chromium/chrome/bro
                  ChromePreferenceKeys.TABMODEL_ACTIVE_TAB_ID,
                  ChromePreferenceKeys.TABMODEL_HAS_COMPUTED_MAX_ID,
                  ChromePreferenceKeys.TABMODEL_HAS_RUN_FILE_MIGRATION,
-diff --git a/chrome/browser/single_tab/android/java/res/layout/single_tab_view_layout.xml b/chrome/browser/single_tab/android/java/res/layout/single_tab_view_layout.xml
---- a/chrome/browser/single_tab/android/java/res/layout/single_tab_view_layout.xml
-+++ b/chrome/browser/single_tab/android/java/res/layout/single_tab_view_layout.xml
-@@ -34,7 +34,7 @@ found in the LICENSE file.
-       <LinearLayout
-           android:id="@+id/continue_browsing"
-           android:layout_width="wrap_content"
--          android:layout_height="match_parent"
-+          android:layout_height="wrap_content"
-           android:layout_toEndOf="@+id/tab_favicon_view"
-           android:layout_toStartOf="@+id/chevron_right_view"
-           android:orientation="vertical">
-@@ -55,11 +55,18 @@ found in the LICENSE file.
-             android:layout_width="wrap_content"
-             android:layout_height="wrap_content"
-             android:layout_weight="1.0"
--            android:layout_marginBottom="10dp"
-             android:layout_gravity="center_vertical"
-             android:gravity="center_vertical"
-             android:singleLine="true"
-             android:textAppearance="@style/TextAppearance.TextMedium" />
-+        <TextView
-+            android:id="@+id/tab_url_view"
-+            android:layout_width="wrap_content"
-+            android:layout_height="wrap_content"
-+            android:layout_marginBottom="10dp"
-+            android:gravity="start"
-+            android:singleLine="false"
-+            android:textAppearance="@style/TextAppearance.TextSmall.Secondary"/>
-       </LinearLayout>
+diff --git a/chrome/browser/single_tab/android/java/src/org/chromium/chrome/browser/single_tab/SingleTabSwitcherCoordinator.java b/chrome/browser/single_tab/android/java/src/org/chromium/chrome/browser/single_tab/SingleTabSwitcherCoordinator.java
+--- a/chrome/browser/single_tab/android/java/src/org/chromium/chrome/browser/single_tab/SingleTabSwitcherCoordinator.java
++++ b/chrome/browser/single_tab/android/java/src/org/chromium/chrome/browser/single_tab/SingleTabSwitcherCoordinator.java
+@@ -309,7 +309,7 @@ public class SingleTabSwitcherCoordinator implements TabSwitcher, ModuleProvider
  
-       <ImageView
+     /** Returns the layout resource id for the single tab card. */
+     public static int getModuleLayoutId() {
+-        return R.layout.single_tab_module_layout;
++        return R.layout.single_tab_module_layout; // (uazo) check this
+     }
+ 
+     public void destroy() {
 diff --git a/chrome/browser/single_tab/android/java/src/org/chromium/chrome/browser/single_tab/SingleTabSwitcherOnNtpMediator.java b/chrome/browser/single_tab/android/java/src/org/chromium/chrome/browser/single_tab/SingleTabSwitcherOnNtpMediator.java
 --- a/chrome/browser/single_tab/android/java/src/org/chromium/chrome/browser/single_tab/SingleTabSwitcherOnNtpMediator.java
 +++ b/chrome/browser/single_tab/android/java/src/org/chromium/chrome/browser/single_tab/SingleTabSwitcherOnNtpMediator.java
-@@ -292,9 +292,8 @@ public class SingleTabSwitcherOnNtpMediator implements ConfigurationChangedObser
+@@ -252,16 +252,14 @@ public class SingleTabSwitcherOnNtpMediator {
                          public void onPageLoadFinished(Tab tab, GURL url) {
                              super.onPageLoadFinished(tab, url);
                              mPropertyModel.set(TITLE, tab.getTitle());
--                            if (mIsSurfacePolishEnabled) {
--                                mPropertyModel.set(
--                                        URL, SingleTabSwitcherMediator.getDomainUrl(tab.getUrl()));
-+                            if ((true)) {
-+                                mPropertyModel.set(URL, tab.getUrl().getPossiblyInvalidSpec());
-                             }
+-                            mPropertyModel.set(
+-                                    URL, SingleTabSwitcherMediator.getDomainUrl(tab.getUrl()));
++                            mPropertyModel.set(URL, tab.getUrl().getPossiblyInvalidSpec());
                              tab.removeObserver(this);
                          }
-@@ -302,9 +301,8 @@ public class SingleTabSwitcherOnNtpMediator implements ConfigurationChangedObser
+                     };
              mMostRecentTab.addObserver(tabObserver);
          } else {
              mPropertyModel.set(TITLE, mMostRecentTab.getTitle());
--            if (mIsSurfacePolishEnabled) {
--                mPropertyModel.set(
--                        URL, SingleTabSwitcherMediator.getDomainUrl(mMostRecentTab.getUrl()));
-+            if ((true)) {
-+                mPropertyModel.set(URL, mMostRecentTab.getUrl().getPossiblyInvalidSpec());
-             }
+-            mPropertyModel.set(
+-                    URL, SingleTabSwitcherMediator.getDomainUrl(mMostRecentTab.getUrl()));
++            mPropertyModel.set(URL, mMostRecentTab.getUrl().getPossiblyInvalidSpec());
          }
      }
+ 
 diff --git a/chrome/browser/ui/android/strings/cromite_android_chrome_strings_grd/show-ntp-at-startup.grdp b/chrome/browser/ui/android/strings/cromite_android_chrome_strings_grd/show-ntp-at-startup.grdp
 new file mode 100644
 --- /dev/null

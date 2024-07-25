@@ -62,7 +62,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/Bookm
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkUtils.java b/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkUtils.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkUtils.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/BookmarkUtils.java
-@@ -38,6 +38,7 @@ import org.chromium.chrome.browser.IntentHandler;
+@@ -39,6 +39,7 @@ import org.chromium.chrome.browser.IntentHandler;
  import org.chromium.chrome.browser.app.bookmarks.BookmarkActivity;
  import org.chromium.chrome.browser.app.bookmarks.BookmarkEditActivity;
  import org.chromium.chrome.browser.app.bookmarks.BookmarkFolderPickerActivity;
@@ -70,7 +70,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/Bookm
  import org.chromium.chrome.browser.bookmarks.BookmarkUiPrefs.BookmarkRowDisplayPref;
  import org.chromium.chrome.browser.commerce.ShoppingServiceFactory;
  import org.chromium.chrome.browser.document.ChromeLauncherActivity;
-@@ -527,7 +528,7 @@ public class BookmarkUtils {
+@@ -539,7 +540,7 @@ public class BookmarkUtils {
              RecordUserAction.record("MobileBookmarkManagerReopenBookmarksInSameSession");
          }
  
@@ -82,7 +82,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/bookmarks/Bookm
 diff --git a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
 --- a/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
 +++ b/chrome/browser/flags/android/java/src/org/chromium/chrome/browser/flags/ChromeFeatureList.java
-@@ -811,7 +811,7 @@ public abstract class ChromeFeatureList {
+@@ -834,7 +834,7 @@ public abstract class ChromeFeatureList {
      public static final MutableFlagWithSafeDefault sAdaptiveButtonInTopToolbarCustomizationV2 =
              newMutableFlagWithSafeDefault(ADAPTIVE_BUTTON_IN_TOP_TOOLBAR_CUSTOMIZATION_V2, false);
      public static final MutableFlagWithSafeDefault sAndroidImprovedBookmarks =

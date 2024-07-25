@@ -10,7 +10,7 @@ License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
 diff --git a/components/subresource_filter/content/browser/profile_interaction_manager.cc b/components/subresource_filter/content/browser/profile_interaction_manager.cc
 --- a/components/subresource_filter/content/browser/profile_interaction_manager.cc
 +++ b/components/subresource_filter/content/browser/profile_interaction_manager.cc
-@@ -19,13 +19,6 @@
+@@ -21,13 +21,6 @@
  #include "content/public/browser/render_frame_host.h"
  #include "content/public/browser/web_contents.h"
  
@@ -24,10 +24,10 @@ diff --git a/components/subresource_filter/content/browser/profile_interaction_m
  namespace subresource_filter {
  
  ProfileInteractionManager::ProfileInteractionManager(
-@@ -133,47 +126,6 @@ void ProfileInteractionManager::MaybeShowNotification() {
+@@ -136,47 +129,6 @@ void ProfileInteractionManager::MaybeShowNotification() {
    // currently primary.
-   DCHECK(page_);
-   DCHECK(page_->IsPrimary());
+   CHECK(page_, base::NotFatalUntil::M129);
+   CHECK(page_->IsPrimary(), base::NotFatalUntil::M129);
 -
 -  const GURL& top_level_url = page_->GetMainDocument().GetLastCommittedURL();
 -  if (profile_context_->settings_manager()->ShouldShowUIForSite(

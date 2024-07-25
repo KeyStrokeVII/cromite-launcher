@@ -111,6 +111,8 @@ if (target_os == "android") {
   system_webview_package_name="org.cromite.webview" #"com.android.webview"
   system_webview_shell_package_name="org.cromite.webview_shell"
 
+  chrome_pgo_phase = 2 # enable pgo
+
   if (getenv("USE_KEYSTORE") != "") {
     android_keystore_path = "/home/lg/working_dir/cromite.keystore"
     android_keystore_name = "cromite"

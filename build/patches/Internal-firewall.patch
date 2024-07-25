@@ -59,7 +59,7 @@ License: GPL-2.0-or-later - https://spdx.org/licenses/GPL-2.0-or-later.html
 diff --git a/chrome/browser/BUILD.gn b/chrome/browser/BUILD.gn
 --- a/chrome/browser/BUILD.gn
 +++ b/chrome/browser/BUILD.gn
-@@ -2608,6 +2608,7 @@ static_library("browser") {
+@@ -2575,6 +2575,7 @@ static_library("browser") {
      "//third_party/ungoogled:switches",
      "//services/device/public/mojom",
      "//services/device/public/mojom:usb",
@@ -81,7 +81,7 @@ diff --git a/chrome/browser/about_flags.cc b/chrome/browser/about_flags.cc
 diff --git a/chrome/browser/download/android/download_controller.cc b/chrome/browser/download/android/download_controller.cc
 --- a/chrome/browser/download/android/download_controller.cc
 +++ b/chrome/browser/download/android/download_controller.cc
-@@ -164,6 +164,36 @@ bool ShouldOpenPdfInline(DownloadItem* item) {
+@@ -170,6 +170,36 @@ bool ShouldOpenPdfInline(DownloadItem* item) {
           !item->IsMustDownload() && item->IsTransient();
  }
  
@@ -118,7 +118,7 @@ diff --git a/chrome/browser/download/android/download_controller.cc b/chrome/bro
  }  // namespace
  
  static void JNI_DownloadController_OnAcquirePermissionResult(
-@@ -210,7 +240,7 @@ static void JNI_DownloadController_DownloadUrl(JNIEnv* env,
+@@ -216,7 +246,7 @@ static void JNI_DownloadController_DownloadUrl(JNIEnv* env,
    if (download_manager) {
      auto dl_params = std::make_unique<download::DownloadUrlParameters>(
          GURL(url),
@@ -130,7 +130,7 @@ diff --git a/chrome/browser/download/android/download_controller.cc b/chrome/bro
 diff --git a/chrome/browser/offline_pages/android/downloads/offline_page_download_bridge.cc b/chrome/browser/offline_pages/android/downloads/offline_page_download_bridge.cc
 --- a/chrome/browser/offline_pages/android/downloads/offline_page_download_bridge.cc
 +++ b/chrome/browser/offline_pages/android/downloads/offline_page_download_bridge.cc
-@@ -268,13 +268,43 @@ content::WebContents::Getter GetWebContentsGetter(
+@@ -270,13 +270,43 @@ content::WebContents::Getter GetWebContentsGetter(
        web_contents->GetPrimaryMainFrame()->GetRoutingID());
  }
  
@@ -289,7 +289,7 @@ new file mode 100644
 diff --git a/net/BUILD.gn b/net/BUILD.gn
 --- a/net/BUILD.gn
 +++ b/net/BUILD.gn
-@@ -1047,6 +1047,7 @@ component("net") {
+@@ -1049,6 +1049,7 @@ component("net") {
      "//build:chromeos_buildflags",
      "//components/miracle_parameter/common",
      "//net/http:transport_security_state_generated_files",
@@ -300,7 +300,7 @@ diff --git a/net/BUILD.gn b/net/BUILD.gn
 diff --git a/net/traffic_annotation/network_traffic_annotation.h b/net/traffic_annotation/network_traffic_annotation.h
 --- a/net/traffic_annotation/network_traffic_annotation.h
 +++ b/net/traffic_annotation/network_traffic_annotation.h
-@@ -373,10 +373,6 @@ struct MutablePartialNetworkTrafficAnnotationTag {
+@@ -378,10 +378,6 @@ struct MutablePartialNetworkTrafficAnnotationTag {
  }  // namespace net
  
  // Placeholder for unannotated usages.
@@ -314,7 +314,7 @@ diff --git a/net/traffic_annotation/network_traffic_annotation.h b/net/traffic_a
 diff --git a/net/url_request/url_request_http_job.cc b/net/url_request/url_request_http_job.cc
 --- a/net/url_request/url_request_http_job.cc
 +++ b/net/url_request/url_request_http_job.cc
-@@ -337,6 +337,9 @@ URLRequestHttpJob::URLRequestHttpJob(
+@@ -391,6 +391,9 @@ URLRequestHttpJob::URLRequestHttpJob(
      : URLRequestJob(request),
        http_user_agent_settings_(http_user_agent_settings) {
    ResetTimer();
@@ -324,7 +324,7 @@ diff --git a/net/url_request/url_request_http_job.cc b/net/url_request/url_reque
  }
  
  URLRequestHttpJob::~URLRequestHttpJob() {
-@@ -623,6 +626,18 @@ void URLRequestHttpJob::MaybeStartTransactionInternal(int result) {
+@@ -677,6 +680,18 @@ void URLRequestHttpJob::MaybeStartTransactionInternal(int result) {
  void URLRequestHttpJob::StartTransactionInternal() {
    DCHECK(!override_response_headers_);
  
@@ -1647,7 +1647,7 @@ new file mode 100644
 diff --git a/services/network/network_context.cc b/services/network/network_context.cc
 --- a/services/network/network_context.cc
 +++ b/services/network/network_context.cc
-@@ -93,6 +93,7 @@
+@@ -94,6 +94,7 @@
  #include "net/url_request/url_request.h"
  #include "net/url_request/url_request_context.h"
  #include "net/url_request/url_request_context_builder.h"
@@ -1655,7 +1655,7 @@ diff --git a/services/network/network_context.cc b/services/network/network_cont
  #include "services/network/brokered_client_socket_factory.h"
  #include "services/network/cookie_manager.h"
  #include "services/network/cors/cors_url_loader_factory.h"
-@@ -1619,6 +1620,9 @@ void NetworkContext::OnNewSCTAuditingReportSent() {
+@@ -1680,6 +1681,9 @@ void NetworkContext::OnNewSCTAuditingReportSent() {
  void NetworkContext::CreateUDPSocket(
      mojo::PendingReceiver<mojom::UDPSocket> receiver,
      mojo::PendingRemote<mojom::UDPSocketListener> listener) {
@@ -1665,7 +1665,7 @@ diff --git a/services/network/network_context.cc b/services/network/network_cont
    socket_factory_->CreateUDPSocket(std::move(receiver), std::move(listener));
  }
  
-@@ -1631,6 +1635,17 @@ void NetworkContext::CreateRestrictedUDPSocket(
+@@ -1692,6 +1696,17 @@ void NetworkContext::CreateRestrictedUDPSocket(
      mojo::PendingRemote<mojom::UDPSocketListener> listener,
      CreateRestrictedUDPSocketCallback callback) {
    // SimpleHostResolver is transitively owned by |this|.
@@ -1683,7 +1683,7 @@ diff --git a/services/network/network_context.cc b/services/network/network_cont
    socket_factory_->CreateRestrictedUDPSocket(
        addr, mode, traffic_annotation, std::move(params), std::move(receiver),
        std::move(listener), SimpleHostResolver::Create(this),
-@@ -1643,6 +1658,17 @@ void NetworkContext::CreateTCPServerSocket(
+@@ -1704,6 +1719,17 @@ void NetworkContext::CreateTCPServerSocket(
      const net::MutableNetworkTrafficAnnotationTag& traffic_annotation,
      mojo::PendingReceiver<mojom::TCPServerSocket> receiver,
      CreateTCPServerSocketCallback callback) {
@@ -1701,7 +1701,7 @@ diff --git a/services/network/network_context.cc b/services/network/network_cont
    socket_factory_->CreateTCPServerSocket(
        local_addr, std::move(options),
        static_cast<net::NetworkTrafficAnnotationTag>(traffic_annotation),
-@@ -1657,6 +1683,21 @@ void NetworkContext::CreateTCPConnectedSocket(
+@@ -1718,6 +1744,21 @@ void NetworkContext::CreateTCPConnectedSocket(
      mojo::PendingReceiver<mojom::TCPConnectedSocket> receiver,
      mojo::PendingRemote<mojom::SocketObserver> observer,
      CreateTCPConnectedSocketCallback callback) {
@@ -1723,7 +1723,7 @@ diff --git a/services/network/network_context.cc b/services/network/network_cont
    socket_factory_->CreateTCPConnectedSocket(
        local_addr, remote_addr_list, std::move(tcp_connected_socket_options),
        static_cast<net::NetworkTrafficAnnotationTag>(traffic_annotation),
-@@ -1668,6 +1709,20 @@ void NetworkContext::CreateTCPBoundSocket(
+@@ -1729,6 +1770,20 @@ void NetworkContext::CreateTCPBoundSocket(
      const net::MutableNetworkTrafficAnnotationTag& traffic_annotation,
      mojo::PendingReceiver<mojom::TCPBoundSocket> receiver,
      CreateTCPBoundSocketCallback callback) {
@@ -1744,7 +1744,7 @@ diff --git a/services/network/network_context.cc b/services/network/network_cont
    socket_factory_->CreateTCPBoundSocket(
        local_addr,
        static_cast<net::NetworkTrafficAnnotationTag>(traffic_annotation),
-@@ -1734,6 +1789,24 @@ void NetworkContext::CreateWebSocket(
+@@ -1795,6 +1850,24 @@ void NetworkContext::CreateWebSocket(
      mojo::PendingRemote<mojom::WebSocketAuthenticationHandler> auth_handler,
      mojo::PendingRemote<mojom::TrustedHeaderClient> header_client,
      const std::optional<base::UnguessableToken>& throttling_profile_id) {
@@ -1772,7 +1772,7 @@ diff --git a/services/network/network_context.cc b/services/network/network_cont
 diff --git a/services/network/public/cpp/simple_url_loader.cc b/services/network/public/cpp/simple_url_loader.cc
 --- a/services/network/public/cpp/simple_url_loader.cc
 +++ b/services/network/public/cpp/simple_url_loader.cc
-@@ -1276,6 +1276,8 @@ SimpleURLLoaderImpl::SimpleURLLoaderImpl(
+@@ -1277,6 +1277,8 @@ SimpleURLLoaderImpl::SimpleURLLoaderImpl(
        timeout_timer_(timeout_tick_clock_) {
    // Allow creation and use on different threads.
    DETACH_FROM_SEQUENCE(sequence_checker_);
@@ -1781,7 +1781,7 @@ diff --git a/services/network/public/cpp/simple_url_loader.cc b/services/network
  #if DCHECK_IS_ON()
    if (resource_request_->request_body) {
      for (const DataElement& element :
-@@ -1717,6 +1719,22 @@ void SimpleURLLoaderImpl::StartRequest(
+@@ -1724,6 +1726,22 @@ void SimpleURLLoaderImpl::StartRequest(
      resource_request_->request_body->AppendDataPipe(
          string_upload_data_pipe_getter_->GetRemoteForNewUpload());
    }
@@ -1815,7 +1815,7 @@ diff --git a/services/network/public/cpp/simple_url_loader.h b/services/network/
  
  class GURL;
  
-@@ -408,6 +409,8 @@ class COMPONENT_EXPORT(NETWORK_CPP) SimpleURLLoader {
+@@ -413,6 +414,8 @@ class COMPONENT_EXPORT(NETWORK_CPP) SimpleURLLoader {
  
   protected:
    SimpleURLLoader();
@@ -1833,7 +1833,7 @@ diff --git a/third_party/blink/renderer/platform/loader/fetch/fetch_utils.cc b/t
      case network::mojom::RequestDestination::kFencedframe:
 -    case network::mojom::RequestDestination::kWebIdentity:
 -    case network::mojom::RequestDestination::kSharedStorageWorklet:
-       NOTREACHED();
+       NOTREACHED_IN_MIGRATION();
        [[fallthrough]];
  
 +    // Split destination with new annotations

@@ -25,7 +25,7 @@ diff --git a/chrome/browser/sharing_hub/sharing_hub_features.cc b/chrome/browser
 diff --git a/chrome/browser/ui/browser_command_controller.cc b/chrome/browser/ui/browser_command_controller.cc
 --- a/chrome/browser/ui/browser_command_controller.cc
 +++ b/chrome/browser/ui/browser_command_controller.cc
-@@ -1766,10 +1766,10 @@ void BrowserCommandController::UpdateCommandsForFullscreenMode() {
+@@ -1789,10 +1789,10 @@ void BrowserCommandController::UpdateCommandsForFullscreenMode() {
    command_updater_.UpdateCommandEnabled(IDC_CHROME_WHATS_NEW, show_main_ui);
  #endif
    command_updater_.UpdateCommandEnabled(IDC_CONTENT_CONTEXT_SHARING_SUBMENU,
@@ -42,7 +42,7 @@ diff --git a/chrome/browser/ui/browser_command_controller.cc b/chrome/browser/ui
 diff --git a/chrome/browser/ui/browser_commands.cc b/chrome/browser/ui/browser_commands.cc
 --- a/chrome/browser/ui/browser_commands.cc
 +++ b/chrome/browser/ui/browser_commands.cc
-@@ -1637,6 +1637,7 @@ void SendTabToSelf(Browser* browser) {
+@@ -1645,6 +1645,7 @@ void SendTabToSelf(Browser* browser) {
  }
  
  bool CanGenerateQrCode(const Browser* browser) {

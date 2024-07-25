@@ -31,7 +31,7 @@ License: GPL-2.0-or-later - https://spdx.org/licenses/GPL-2.0-or-later.html
 diff --git a/chrome/renderer/chrome_content_renderer_client.cc b/chrome/renderer/chrome_content_renderer_client.cc
 --- a/chrome/renderer/chrome_content_renderer_client.cc
 +++ b/chrome/renderer/chrome_content_renderer_client.cc
-@@ -1630,7 +1630,7 @@ ChromeContentRendererClient::CreateWorkerContentSettingsClient(
+@@ -1627,7 +1627,7 @@ ChromeContentRendererClient::CreateWorkerContentSettingsClient(
  std::unique_ptr<media::SpeechRecognitionClient>
  ChromeContentRendererClient::CreateSpeechRecognitionClient(
      content::RenderFrame* render_frame) {
@@ -81,7 +81,7 @@ diff --git a/components/content_settings/renderer/content_settings_agent_impl.h 
 diff --git a/content/browser/speech/tts_android.cc b/content/browser/speech/tts_android.cc
 --- a/content/browser/speech/tts_android.cc
 +++ b/content/browser/speech/tts_android.cc
-@@ -42,7 +42,7 @@ TtsPlatformImplAndroid::~TtsPlatformImplAndroid() {
+@@ -44,7 +44,7 @@ TtsPlatformImplAndroid::~TtsPlatformImplAndroid() {
  }
  
  bool TtsPlatformImplAndroid::PlatformImplSupported() {

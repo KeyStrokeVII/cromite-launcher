@@ -9,9 +9,9 @@ PartitionNelAndReportingByNetworkIsolationKey
 
 License: GPL-3.0-only - https://spdx.org/licenses/GPL-3.0-only.html
 ---
- .../features_cc/Enable-network-isolation-features.inc  | 10 ++++++++++
- .../features_cc/Enable-network-isolation-features.inc  |  1 +
- 2 files changed, 11 insertions(+)
+ .../base/features_cc/Enable-network-isolation-features.inc  | 6 ++++++
+ .../cpp/features_cc/Enable-network-isolation-features.inc   | 1 +
+ 2 files changed, 7 insertions(+)
  create mode 100644 cromite_flags/net/base/features_cc/Enable-network-isolation-features.inc
  create mode 100644 cromite_flags/services/network/public/cpp/features_cc/Enable-network-isolation-features.inc
 
@@ -19,14 +19,10 @@ diff --git a/cromite_flags/net/base/features_cc/Enable-network-isolation-feature
 new file mode 100644
 --- /dev/null
 +++ b/cromite_flags/net/base/features_cc/Enable-network-isolation-features.inc
-@@ -0,0 +1,10 @@
+@@ -0,0 +1,6 @@
 +SET_CROMITE_FEATURE_ENABLED(kSplitCacheByNetworkIsolationKey);
 +SET_CROMITE_FEATURE_ENABLED(kSplitCodeCacheByNetworkIsolationKey);
-+SET_CROMITE_FEATURE_ENABLED(kSplitHostCacheByNetworkIsolationKey);
 +SET_CROMITE_FEATURE_ENABLED(kPartitionConnectionsByNetworkIsolationKey);
-+SET_CROMITE_FEATURE_ENABLED(kPartitionHttpServerPropertiesByNetworkIsolationKey);
-+SET_CROMITE_FEATURE_ENABLED(kPartitionSSLSessionsByNetworkIsolationKey);
-+SET_CROMITE_FEATURE_ENABLED(kPartitionNelAndReportingByNetworkIsolationKey);
 +
 +SET_CROMITE_FEATURE_DISABLED(kEnableCrossSiteFlagNetworkIsolationKey);
 +SET_CROMITE_FEATURE_DISABLED(kEnableFrameSiteSharedOpaqueNetworkIsolationKey);

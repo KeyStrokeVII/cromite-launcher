@@ -56,8 +56,8 @@ diff --git a/chrome/android/chrome_java_resources.gni b/chrome/android/chrome_ja
 diff --git a/chrome/android/chrome_java_sources.gni b/chrome/android/chrome_java_sources.gni
 --- a/chrome/android/chrome_java_sources.gni
 +++ b/chrome/android/chrome_java_sources.gni
-@@ -984,6 +984,8 @@ chrome_java_sources = [
-   "java/src/org/chromium/chrome/browser/privacy_sandbox/TrackingProtectionNoticeController.java",
+@@ -977,6 +977,8 @@ chrome_java_sources = [
+   "java/src/org/chromium/chrome/browser/privacy_sandbox/TrackingProtectionOnboardingView.java",
    "java/src/org/chromium/chrome/browser/privacy_sandbox/TrackingProtectionSnackbarController.java",
    "java/src/org/chromium/chrome/browser/privacy/settings/IncognitoSettings.java",
 +  "java/src/org/chromium/chrome/browser/privacy/settings/RefererSettingsFragment.java",
@@ -120,7 +120,7 @@ new file mode 100644
 diff --git a/chrome/android/java/res/xml/privacy_preferences.xml b/chrome/android/java/res/xml/privacy_preferences.xml
 --- a/chrome/android/java/res/xml/privacy_preferences.xml
 +++ b/chrome/android/java/res/xml/privacy_preferences.xml
-@@ -102,6 +102,10 @@ found in the LICENSE file.
+@@ -107,6 +107,10 @@ found in the LICENSE file.
          android:title="@string/close_tabs_on_exit_title"
          android:summary="@string/close_tabs_on_exit_summary"
          android:defaultValue="false" />
@@ -170,7 +170,7 @@ new file mode 100644
 diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 --- a/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
 +++ b/chrome/android/java/src/org/chromium/chrome/browser/privacy/settings/PrivacySettings.java
-@@ -30,6 +30,7 @@ import org.chromium.chrome.browser.flags.ChromeFeatureList;
+@@ -27,6 +27,7 @@ import org.chromium.chrome.browser.flags.ChromeFeatureList;
  import org.chromium.chrome.browser.incognito.reauth.IncognitoReauthSettingSwitchPreference;
  import org.chromium.chrome.browser.preferences.Pref;
  import org.chromium.chrome.browser.prefetch.settings.PreloadPagesSettingsFragment;
@@ -178,7 +178,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/setting
  import org.chromium.chrome.browser.privacy.secure_dns.SecureDnsSettings;
  import org.chromium.chrome.browser.privacy_guide.PrivacyGuideInteractions;
  import org.chromium.chrome.browser.privacy_sandbox.PrivacySandboxBridge;
-@@ -81,6 +82,7 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
+@@ -77,6 +78,7 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
      private static final String PREF_DO_NOT_TRACK = "do_not_track";
      private static final String PREF_SAFE_BROWSING = "safe_browsing";
      private static final String PREF_SYNC_AND_SERVICES_LINK = "sync_and_services_link";
@@ -186,7 +186,7 @@ diff --git a/chrome/android/java/src/org/chromium/chrome/browser/privacy/setting
      private static final String PREF_PRIVACY_SANDBOX = "privacy_sandbox";
      private static final String PREF_PROXY_OPTIONS = "proxy";
      private static final String PREF_PRIVACY_GUIDE = "privacy_guide";
-@@ -417,6 +419,10 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
+@@ -445,6 +447,10 @@ public class PrivacySettings extends ChromeBaseSettingsFragment
                              : R.string.text_off);
          }
  
@@ -379,7 +379,7 @@ new file mode 100644
 diff --git a/chrome/browser/extensions/api/settings_private/prefs_util.cc b/chrome/browser/extensions/api/settings_private/prefs_util.cc
 --- a/chrome/browser/extensions/api/settings_private/prefs_util.cc
 +++ b/chrome/browser/extensions/api/settings_private/prefs_util.cc
-@@ -209,6 +209,11 @@ const PrefsUtil::TypedPrefMap& PrefsUtil::GetAllowlistedKeys() {
+@@ -214,6 +214,11 @@ const PrefsUtil::TypedPrefMap& PrefsUtil::GetAllowlistedKeys() {
    (*s_allowlist)[::prefs::kExpireDaysThreshold] =
        settings_api::PrefType::kNumber;
  
@@ -442,7 +442,7 @@ diff --git a/chrome/browser/resources/settings/privacy_page/privacy_page.html b/
 +        </div>
        </div>
  
- <if expr="is_chromeos">
+ <if expr="use_nss_certs">
 diff --git a/chrome/browser/resources/settings/privacy_page/privacy_page.ts b/chrome/browser/resources/settings/privacy_page/privacy_page.ts
 --- a/chrome/browser/resources/settings/privacy_page/privacy_page.ts
 +++ b/chrome/browser/resources/settings/privacy_page/privacy_page.ts
@@ -480,7 +480,7 @@ diff --git a/chrome/browser/resources/settings/privacy_page/privacy_page.ts b/ch
 diff --git a/chrome/browser/ui/android/strings/android_chrome_strings.grd b/chrome/browser/ui/android/strings/android_chrome_strings.grd
 --- a/chrome/browser/ui/android/strings/android_chrome_strings.grd
 +++ b/chrome/browser/ui/android/strings/android_chrome_strings.grd
-@@ -1050,6 +1050,30 @@ CHAR_LIMIT guidelines:
+@@ -1076,6 +1076,30 @@ For more settings that use data to improve your Chrome experience, go to <ph nam
  
  For example, some websites may respond to this request by showing you ads that aren’t based on other websites you’ve visited. Many websites will still collect and use your browsing data — for example to improve security, to provide content, ads and recommendations, and to generate reporting statistics.
        </message>
@@ -526,7 +526,7 @@ diff --git a/chrome/browser/ui/prefs/pref_watcher.cc b/chrome/browser/ui/prefs/p
 diff --git a/chrome/browser/ui/prefs/prefs_tab_helper.cc b/chrome/browser/ui/prefs/prefs_tab_helper.cc
 --- a/chrome/browser/ui/prefs/prefs_tab_helper.cc
 +++ b/chrome/browser/ui/prefs/prefs_tab_helper.cc
-@@ -365,6 +365,8 @@ void PrefsTabHelper::RegisterProfilePrefs(
+@@ -380,6 +380,8 @@ void PrefsTabHelper::RegisterProfilePrefs(
    registry->RegisterBooleanPref(
        prefs::kEnableReferrers,
        !base::FeatureList::IsEnabled(features::kNoReferrers));
@@ -538,7 +538,7 @@ diff --git a/chrome/browser/ui/prefs/prefs_tab_helper.cc b/chrome/browser/ui/pre
 diff --git a/chrome/browser/ui/webui/settings/settings_localized_strings_provider.cc b/chrome/browser/ui/webui/settings/settings_localized_strings_provider.cc
 --- a/chrome/browser/ui/webui/settings/settings_localized_strings_provider.cc
 +++ b/chrome/browser/ui/webui/settings/settings_localized_strings_provider.cc
-@@ -1825,6 +1825,10 @@ void AddPrivacyStrings(content::WebUIDataSource* html_source,
+@@ -1819,6 +1819,10 @@ void AddPrivacyStrings(content::WebUIDataSource* html_source,
      {"dayHistory", IDS_SETTINGS_DAY_HISTORY_DESCRIPTION},
      {"daysHistory", IDS_SETTINGS_DAYS_HISTORY_DESCRIPTION},
      {"foreverHistory", IDS_SETTINGS_FOREVER_HISTORY_DESCRIPTION},
@@ -552,7 +552,7 @@ diff --git a/chrome/browser/ui/webui/settings/settings_localized_strings_provide
 diff --git a/chrome/common/pref_names.h b/chrome/common/pref_names.h
 --- a/chrome/common/pref_names.h
 +++ b/chrome/common/pref_names.h
-@@ -1510,6 +1510,9 @@ inline constexpr char kEnableEncryptedMedia[] =
+@@ -1536,6 +1536,9 @@ inline constexpr char kEnableEncryptedMedia[] =
  inline constexpr char kPrefixedVideoFullscreenApiAvailability[] =
      "media.prefixed_fullscreen_video_api_availability";
  
